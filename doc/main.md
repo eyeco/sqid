@@ -1,31 +1,19 @@
-# Supplement
+# User Documentation
 
 ## Supported features
 
-At the moment, features are selectively built into the main module, according to pre-processor switches. Refer to the console output to learn about included features e.g.
+Some features are selectively built into the main module, according to pre-processor switches. Refer to the console output to learn about included features e.g.
 ```
 version 0.1.2
 Release build for AMD64 with C++ language standard v201704
 built with MSVC v1916(191627045) at Wed Jul  3 14:13:39 2024 with:
   GUI support                  YES
-  LeapMotion support           YES
-  Myo support                  YES
-  Kinect for Windows support   NO
   Bluetooth Classic support    YES
-  Sensel support               YES
-  TUIO 2.0 support             YES
-  MIDI support                 YES
-  CAN support                  NO
-  Gamepad support              YES
-  Audio support                YES
-  Optitrack NatNet support     YES
-  Optitrack Camera SDK support YES
-  ZeroMQ support               YES
-  MQTT support                 YES
-  Intel RealSense support      YES
   FFTW support                 YES
   Compression support          NO
 ```
+
+Addons (such as support for MQTT, Kinect, Myo, etc.) are built as separate dll modules and dynamically loaded by the core module at startup (if configured to be loaded in the [config.json](../config.json) file). More details about how to do this will follow.
 
 For replicating the serial communication from an ESP via USB, with the [firmware code](../firmware/) included in this package, find the USB to UART Bridge Virtual COM Port (VCP) drivers [here](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads).
 
@@ -246,7 +234,25 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 
 # Appendix C
 
-## Supported devices
+## Core
+
+### Supported protocols, interfaces, and networking
+- generic serial port data via [serial](https://github.com/wjwwood/serial)
+- generic Bluetooth Serial data via [bluetooth-serial](https://github.com/Agamnentzar/bluetooth-serial-port)
+- OSC (UDP+TCP) via [liblo](http://liblo.sourceforge.net/)
+
+### Frame compression (lossy + lossless)
+- LZO via [MiniLZO](http://www.oberhumer.com/opensource/lzo/#minilzo)
+- QLZ via [QuickLZ](http://www.quicklz.com/)
+- BZ2 via [bzip2](https://www.sourceware.org/bzip2/)
+- zStD via [zStd](https://facebook.github.io/zstd/)
+- zLib via [zLib](https://zlib.net/)
+- LZ4 via [LZ4](https://lz4.github.io/lz4/)
+- JPEG via [libjpeg-turbo](https://libjpeg-turbo.org/)
+
+## Plugins
+
+### Supported devices
 - XInput based gamepads via [NvGamepad](https://developer.nvidia.com/cross-platform-gamepad-api)
 - Leap Motion The Leap raw camera and hand skeleton input via [LeapSDK](https://www.ultraleap.com/)
 - Sensel via [senselLib](https://github.com/sensel/sensel-api)
@@ -256,10 +262,7 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 - OptiTrack raw camera input via [OptiTrack Camera SDK](https://optitrack.com/software/camera-sdk/)
 - Intel RealSense depth an RGB camera input via [librealsense2](https://github.com/IntelRealSense/librealsense)
 
-## Supported protocols, interfaces, and networking
-- generic serial port data via [serial](https://github.com/wjwwood/serial)
-- generic Bluetooth Serial data via [bluetooth-serial](https://github.com/Agamnentzar/bluetooth-serial-port)
-- OSC (UDP+TCP) via [liblo](http://liblo.sourceforge.net/)
+### Supported protocols, interfaces, and networking
 - IPC via via [ZeroMQ](https://zeromq.org/)
 - MQTT via [Eclipse Mosquitto](https://mosquitto.org/)
 - CAN via [Peak System PCAN-Basic API](https://www.peak-system.com/Development.526.0.html)
@@ -267,44 +270,24 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 - MIDI via [RtMidi](https://github.com/thestk/rtmidi)
 - OptiTrack NatNet marker and rigid body input via [OptiTrack NatNet SDK](https://optitrack.com/software/natnet-sdk/)
 
-## Frame compression (lossy + lossless)
-- LZO via [MiniLZO](http://www.oberhumer.com/opensource/lzo/#minilzo)
-- QLZ via [QuickLZ](http://www.quicklz.com/)
-- BZ2 via [bzip2](https://www.sourceware.org/bzip2/)
-- zStD via [zStd](https://facebook.github.io/zstd/)
-- zLib via [zLib](https://zlib.net/)
-- LZ4 via [LZ4](https://lz4.github.io/lz4/)
-- JPEG via [libjpeg-turbo](https://libjpeg-turbo.org/)
 
 # Appendix D
 
-## List of sources
+## List of sources (core)
 
 - sources
 	- COM
 	- RFCOMM
 	- OSC
 
-## List of operators
+## List of operators (core)
 
-- audio 
-	- power
 - color
-	- HSVshift
 	- convert
+	- HSVshift
 	- toGrayscale
 - devices
-	- OptiTrack
-	- RealSense
-	- audioIn
 	- capture
-	- gamepad
-	- kinect
-	- leap
-	- midiIn
-	- midiOut
-	- myo
-	- sensel
 	- sensor
 	- serialOut
 - fileIO
@@ -314,11 +297,6 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 	- imageOut
 	- videoIn
 	- videoOut
-- gestures
-	- deprecated
-		- clickWheel
-		- swipe
-		- swipeExt
 - gnr8
 	- const
 	- noise
@@ -349,9 +327,9 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 	- expConst
 	- inRange
 	- invert
+	- linear
 	- linEq
 	- linEqConst
-	- linear
 	- log
 	- matrix
 		- determinant
@@ -366,6 +344,7 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 	- multiLinear
 	- powConst
 	- product
+	- sigmoid
 	- slope
 	- spectral
 		- fft (1D)
@@ -393,28 +372,15 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 		- remap
 		- toPolar
 - networking
-	- canIn
-	- canOut
 	- deprecated
 		- oscIn
-	- mqttIn
-	- mqttOut
-	- natnet
-		- mf2sf
-		- pf2sf
 	- oscOut
-	- tuio
-		- toSampleFrame
-	- zmqIn
-	- zmqOut
 - nop
 - pointClouds
 	- projectTo3D
 - util
 	- buffer
 	- crop
-	- deprecated
-		- staticOffset
 	- flatten
 	- flip
 	- flipFlop
@@ -431,4 +397,33 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 	- time
 	- timestamp
 	- transpose
-	
+
+## List of operators (plugins)
+
+- audio
+	- power
+- devices
+	- audioIn
+	- gamepad
+	- kinect
+	- leap
+	- midiIn
+	- midiOut
+	- myo
+	- OptiTrack
+	- RealSense
+	- sensel
+- networking
+	- canIn
+	- canOut
+	- mqttIn
+	- mqttOut
+	- zmqIn
+	- zmqOut
+	- natnet
+		- natnet
+		- pf2sf
+		- mf2sf
+	- tuio
+		- tuio
+		- toSampleFrame
