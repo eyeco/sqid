@@ -37,3 +37,6 @@
 [submodule "modules/sqidZeroMQ"]
 	path = modules/sqidZeroMQ
 	url = https://github.com/eyeco/sqidZeroMQ.git
+[submodule "modules/sqidCAN"]
+	path = modules/sqidCAN
+	url = https://github.com/eyeco/sqidCAN.git
