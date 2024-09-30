@@ -14,3 +14,6 @@ modules/lib/
 *.json
 *.ui.json
 recordings/
+
+!config.json
+
