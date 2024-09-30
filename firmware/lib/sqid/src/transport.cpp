@@ -2,7 +2,7 @@
 
 #include "Arduino.h"
 
-namespace Sqid
+namespace sqid
 {
     TransportSerial::TransportSerial()
     {

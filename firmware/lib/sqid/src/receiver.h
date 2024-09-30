@@ -17,7 +17,7 @@
 #include <vector>
 
 
-namespace Sqid
+namespace sqid
 {
     class ReceiverSerial
     {

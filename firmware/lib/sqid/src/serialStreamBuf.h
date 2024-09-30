@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace Sqid
+namespace sqid
 {
     class SerialStreamBuf : public std::streambuf
     {

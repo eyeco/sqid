@@ -5,7 +5,7 @@
 
 #include "stddef.h"
 
-namespace Sqid
+namespace sqid
 {
 #ifdef _SQID_RLE_ENC_SUPPORT
     size_t encodeRLE( const unsigned char *inData, size_t inBytes, unsigned char *outData, size_t outBytesMax );

@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <inttypes.h>
 
-namespace Sqid
+namespace sqid
 {
     class SampleFrame
     {

@@ -8,7 +8,7 @@
 
 #include "Arduino.h"
 
-namespace Sqid
+namespace sqid
 {
     size_t getElementSize( MsgFlags flags )
     {

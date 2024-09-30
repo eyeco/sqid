@@ -21,7 +21,7 @@
 #endif
 
 
-namespace Sqid
+namespace sqid
 {
     class TransportSerial
     {

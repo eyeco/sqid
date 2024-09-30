@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-namespace Sqid
+namespace sqid
 {
 	class RingBuffer
 	{

@@ -1,0 +1,8 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define DECLARE_OP_DESC virtual const GUID &getClassID() const; virtual const char *getName() const; virtual const char *getPath() const; static const GUID &ClassID(); static const char *Name(); static const char *Path();
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define DEFINE_OP_DESC(_TYPE, _NAME, _PATH, _GUID) const char *_TYPE::Name() { return _NAME; } const char *_TYPE::getName() const { return _NAME; } const char *_TYPE::Path() { return _PATH; } const char *_TYPE::getPath() const { return _PATH; } const GUID &_TYPE::ClassID() { static const GUID clsID = guidFromString( _GUID ); return clsID; } const GUID &_TYPE::getClassID() const { return _TYPE::ClassID(); }

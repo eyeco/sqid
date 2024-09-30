@@ -5,7 +5,7 @@
 
 #include "Arduino.h"
 
-namespace Sqid
+namespace sqid
 {
     char dataTypeToChar( FWProps::DataType dt )
     {

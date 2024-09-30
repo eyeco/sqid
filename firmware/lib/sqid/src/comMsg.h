@@ -13,7 +13,7 @@
 #include <stddef.h>
 #include <inttypes.h>
 
-namespace Sqid
+namespace sqid
 {
     enum ProtocolVersion : unsigned char
     {

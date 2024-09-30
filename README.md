@@ -15,33 +15,24 @@ Only tested on windows, so far, using MSVS 2017.
 Note: Support of RFCOMM (i.e. Bluetooth), Sensel, TUIO, MIDI, and gamepad sources are optional, if according dependencies are missing you can skip them by preprocessor switches. Use the respective defines `__RFCOMM_SUPPORT`, `__SENSEL_SUPPORT`, `__TUIO_SUPPORT`, `__MIDI_SUPPORT`, and `__GAMEPAD_SUPPORT` in [common.h](./src/common.h) accordingly.
 
 Dependencies:
+##### General (used across modules and applications)
 - OpenCV (v 3.0 upwards, tested with 4.1.0, 64 bit) [[link](https://opencv.org/)]
-- bluetooth serial port [[link](https://github.com/Agamnentzar/bluetooth-serial-port)]
-- cxxopts (tested with version 2.1.1, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
-- clipboardXX (tested with commit [#d404c39](https://github.com/Arian8j2/ClipboardXX/tree/d404c39)) [[link](https://github.com/Arian8j2/ClipboardXX)]
-- liblo (tested with version 0.30, 64 bit) [[link](http://liblo.sourceforge.net/)]
-- ZeroMQ (tested with 4.3.2, 64 bit) [[link](https://zeromq.org/)]
-- Eclipse Mosquitto MQTT (tested with 2.0.14, 64 bit) [[link](https://mosquitto.org/)]
+- cxxopts (tested with version 3.2.0, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
 - glew (tested with version 2.1.0, 64 bit) [[link](http://glew.sourceforge.net/)]
 - glfw (tested with version 3.3, 64 bit) [[link](https://www.glfw.org/)]
 - glm (tested with version 0.9.9.3) [[link](https://github.com/g-truc/glm)]
-- FreeType (tested with version 2.10.1, 64 bit) [[link](https://freetype.org/)]
-- Dear ImGui (tested with 1.77) [[link](https://github.com/ocornut/imgui)]
+- Dear ImGui (tested with 1.91.1) [[link](https://github.com/ocornut/imgui)]
 - nlohmann json (tested with version 3.5.0) [[link](https://github.com/nlohmann/json)]
 - serial (tested with version 1.2.1) [[link](https://github.com/wjwwood/serial)]
-- FFTW (tested with version 3.3.8, 64 bit) [[link](https://www.fftw.org/)]
-- Peak System PCAN-Basic API (tested with version 4.5.4.508) [[link](https://www.peak-system.com/Development.526.0.html)]
-- TUIO 2.0 [[link](https://github.com/mkalten/TUIO20_CPP)]
-- senselLib (tested with 0.8.3, 64 bit) [[link](https://github.com/sensel/sensel-api)]
-- RtMidi (tested with 4.0.0, 64 bit) [[link](https://github.com/thestk/rtmidi)]
-- NvGamepad (tested with 1.0, 64 bit) [[link](https://developer.nvidia.com/cross-platform-gamepad-api)]
-	- Microsoft DirectX End-User Runtime [[link](https://www.microsoft.com/en-us/download/details.aspx?id=35)]
-- RtAudio (tested with 5.1.0, 64 bit) [[link](https://www.music.mcgill.ca/~gary/rtaudio/)]
-- Myo SDK (tested with 0.9.0, 64 bit) [[link](https://support.getmyo.com/hc/en-us/articles/360018409792-Myo-Connect-SDK-and-firmware-downloads)]
-- Kinect for Windows SDK 1 (tested with 1.8, 64 bit) [[link](https://www.microsoft.com/en-us/download/details.aspx?id=40278)]
-- OptiTrack Camera SDK (tested with 2.2.0) [[link](https://optitrack.com/software/camera-sdk/)]
-- OptiTrack NatNet SDK (tested with 2.1.0) [[link](https://optitrack.com/software/natnet-sdk/)]
+- liblo (tested with version 0.31, 64 bit) [[link](http://liblo.sourceforge.net/)]
 - KindDragon Visual Leak Detector (tested with version 2.5.1) [[link](https://github.com/KindDragon/vld)]
+
+##### Core
+- bluetooth serial port [[link](https://github.com/Agamnentzar/bluetooth-serial-port)]
+- clipboardXX (tested with commit [#d404c39](https://github.com/Arian8j2/ClipboardXX/tree/d404c39)) [[link](https://github.com/Arian8j2/ClipboardXX)]
+- FreeType (tested with version 2.10.1, 64 bit) [[link](https://freetype.org/)]
+- dlfcn-win32 (tested with version 1.4.1, 64 bit) [[link](https://github.com/dlfcn-win32/dlfcn-win32)]
+- FFTW (tested with version 3.3.8, 64 bit) [[link](https://www.fftw.org/)]
 - MiniLZO (tested with version 2.10, 64 bit) [[link](http://www.oberhumer.com/opensource/lzo/#minilzo)]
 - QuickLZ (tested with version 1.5.0, 64 bit) [[link](http://www.quicklz.com/)]
 - bzip2 (tested with version 1.0.6, 64 bit) [[link](https://www.sourceware.org/bzip2/)]
@@ -49,11 +40,38 @@ Dependencies:
 - zLib (tested with version 1.2.11, 64 bit) [[link](https://zlib.net/)]
 - LZ4 (tested with version 1.8.3, 64 bit) [[link](https://lz4.github.io/lz4/)]
 - libjpeg-turbo (tested with version 1.5.3, 64 bit) [[link](https://libjpeg-turbo.org/)]
+
+##### Plugins
+- ZeroMQ (tested with 4.3.2, 64 bit) [[link](https://zeromq.org/)]
+- Eclipse Mosquitto MQTT (tested with 2.0.14, 64 bit) [[link](https://mosquitto.org/)]
+- Peak System PCAN-Basic API (tested with version 4.5.4.508) [[link](https://www.peak-system.com/Development.526.0.html)]
+- TUIO 2.0 [[link](https://github.com/mkalten/TUIO20_CPP)]
+- NvGamepad (tested with 1.0, 64 bit) [[link](https://developer.nvidia.com/cross-platform-gamepad-api)]
+	- Microsoft DirectX End-User Runtime [[link](https://www.microsoft.com/en-us/download/details.aspx?id=35)]
+- RtAudio (tested with 5.1.0, 64 bit) [[link](https://www.music.mcgill.ca/~gary/rtaudio/)]
+- RtMidi (tested with 4.0.0, 64 bit) [[link](https://github.com/thestk/rtmidi)]
+- LeapSDK (tested with 4.0.0, 64 bit) [[link](https://docs.ultraleap.com/api-reference/tracking-api/index.html#)]
+- Myo SDK (tested with 0.9.0, 64 bit) [[link](https://support.getmyo.com/hc/en-us/articles/360018409792-Myo-Connect-SDK-and-firmware-downloads)]
+- senselLib (tested with 0.8.3, 64 bit) [[link](https://github.com/sensel/sensel-api)]
+- Kinect for Windows SDK 1 (tested with 1.8, 64 bit) [[link](https://www.microsoft.com/en-us/download/details.aspx?id=40278)]
 - librealsense2 (tested with version 2.36.0.2034, 64 bit) [[link](https://github.com/IntelRealSense/librealsense)]
+- OptiTrack Camera SDK (tested with 2.2.0) [[link](https://optitrack.com/software/camera-sdk/)]
+- OptiTrack NatNet SDK (tested with 2.10) [[link](https://optitrack.com/software/natnet-sdk/)]
 
 #### TODO
-
+- implement a more reasonable serial communication protocol
+- implement Firmata (maybe into core)
+- implement bluetooth serial in a solid way (and maybe put it to a plugin)
+- move core out of modules
+- add all remaining ops and framedrawers
+- catch exception when parsing config.json (or put proper error message)
+- fix CAN and OSC -> implement as *sources*
+- clean up comments/includes/etc.
+- implement BlobFrame
+- implement CompressedSampleFrame
+- extend PointCloud processing
 - fix issues
+	- something seems to be wrong with UI JSON (esp. when using plugins like RealSense, the layout is messed up at startup)
 	- figure out what the problem with ImGui TreeNodes is (cannot be opened anymore after having the application running for some time)
 	- investigate issue with Thomas' PC which is apparently unable to send OSC packages
 	- apparently, when OSC sending is enabled already at startup, a lot of data is buffered during GL window initialization, which is quickly exceeding the OSCProxy's buffer size. Consider starting to send only when everything is initialized and running properly.
@@ -127,7 +145,7 @@ Console program used to send test OSC messages.
 #### Build
 
 Dependencies:
-- cxxopts (tested with version 2.1.1, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
+- cxxopts (tested with version 3.2.0, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
 - liblo (tested with version 0.30, 64 bit) [[link](http://liblo.sourceforge.net/)]
 
 ### oscListener
@@ -137,7 +155,7 @@ Console program for OSC monitoring: prints OSC data to console window.
 #### Build
 
 Dependencies:
-- cxxopts (tested with version 2.1.1, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
+- cxxopts (tested with version 3.2.0, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
 - liblo (tested with version 0.30, 64 bit) [[link](http://liblo.sourceforge.net/)]
 
 ### TCP2OSC

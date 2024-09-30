@@ -9,7 +9,7 @@
 #include <string>
 #include <sstream>
 
-namespace Sqid
+namespace sqid
 {
     class Sender;
 

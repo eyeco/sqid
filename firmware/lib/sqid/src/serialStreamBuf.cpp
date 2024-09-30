@@ -4,7 +4,7 @@
 
 #include "stdio.h"
 
-namespace Sqid
+namespace sqid
 {
     int SerialStreamBuf::overflow(int c)
     {

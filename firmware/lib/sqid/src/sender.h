@@ -8,7 +8,7 @@
 #include <IPAddress.h>
 #endif
 
-namespace Sqid
+namespace sqid
 {
     class SampleFrame;
     class Compressor;

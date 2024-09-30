@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\app.cpp" />
+    <ClCompile Include="..\..\src\blobFrame.cpp" />
+    <ClCompile Include="..\..\src\common.cpp" />
+    <ClCompile Include="..\..\src\commonGL.cpp">
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commonImGui.cpp" />
+    <ClCompile Include="..\..\src\compression\compressor.cpp" />
+    <ClCompile Include="..\..\src\compression\decompressor.cpp" />
+    <ClCompile Include="..\..\src\drawing\font.cpp" />
+    <ClCompile Include="..\..\src\drawing\frameBuffer.cpp" />
+    <ClCompile Include="..\..\src\drawing\frameDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\frameDrawerGeneral.cpp" />
+    <ClCompile Include="..\..\src\drawing\frameDrawerStatistics.cpp" />
+    <ClCompile Include="..\..\src\drawing\frameDrawerTracking.cpp" />
+    <ClCompile Include="..\..\src\drawing\program.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\uiStyle.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiButton.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiElement.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiIcon.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\nodeDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\opDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\pinDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\sourceDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\shader.cpp" />
+    <ClCompile Include="..\..\src\drawing\vertexBuffer.cpp" />
+    <ClCompile Include="..\..\src\fileIO\binWriter.cpp" />
+    <ClCompile Include="..\..\src\fileIO\csvWriter.cpp" />
+    <ClCompile Include="..\..\src\fileIO\fileWriter.cpp" />
+    <ClCompile Include="..\..\src\fileIO\iniFile.cpp" />
+    <ClCompile Include="..\..\src\fileIO\json.cpp" />
+    <ClCompile Include="..\..\src\fileIO\matWriter.cpp" />
+    <ClCompile Include="..\..\src\genericFrame.cpp" />
+    <ClCompile Include="..\..\src\guid.cpp" />
+    <ClCompile Include="..\..\src\perlin.cpp" />
+    <ClCompile Include="..\..\src\pluginLoader.cpp" />
+    <ClCompile Include="..\..\src\processing\connector.cpp" />
+    <ClCompile Include="..\..\src\processing\coreOps.cpp" />
+    <ClCompile Include="..\..\src\processing\op.cpp" />
+    <ClCompile Include="..\..\src\processing\opFactory.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\color.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\file.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\general.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\imaging.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\math.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\ocv.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\osc.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\pointClouds.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\sensor.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\serial.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\statistics.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\temporal.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\tracking.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\util.cpp" />
+    <ClCompile Include="..\..\src\processing\pin.cpp" />
+    <ClCompile Include="..\..\src\processing\sceneGraph.cpp" />
+    <ClCompile Include="..\..\src\sampleFrame.cpp" />
+    <ClCompile Include="..\..\src\serialPort.cpp" />
+    <ClCompile Include="..\..\src\sources\btsSource.cpp" />
+    <ClCompile Include="..\..\src\sources\comSource.cpp" />
+    <ClCompile Include="..\..\src\sources\dataSource.cpp" />
+    <ClCompile Include="..\..\src\sources\internal\fwProps.cpp" />
+    <ClCompile Include="..\..\src\sources\oscSource.cpp" />
+    <ClCompile Include="..\..\src\sources\serialMsg.cpp" />
+    <ClCompile Include="..\..\src\trackball.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\app.h" />
+    <ClInclude Include="..\..\include\blobFrame.h" />
+    <ClInclude Include="..\..\include\common.h" />
+    <ClInclude Include="..\..\include\commonGL.h" />
+    <ClInclude Include="..\..\include\commonImGui.h" />
+    <ClInclude Include="..\..\include\config.h" />
+    <ClInclude Include="..\..\include\drawing\frameBuffer.h" />
+    <ClInclude Include="..\..\include\drawing\frameDrawer.h" />
+    <ClInclude Include="..\..\include\drawing\vertexBuffer.h" />
+    <ClInclude Include="..\..\include\fileIO\iniFile.h" />
+    <ClInclude Include="..\..\include\fileIO\json.h" />
+    <ClInclude Include="..\..\include\genericFrame.h" />
+    <ClInclude Include="..\..\include\guid.h" />
+    <ClInclude Include="..\..\include\plugins.h" />
+    <ClInclude Include="..\..\include\processing\connector.h" />
+    <ClInclude Include="..\..\include\processing\op.h" />
+    <ClInclude Include="..\..\include\processing\opFactory.h" />
+    <ClInclude Include="..\..\include\processing\pin.h" />
+    <ClInclude Include="..\..\include\sampleFrame.h" />
+    <ClInclude Include="..\..\include\singleton.h" />
+    <ClInclude Include="..\..\include\sources\dataSource.h" />
+    <ClInclude Include="..\..\include\trackball.h" />
+    <ClInclude Include="..\..\src\compression\compressor.h" />
+    <ClInclude Include="..\..\src\compression\decompressor.h" />
+    <ClInclude Include="..\..\src\drawing\font.h" />
+    <ClInclude Include="..\..\src\drawing\frameDrawerGeneral.h" />
+    <ClInclude Include="..\..\src\drawing\frameDrawerStatistics.h" />
+    <ClInclude Include="..\..\src\drawing\frameDrawerTracking.h" />
+    <ClInclude Include="..\..\src\drawing\program.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\uiStyle.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiButton.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiElement.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiIcon.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\nodeDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\opDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\pinDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\sourceDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\shader.h" />
+    <ClInclude Include="..\..\src\fileIO\binWriter.h" />
+    <ClInclude Include="..\..\src\fileIO\csvWriter.h" />
+    <ClInclude Include="..\..\src\fileIO\fileWriter.h" />
+    <ClInclude Include="..\..\src\fileIO\matWriter.h" />
+    <ClInclude Include="..\..\src\perlin.h" />
+    <ClInclude Include="..\..\src\pluginLoader.h" />
+    <ClInclude Include="..\..\src\processing\coreOps.h" />
+    <ClInclude Include="..\..\src\processing\ops\color.h" />
+    <ClInclude Include="..\..\src\processing\ops\file.h" />
+    <ClInclude Include="..\..\src\processing\ops\general.h" />
+    <ClInclude Include="..\..\src\processing\ops\imaging.h" />
+    <ClInclude Include="..\..\src\processing\ops\math.h" />
+    <ClInclude Include="..\..\src\processing\ops\ocv.h" />
+    <ClInclude Include="..\..\src\processing\ops\osc.h" />
+    <ClInclude Include="..\..\src\processing\ops\pointClouds.h" />
+    <ClInclude Include="..\..\src\processing\ops\sensor.h" />
+    <ClInclude Include="..\..\src\processing\ops\serial.h" />
+    <ClInclude Include="..\..\src\processing\ops\statistics.h" />
+    <ClInclude Include="..\..\src\processing\ops\temporal.h" />
+    <ClInclude Include="..\..\src\processing\ops\tracking.h" />
+    <ClInclude Include="..\..\src\processing\ops\util.h" />
+    <ClInclude Include="..\..\src\processing\sceneGraph.h" />
+    <ClInclude Include="..\..\src\ringBuffer.h" />
+    <ClInclude Include="..\..\src\serialPort.h" />
+    <ClInclude Include="..\..\src\sources\btsSource.h" />
+    <ClInclude Include="..\..\src\sources\comSource.h" />
+    <ClInclude Include="..\..\src\sources\internal\abstractWriter.h" />
+    <ClInclude Include="..\..\src\sources\internal\fwProps.h" />
+    <ClInclude Include="..\..\src\sources\oscSource.h" />
+    <ClInclude Include="..\..\src\sources\serialMsg.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\config.json" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{8F7ABAA9-0300-4990-BD68-E2C2E61B1D98}</ProjectGuid>
+    <RootNamespace>testPlugin</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>sqidCore</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\..\bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)int\$(ProjectName)\$(PlatformName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\..\bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)int\$(ProjectName)\$(PlatformName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\include;$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\include;$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\include;$(ProjectDir)..\..\..\..\3rdparty\serial-1.2.1\include;$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\include;$(ProjectDir)..\..\3rdparty\dlfcn-1.4.1\include;$(ProjectDir)..\..\3rdparty\bluetooth-serial-port\include;$(ProjectDir)..\..\3rdparty\freetype-2.10.1\include;$(ProjectDir)..\..\3rdparty\clipboardXX\include;$(ProjectDir)..\..\3rdparty\fftw-3.3.8\include;$(ProjectDir)..\..\3rdparty\minilzo-2.10\include;$(ProjectDir)..\..\3rdparty\quickLZ-1.5.0\include;$(ProjectDir)..\..\3rdparty\bzlib2-1.0.6\include;$(ProjectDir)..\..\3rdparty\zstd-1.4.0\include;$(ProjectDir)..\..\3rdparty\zlib-1.2.11-3\include;$(ProjectDir)..\..\3rdparty\lz4-1.8.3\include;$(ProjectDir)..\..\3rdparty\libjpeg-turbo-1.5.3-1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SQID_DLL;SQID_EXPORTS;GLM_FORCE_SWIZZLE;GLM_ENABLE_EXPERIMENTAL;IMGUI_IMPL_OPENGL_LOADER_GLEW;ImTextureID=ImU64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX20_CISO646_REMOVED_WARNING;WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ImportLibrary>$(ProjectDir)..\..\..\lib\$(PlatformName)\$(Configuration)\$(TargetName).lib</ImportLibrary>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\lib\msvc\$(PlatformName);$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\lib\msvc\$(PlatformName);$(ProjectDir)..\..\..\..\3rdparty\serial-1.2.1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\3rdparty\dlfcn-1.4.1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\3rdparty\bluetooth-serial-port\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\3rdparty\freetype-2.10.1\lib\msvc\$(PlatformName);$(ProjectDir)..\..\3rdparty\fftw-3.3.8\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\minilzo-2.10\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\quickLZ-1.5.0\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\bzlib2-1.0.6\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\zstd-1.4.0\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\zlib-1.2.11-3\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\lz4-1.8.3\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\libjpeg-turbo-1.5.3-1\lib\msvc\$(PlatformShortName)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>iphlpapi.lib;Ws2_32.lib;imgui.lib;liblo_static.lib;serial.lib;dl.lib;opencv_world410.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\include;$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\include;$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\include;$(ProjectDir)..\..\..\..\3rdparty\serial-1.2.1\include;$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\include;$(ProjectDir)..\..\3rdparty\dlfcn-1.4.1\include;$(ProjectDir)..\..\3rdparty\bluetooth-serial-port\include;$(ProjectDir)..\..\3rdparty\freetype-2.10.1\include;$(ProjectDir)..\..\3rdparty\clipboardXX\include;$(ProjectDir)..\..\3rdparty\fftw-3.3.8\include;$(ProjectDir)..\..\3rdparty\minilzo-2.10\include;$(ProjectDir)..\..\3rdparty\quickLZ-1.5.0\include;$(ProjectDir)..\..\3rdparty\bzlib2-1.0.6\include;$(ProjectDir)..\..\3rdparty\zstd-1.4.0\include;$(ProjectDir)..\..\3rdparty\zlib-1.2.11-3\include;$(ProjectDir)..\..\3rdparty\lz4-1.8.3\include;$(ProjectDir)..\..\3rdparty\libjpeg-turbo-1.5.3-1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SQID_DLL;SQID_EXPORTS;GLM_FORCE_SWIZZLE;GLM_ENABLE_EXPERIMENTAL;IMGUI_IMPL_OPENGL_LOADER_GLEW;ImTextureID=ImU64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX20_CISO646_REMOVED_WARNING;WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ImportLibrary>$(ProjectDir)..\..\..\lib\$(PlatformName)\$(Configuration)\$(TargetName).lib</ImportLibrary>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\lib\msvc\$(PlatformName);$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\lib\msvc\$(PlatformName);$(ProjectDir)..\..\..\..\3rdparty\serial-1.2.1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\3rdparty\dlfcn-1.4.1\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\3rdparty\bluetooth-serial-port\lib\msvc\$(PlatformName)\$(Configuration);$(ProjectDir)..\..\3rdparty\freetype-2.10.1\lib\msvc\$(PlatformName);$(ProjectDir)..\..\3rdparty\fftw-3.3.8\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\minilzo-2.10\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\quickLZ-1.5.0\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\bzlib2-1.0.6\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\zstd-1.4.0\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\zlib-1.2.11-3\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\lz4-1.8.3\lib\msvc\$(PlatformShortName)\$(Configuration);$(ProjectDir)..\..\3rdparty\libjpeg-turbo-1.5.3-1\lib\msvc\$(PlatformShortName)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>iphlpapi.lib;Ws2_32.lib;imgui.lib;liblo_static.lib;serial.lib;dl.lib;opencv_world410d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

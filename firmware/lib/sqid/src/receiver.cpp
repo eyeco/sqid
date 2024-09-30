@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace Sqid
+namespace sqid
 {
     ReceiverSerial::ReceiverSerial( size_t maxQueueSize ) :
         _buffer( 1024 ),

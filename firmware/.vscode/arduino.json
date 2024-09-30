@@ -2,6 +2,6 @@
     "port": "COM23",
     "board": "esp32:esp32:featheresp32",
     "configuration": "FlashFreq=80,UploadSpeed=921600,DebugLevel=none",
-    "sketch": "milProtocolRefImpl.ino",
+    "sketch": "sqidProtocolRefImpl.ino",
     "output": "./build"
 }

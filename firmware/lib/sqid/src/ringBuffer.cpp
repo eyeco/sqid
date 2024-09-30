@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace Sqid
+namespace sqid
 {
     RingBuffer::RingBuffer( size_t capacity ) :
         _size( 0 ),

@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-namespace Sqid
+namespace sqid
 {}
 
 #endif

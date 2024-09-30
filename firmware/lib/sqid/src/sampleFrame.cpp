@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-namespace Sqid
+namespace sqid
 {
     size_t getDataTypeSize( SampleFrame::DataType t )
     {

@@ -20,7 +20,7 @@
 #include "lz4.h"
 #endif
 
-namespace Sqid
+namespace sqid
 {
     namespace Internal
     {

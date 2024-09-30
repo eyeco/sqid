@@ -3,7 +3,7 @@
 
 #include "sqid.h"
 
-namespace Sqid
+namespace sqid
 {
 	template<typename T>
 	inline const T min( const T left, const T right )
@@ -20,7 +20,7 @@ namespace Sqid
 	template<typename T>
 	inline T clamp( T value, T minValue, T maxValue )
 	{
-		return Sqid::min( Sqid::max( value, minValue ), maxValue );
+		return sqid::min( sqid::max( value, minValue ), maxValue );
 	}
 
 	inline unsigned int nextPo2( unsigned int x )

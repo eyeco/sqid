@@ -1,0 +1,459 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\app.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\guid.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\perlin.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sampleFrame.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pluginLoader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fileIO\iniFile.cpp">
+      <Filter>src\fileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fileIO\json.cpp">
+      <Filter>src\fileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\font.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\vertexBuffer.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\program.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\shader.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commonImGui.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\commonGL.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\sceneGraph.cpp">
+      <Filter>src\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\op.cpp">
+      <Filter>src\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\pin.cpp">
+      <Filter>src\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\sourceDrawer.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiButton.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiDrawer.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiElement.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\guiIcon.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\nodeDrawer.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\opDrawer.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\pinDrawer.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\frameDrawer.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sources\dataSource.cpp">
+      <Filter>src\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\opFactory.cpp">
+      <Filter>src\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\blobFrame.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\connector.cpp">
+      <Filter>src\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sources\comSource.cpp">
+      <Filter>src\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sources\oscSource.cpp">
+      <Filter>src\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sources\btsSource.cpp">
+      <Filter>src\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sources\internal\fwProps.cpp">
+      <Filter>src\sources\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sources\serialMsg.cpp">
+      <Filter>src\sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\compression\compressor.cpp">
+      <Filter>src\compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\compression\decompressor.cpp">
+      <Filter>src\compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\sceneUI\uiStyle.cpp">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\frameBuffer.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\trackball.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\serialPort.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\general.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\frameDrawerGeneral.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\coreOps.cpp">
+      <Filter>src\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\genericFrame.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\color.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\file.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\imaging.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\math.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\ocv.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\osc.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\sensor.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\serial.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\statistics.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\temporal.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\tracking.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\util.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fileIO\binWriter.cpp">
+      <Filter>src\fileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fileIO\csvWriter.cpp">
+      <Filter>src\fileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fileIO\matWriter.cpp">
+      <Filter>src\fileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fileIO\fileWriter.cpp">
+      <Filter>src\fileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\frameDrawerStatistics.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drawing\frameDrawerTracking.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\pointClouds.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\perlin.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ringBuffer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\guid.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\plugins.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\sampleFrame.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\common.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\config.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pluginLoader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\font.h">
+      <Filter>src\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\program.h">
+      <Filter>src\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\shader.h">
+      <Filter>src\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\fileIO\iniFile.h">
+      <Filter>include\fileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\sceneGraph.h">
+      <Filter>src\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\processing\op.h">
+      <Filter>include\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\processing\pin.h">
+      <Filter>include\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\pinDrawer.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\sourceDrawer.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiButton.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiDrawer.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiElement.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\guiIcon.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\nodeDrawer.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\opDrawer.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\drawing\frameDrawer.h">
+      <Filter>include\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\sources\dataSource.h">
+      <Filter>include\sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\blobFrame.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\processing\connector.h">
+      <Filter>include\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sources\comSource.h">
+      <Filter>src\sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sources\oscSource.h">
+      <Filter>src\sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sources\btsSource.h">
+      <Filter>src\sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sources\internal\fwProps.h">
+      <Filter>src\sources\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sources\internal\abstractWriter.h">
+      <Filter>src\sources\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sources\serialMsg.h">
+      <Filter>src\sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compression\compressor.h">
+      <Filter>src\compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compression\decompressor.h">
+      <Filter>src\compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\app.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\sceneUI\uiStyle.h">
+      <Filter>src\drawing\sceneUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\commonGL.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\trackball.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\serialPort.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\general.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\frameDrawerGeneral.h">
+      <Filter>src\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\coreOps.h">
+      <Filter>src\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\processing\opFactory.h">
+      <Filter>include\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\fileIO\json.h">
+      <Filter>include\fileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\commonImGui.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\drawing\frameBuffer.h">
+      <Filter>include\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\genericFrame.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\drawing\vertexBuffer.h">
+      <Filter>include\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\singleton.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\color.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\file.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\imaging.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\math.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\ocv.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\osc.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\sensor.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\serial.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\statistics.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\temporal.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\tracking.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\util.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fileIO\binWriter.h">
+      <Filter>src\fileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fileIO\csvWriter.h">
+      <Filter>src\fileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fileIO\matWriter.h">
+      <Filter>src\fileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fileIO\fileWriter.h">
+      <Filter>src\fileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\frameDrawerTracking.h">
+      <Filter>src\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\frameDrawerStatistics.h">
+      <Filter>src\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\pointClouds.h">
+      <Filter>src\processing\ops</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4f16c70f-a68d-4558-aa0a-9d7a6732d8f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{02edc0e0-8d24-4e75-b6da-03315dc32b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\fileIO">
+      <UniqueIdentifier>{97963017-e891-4c5d-b684-ebd527261828}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\drawing">
+      <UniqueIdentifier>{723f39ad-1524-45d8-9ca5-3eeaba5495ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\fileIO">
+      <UniqueIdentifier>{f6f4f0fa-3876-465c-8b55-6ef4cbb0d903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\processing">
+      <UniqueIdentifier>{c3aee5f1-ef62-48ae-8bdb-5be978243780}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\processing">
+      <UniqueIdentifier>{f847aa51-ff6e-4fd1-b685-7c8775555253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\drawing">
+      <UniqueIdentifier>{ed18f977-ecd5-47c1-b2a2-ef74e586fd73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\drawing\sceneUI">
+      <UniqueIdentifier>{3b30ba53-cd09-46b3-ab18-95ad96d04796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sources">
+      <UniqueIdentifier>{799346c3-8e4e-43bf-b71a-d026355f4016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\sources">
+      <UniqueIdentifier>{bc50c7b7-b99f-48ee-aa6e-33d6d04a8977}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\processing\ops">
+      <UniqueIdentifier>{b4c44e12-d326-4760-949b-beaa1304a973}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sources\internal">
+      <UniqueIdentifier>{2a43f8a0-844e-499a-ad76-1cb514a76319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compression">
+      <UniqueIdentifier>{963eb858-392e-4032-a16a-5727be28b41c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\config.json" />
+  </ItemGroup>
+</Project>

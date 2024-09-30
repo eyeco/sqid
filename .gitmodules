@@ -1,0 +1,39 @@
+[submodule "modules/sqidAudio"]
+	path = modules/sqidAudio
+	url = https://github.com/eyeco/sqidAudio.git
+[submodule "modules/sqidGamepad"]
+	path = modules/sqidGamepad
+	url = https://github.com/eyeco/sqidGamepad.git
+[submodule "modules/sqidKinect"]
+	path = modules/sqidKinect
+	url = https://github.com/eyeco/sqidKinect.git
+[submodule "modules/sqidLeap"]
+	path = modules/sqidLeap
+	url = https://github.com/eyeco/sqidLeap.git
+[submodule "modules/sqidMidi"]
+	path = modules/sqidMidi
+	url = https://github.com/eyeco/sqidMidi.git
+[submodule "modules/sqidMQTT"]
+	path = modules/sqidMQTT
+	url = https://github.com/eyeco/sqidMQTT.git
+[submodule "modules/sqidMyo"]
+	path = modules/sqidMyo
+	url = https://github.com/eyeco/sqidMyo.git
+[submodule "modules/sqidNatNet"]
+	path = modules/sqidNatNet
+	url = https://github.com/eyeco/sqidNatNet.git
+[submodule "modules/sqidOptiTrack"]
+	path = modules/sqidOptiTrack
+	url = https://github.com/eyeco/sqidOptiTrack.git
+[submodule "modules/sqidRealSense"]
+	path = modules/sqidRealSense
+	url = https://github.com/eyeco/sqidRealSense.git
+[submodule "modules/sqidSensel"]
+	path = modules/sqidSensel
+	url = https://github.com/eyeco/sqidSensel.git
+[submodule "modules/sqidTUIO2"]
+	path = modules/sqidTUIO2
+	url = https://github.com/eyeco/sqidTUIO2.git
+[submodule "modules/sqidZeroMQ"]
+	path = modules/sqidZeroMQ
+	url = https://github.com/eyeco/sqidZeroMQ.git

@@ -5,7 +5,7 @@
 
 #include "stddef.h"
 
-namespace Sqid
+namespace sqid
 {
 	namespace Internal
 	{

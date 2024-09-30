@@ -1,77 +1,71 @@
 #include <Arduino.h>
 
 #include <sqid.h>
-
-#include <comMsg.h>
 #include <sender.h>
 #include <sampleFrame.h>
 
-using namespace Sqid;
+using namespace sqid;
 
-const int DEVICE_ID = 0;
-const int SENSOR_ID = 0;
+const int DEVICE_ID = 10;
+const int SENSOR_ID_BASE = 10;
 
-const int ANALOG_IN_COUNT = 6;
+const int ARRAY_SIZE  = 3;
+const int MATRIX_SIZE_X = 4;
+const int MATRIX_SIZE_Y = 5;
 
-const int ANALOG_INS[] = {
-  A0, A1, A2, A3, A4, A5
-};
+SampleFrame pointFrame(  DEVICE_ID, SENSOR_ID_BASE + 0, SampleFrame::L_POINT, SampleFrame::DT_FLOAT );
+SampleFrame arrayFrame(  DEVICE_ID, SENSOR_ID_BASE + 1, SampleFrame::L_ARRAY, SampleFrame::DT_FLOAT, ARRAY_SIZE );
+SampleFrame matrixFrame( DEVICE_ID, SENSOR_ID_BASE + 2, SampleFrame::L_MATRIX, SampleFrame::DT_FLOAT, MATRIX_SIZE_X, MATRIX_SIZE_Y );
 
-const int VCCS[] = {
-  A6, A7, A8, A9, A10, A11
-};
+SenderSerial pointSender;
+SenderSerial arraySender;
+SenderSerial matrixSender;
 
-#define ADC_MAX     ((0x01 << 12) - 1)
+float t = 0.0f;
+float speed = 1.0f;
+uint8_t offset = 0;
 
-uint32_t R_ref = 150;
-float V_ref = 3.268;
-
-
-SampleFrame frame( DEVICE_ID, SENSOR_ID, SampleFrame::L_ARRAY, SampleFrame::DT_FLOAT, ANALOG_IN_COUNT );
-SenderSerial sender;
-
-void setup() {
+void setup()
+{
+  //setup serial connection
   Serial.begin( 115200 );
 
-  if( !sender.init( &frame ) )
+  if( !pointSender.init( &pointFrame, MF_ENC_UNCOMPRESSED ) )
     Serial.println( "failed to init pointSender" );
-
-  for(int i = 0; i < ANALOG_IN_COUNT; i++) {
-    pinMode(ANALOG_INS[i], INPUT);
-    pinMode(VCCS[i], INPUT);
-  }
-}
-
-float multiSample(int id, int msT)
-{
-  static float s = 1.0f / ADC_MAX;
-  unsigned long startMS = millis();
-
-  pinMode(VCCS[id], OUTPUT);
-  digitalWrite(VCCS[id], HIGH);
-  delayMicroseconds(100);
-
-  int cntr = 0;
-  uint32_t sum = 0;
-  do{
-    sum += analogRead(ANALOG_INS[id]);
-    cntr++;
-  }while(millis() - startMS < msT);
-
-  pinMode(VCCS[id], INPUT);
-
-  return (float)sum / cntr * s;
+  if( !arraySender.init( &arrayFrame, MF_ENC_UNCOMPRESSED ) )
+    Serial.println( "failed to init arraySender" );
+  if( !matrixSender.init( &matrixFrame, MF_ENC_UNCOMPRESSED ) )
+    Serial.println( "failed to init matrixSender" );
 }
 
 void loop() {
-  float f[ANALOG_IN_COUNT];
-  for(int i = 0; i < ANALOG_IN_COUNT; i++)
-    f[i] = multiSample(i, 3);
+  //dummy data
+  t = t + speed;
+  
+  float *ptr = nullptr;
 
-  if(!frame.setData(reinterpret_cast<const uint8_t*>(f))){
-    Serial.println("setting data failed");
-    delay(5);
-  } else {
-    sender.send();
-  }
+  //update point data
+  ptr = reinterpret_cast<float*>( pointFrame.getData() );
+  ptr[0] = ( (uint8_t)( offset + t ) % 256 ) / 255.0f;
+
+  //update array data
+  ptr = reinterpret_cast<float*>( arrayFrame.getData() );
+  for (size_t i = 0; i < arrayFrame.getWidth(); i++ )
+    ptr[i] = ( (uint8_t)(offset + t + i * 20 ) % 256 ) / 255.0f;
+
+  //update matrix data
+  for (size_t j = 0; j < matrixFrame.getHeight(); j++)
+    for (size_t i = 0; i < matrixFrame.getHeight(); i++)
+      ptr[i + (j * matrixFrame.getWidth())] = ( (uint8_t)(offset + t + (i + (j * matrixFrame.getWidth()) * 10)) % 256 ) / 255.0f;
+
+  //send point data
+  pointSender.send();
+
+  //send array data
+  arraySender.send();
+
+  //send matrix data
+  matrixSender.send();
+
+  delay(10);
 }
