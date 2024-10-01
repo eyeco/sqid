@@ -1,0 +1,9 @@
+**/int/
+**/.vs/
+
+build/msvc/*.aps
+bin/
+lib/
+
+**/*.vcxproj.user
+3rdparty/*/
