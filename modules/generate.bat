@@ -145,7 +145,7 @@ cd ..\..\
 
 ren %searchFullLC% %pluginFullNameLC%
 
-exit /b 1
+exit /b 0
 
 
 

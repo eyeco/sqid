@@ -227,6 +227,9 @@
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)..\..\3rdparty\create.bat</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -251,6 +254,9 @@ copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)..\..\3rdparty\create.bat</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
