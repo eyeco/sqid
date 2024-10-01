@@ -2,17 +2,19 @@
 
 _TODO: general description_
 
+A user documentation can be found [here](./doc/main.md).
+
 ## Projects
 
 ### sqid
 
-Basic data processing of raw sensor data (as received via OSC) and sending of processed data (also via OSC) with optional graphical output.
+Basic data processing of raw sensor data (as received via OSC and numerous other sources) and sending of processed data (also via OSC) with optional graphical output.
 
 #### Build
 
 Only tested on windows, so far, using MSVS 2017.
 
-Note: Support of RFCOMM (i.e. Bluetooth), Sensel, TUIO, MIDI, and gamepad sources are optional, if according dependencies are missing you can skip them by preprocessor switches. Use the respective defines `__RFCOMM_SUPPORT`, `__SENSEL_SUPPORT`, `__TUIO_SUPPORT`, `__MIDI_SUPPORT`, and `__GAMEPAD_SUPPORT` in [common.h](./src/common.h) accordingly.
+Note: Support of 2D FFT (via FFTW library), compression, and RFCOMM (i.e. Bluetooth) are optional; you can deactivate them by preprocessor switches. Use the respective defines `__FFTW_SUPPORT`, `__COMPRESSION_SUPPORT`, and `__RFCOMM_SUPPORT` in [common.h](./modules/sqidCore/include/common.h) accordingly. You can also build a head-less version without GUI (not just deactivating but purging all GL dependencies, e.g., for CL-only operating systems) by removing `__SUPPORT_GUI`. Note however that plugins binaries must match all of these configurations.
 
 Dependencies:
 ##### General (used across modules and applications)
@@ -41,34 +43,34 @@ Dependencies:
 - LZ4 (tested with version 1.8.3, 64 bit) [[link](https://lz4.github.io/lz4/)]
 - libjpeg-turbo (tested with version 1.5.3, 64 bit) [[link](https://libjpeg-turbo.org/)]
 
-##### Plugins
-- ZeroMQ (tested with 4.3.2, 64 bit) [[link](https://zeromq.org/)]
-- Eclipse Mosquitto MQTT (tested with 2.0.14, 64 bit) [[link](https://mosquitto.org/)]
-- Peak System PCAN-Basic API (tested with version 4.5.4.508) [[link](https://www.peak-system.com/Development.526.0.html)]
-- TUIO 2.0 [[link](https://github.com/mkalten/TUIO20_CPP)]
-- NvGamepad (tested with 1.0, 64 bit) [[link](https://developer.nvidia.com/cross-platform-gamepad-api)]
-	- Microsoft DirectX End-User Runtime [[link](https://www.microsoft.com/en-us/download/details.aspx?id=35)]
+##### Plugins (included)
 - RtAudio (tested with 5.1.0, 64 bit) [[link](https://www.music.mcgill.ca/~gary/rtaudio/)]
 - RtMidi (tested with 4.0.0, 64 bit) [[link](https://github.com/thestk/rtmidi)]
+- Eclipse Mosquitto MQTT (tested with 2.0.14, 64 bit) [[link](https://mosquitto.org/)]
+- TUIO 2.0 [[link](https://github.com/mkalten/TUIO20_CPP)]
+- ZeroMQ (tested with 4.3.2, 64 bit) [[link](https://zeromq.org/)]
+
+##### Plugins (external)
+- Peak System PCAN-Basic API (tested with version 4.5.4.508) [[link](https://www.peak-system.com/Development.526.0.html)]
+- NvGamepad (tested with 1.0, 64 bit) [[link](https://developer.nvidia.com/cross-platform-gamepad-api)]
+	- Microsoft DirectX End-User Runtime [[link](https://www.microsoft.com/en-us/download/details.aspx?id=35)]
+- Kinect for Windows SDK 1 (tested with 1.8, 64 bit) [[link](https://www.microsoft.com/en-us/download/details.aspx?id=40278)]
 - LeapSDK (tested with 4.0.0, 64 bit) [[link](https://docs.ultraleap.com/api-reference/tracking-api/index.html#)]
 - Myo SDK (tested with 0.9.0, 64 bit) [[link](https://support.getmyo.com/hc/en-us/articles/360018409792-Myo-Connect-SDK-and-firmware-downloads)]
-- senselLib (tested with 0.8.3, 64 bit) [[link](https://github.com/sensel/sensel-api)]
-- Kinect for Windows SDK 1 (tested with 1.8, 64 bit) [[link](https://www.microsoft.com/en-us/download/details.aspx?id=40278)]
-- librealsense2 (tested with version 2.36.0.2034, 64 bit) [[link](https://github.com/IntelRealSense/librealsense)]
-- OptiTrack Camera SDK (tested with 2.2.0) [[link](https://optitrack.com/software/camera-sdk/)]
 - OptiTrack NatNet SDK (tested with 2.10) [[link](https://optitrack.com/software/natnet-sdk/)]
+- OptiTrack Camera SDK (tested with 2.2.0) [[link](https://optitrack.com/software/camera-sdk/)]
+- librealsense2 (tested with version 2.36.0.2034, 64 bit) [[link](https://github.com/IntelRealSense/librealsense)]
+- senselLib (tested with 0.8.3, 64 bit) [[link](https://github.com/sensel/sensel-api)]
 
 #### TODO
-- implement a more reasonable serial communication protocol
+- implement a more reasonable (less historically burdened) serial communication protocol
 - implement Firmata (maybe into core)
 - implement bluetooth serial in a solid way (and maybe put it to a plugin)
 - move core out of modules
 - add all remaining ops and framedrawers
 - catch exception when parsing config.json (or put proper error message)
-- fix CAN and OSC -> implement as *sources*
 - clean up comments/includes/etc.
-- implement BlobFrame
-- implement CompressedSampleFrame
+- implement BlobFrame and CompressedSampleFrame
 - extend PointCloud processing
 - fix issues
 	- something seems to be wrong with UI JSON (esp. when using plugins like RealSense, the layout is messed up at startup)
@@ -79,7 +81,16 @@ Dependencies:
 	- print IP adapter information at startup
 - implement trajectory tracking for BlobTracker
 - implement multi-pin input/output
-- make little demo for smart phone
+- provide plugins/addons for 3rd-party connectivity
+  - MATLAB
+  - Rhino3D/Gh
+  - vvvv
+  - TouchDesigner
+- provide some demos/templates
+  - Unity3D
+  - Processing
+  - Pd
+  - Android smart phone
 - data visualization overhaul
 	- enable switching visualization between maps (min/max/snapshot/etc.)
 	- display history of array as 2D plot, just like e.g. spectrogram
@@ -87,10 +98,7 @@ Dependencies:
 - additional sources
 	- Bluetooth LE (apparently not adequate for continuously-sending devices? have a look [here](https://docs.microsoft.com/en-us/windows/uwp/devices-sensors/bluetooth-low-energy-overview))
 	- named pipe
-	- legacy serial protcol for backwards compatibility (e.g. flextiles)
-	- Sensel via Bluetooth
 	- finish generator source
-	- CAN source
 	- index picker: pick value at specific x/y/z from matrix/SF
 - additional processors
 	- fft
@@ -126,13 +134,6 @@ Dependencies:
 	- include Nick Gillian's [GRT](http://www.nickgillian.com/wiki/pmwiki.php/GRT/GestureRecognitionToolkit) for ML powered recognition
 	- implement [$Q](https://dl.acm.org/citation.cfm?id=3229465) for stroke recognition (also have a look at [$P](https://dl.acm.org/citation.cfm?id=2388732), [1¢](https://dl.acm.org/citation.cfm?id=2331074), and the whole [$ family](http://depts.washington.edu/acelab/proj/dollar/impact.html))
 - consider live-interface to MATLAB/Simulink
-- MQTT
-	- move peers' (currently blocking) connection attempt away from main thread
-	- implement TLS connection
-- CAN
-	- add different methods for sending data (instead of just sending single-values in the first byte which is adequate for the current use case, but quite limited)
-	- add bitrate-presets (with reasonable pre-configured nominal and fast-data properties; see the pre-configured settings in [PCanView.exe](https://www.peak-system.com/PCAN-View.242.0.html) for a reference)
-	- provide possibility to operate several canIn's next to each other, listening to different msgIDs (instead of reading in one Op and rejecting all packages that do not match Op's msgID filter)
 - move task-/project-specialized Ops somewhere else (e.g., providing plugin system may help a lot), e.g.:
 	- MaxPooling
 	- SensorSyncMerge
