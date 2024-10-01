@@ -273,6 +273,8 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 
 # Appendix D
 
+_TODO: add detailed description of each of the ops and their parameters_
+
 ## List of sources (core)
 
 - sources
