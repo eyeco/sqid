@@ -65,9 +65,12 @@ Dependencies:
 #### TODO
 - implement a more reasonable (less historically burdened) serial communication protocol
 - implement Firmata (maybe into core)
+- implement Kinect for XBox One plugin
+- implement Azure Kinect plugin
+- implement OpenNI plugin
+- implement NITE plugin
 - implement bluetooth serial in a solid way (and maybe put it to a plugin)
 - move core out of modules
-- add all remaining ops and framedrawers
 - catch exception when parsing config.json (or put proper error message)
 - clean up comments/includes/etc.
 - implement BlobFrame and CompressedSampleFrame
