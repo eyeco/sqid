@@ -31,10 +31,10 @@ namespace sqid
 #include "../../../../resources/shaders/include/font.frag.h"
 		;
 	const char* fragSourceSingleChannel =
-#include "../../../../resources/shaders/include/multiChannel.frag.h"
+#include "../../../../resources/shaders/include/singleChannel.frag.h"
 		;
 	const char* fragSourceMultiChannel =
-#include "../../../../resources/shaders/include/singleChannel.frag.h"
+#include "../../../../resources/shaders/include/multiChannel.frag.h"
 		;
 #endif
 }
