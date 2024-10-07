@@ -182,9 +182,9 @@ namespace sqid
 			frame( frame )
 		{}
 
-		SampleFrameContainer( unsigned char deviceID, unsigned char sensorID, const std::string &message, SampleFrame *frame ) :
-			deviceID( deviceID ),
-			sensorID( sensorID ),
+		SampleFrameContainer( const std::string &message, SampleFrame *frame ) :
+			deviceID( 0xff ),
+			sensorID( 0xff ),
 			message( message ),
 			frame( frame )
 		{}

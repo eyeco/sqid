@@ -162,7 +162,6 @@ namespace sqid
 		REGISTER_OP_TYPE( File::FileOut );
 
 		//osc
-		REGISTER_OP_TYPE( OSC::OSCIn );
 		REGISTER_OP_TYPE( OSC::OSCOut );
 
 #ifdef __COMPRESSION_SUPPORT

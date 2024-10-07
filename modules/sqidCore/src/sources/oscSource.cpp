@@ -50,7 +50,6 @@ namespace sqid
 		{
 			OSCMsg( const std::string &senderIP, const std::string &addressPattern, float f, uint32_t timestamp ) :
 				senderIP( senderIP ), addressPattern( addressPattern ),
-				deviceID( 0xff ), sensorID( 0xff ),
 				width( 1 ), height( 1 ), depth( 1 ),
 				timestamp( timestamp ),
 				values( 1 )
@@ -58,9 +57,8 @@ namespace sqid
 				this->values[0] = f;
 			}
 
-			OSCMsg( const std::string &senderIP, const std::string &addressPattern, unsigned char deviceID, unsigned char sensorID, unsigned short width, unsigned short height, unsigned short depth, const float *values, uint32_t timestamp ) :
+			OSCMsg( const std::string &senderIP, const std::string &addressPattern, unsigned short width, unsigned short height, unsigned short depth, const float *values, uint32_t timestamp ) :
 				senderIP( senderIP ), addressPattern( addressPattern ),
-				deviceID( deviceID ), sensorID( sensorID ),
 				width( width ), height( height ), depth( depth ),
 				timestamp( timestamp ),
 				values( width * height * depth )
@@ -71,9 +69,6 @@ namespace sqid
 
 			std::string senderIP;
 			std::string addressPattern;
-
-			unsigned char deviceID;
-			unsigned char sensorID;
 
 			unsigned short width;
 			unsigned short height;
@@ -90,6 +85,8 @@ namespace sqid
 			unsigned int _maxQueueSize;
 			std::list<OSCMsg*> _msgQueue;
 			std::mutex _msgMutex;
+
+			std::set<std::string> _activeSenders;
 
 			std::string _desc;
 
@@ -153,38 +150,31 @@ namespace sqid
 						{
 							std::lock_guard<std::mutex> lock( _msgMutex );
 							_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), f, ts ) );
+
+							_activeSenders.insert( std::string( path ) );
 						}
 					}
-					else if( argc == 7 )
+					else if( argc == 5 )
 					{
-						//types = "iiiiiib"
-						if( types[0] != 'i' && types[0] != 'c' )
-							std::cerr << "<warning> invalid deviceID type: '" << types[0] << "'" << std::endl;
-						if( types[1] != 'i' && types[1] != 'c' )
-							std::cerr << "<warning> invalid sensorID type: '" << types[1] << "'" << std::endl;
-						if( types[2] != 'i' || types[3] != 'i' || types[4] != 'i' )
-							std::cerr << "<warning> invalid size types: '" << types[2] << types[3] << types[4] << "'" << std::endl;
-						if( types[5] != 'i' )
-							std::cerr << "<warning> invalid timestamp type: '" << types[5] << "'" << std::endl;
-						if( types[6] != 'b' )
+						//types = "iiiib"
+						if( types[0] != 'i' || types[1] != 'i' || types[2] != 'i' )
+							std::cerr << "<warning> invalid size types: '" << types[0] << types[1] << types[2] << "'" << std::endl;
+						if( types[3] != 'i' )
+							std::cerr << "<warning> invalid timestamp type: '" << types[3] << "'" << std::endl;
+						if( types[4] != 'b' )
 						{
-							std::cerr << "<error> invalid data block type: '" << types[6] << "' (should be blob)" << std::endl;
+							std::cerr << "<error> invalid data block type: '" << types[4] << "' (should be blob)" << std::endl;
 							return -1;
 						}
 
-						//NOTE: bytes/chars are non-OSC-standard, so use int32
-						// also, 'c' extensions are using 32b ints anyways, so you won't save any bandwidth
-						unsigned char deviceID = (unsigned char) ( argv[0]->i32 );
-						unsigned char sensorID = (unsigned char) ( argv[1]->i32 );
+						unsigned short width = (unsigned short) ( argv[0]->i32 );
+						unsigned short height = (unsigned short) ( argv[1]->i32 );
+						unsigned short depth = (unsigned short) ( argv[2]->i32 );
+						uint32_t ts = (uint32_t) ( argv[3]->i32 );
 
-						unsigned short width = (unsigned short) ( argv[2]->i32 );
-						unsigned short height = (unsigned short) ( argv[3]->i32 );
-						unsigned short depth = (unsigned short) ( argv[4]->i32 );
-						uint32_t ts = (uint32_t) ( argv[5]->i32 );
-
-						const float *values = reinterpret_cast<float*>( &argv[6]->blob.data );
+						const float *values = reinterpret_cast<float*>( &argv[4]->blob.data );
 						unsigned int size = width * height * depth;
-						if( argv[6]->blob.size != size * sizeof( float ) )
+						if( argv[4]->blob.size != size * sizeof( float ) )
 						{
 							std::cerr << "<warning> OSC blob has unexpected size" << std::endl;
 							return -1;
@@ -192,7 +182,9 @@ namespace sqid
 
 						{
 							std::lock_guard<std::mutex> lock( _msgMutex );
-							_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), deviceID, sensorID, width, height, depth, values, ts ) );
+							_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), width, height, depth, values, ts ) );
+
+							_activeSenders.insert( std::string( path ) );
 						}
 					}
 					else
@@ -229,6 +221,7 @@ namespace sqid
 			{
 				if( _isStarted || _oscListenerThread || _server )
 					return false;
+				_isStarted = true;
 
 				_maxQueueSize = queueSize;
 
@@ -298,7 +291,10 @@ namespace sqid
 					for( auto it : _msgQueue )
 						safeDelete( it );
 					_msgQueue.clear();
+
+					_activeSenders.clear();
 				}
+
 			}
 
 			std::string getDesc() const
@@ -319,7 +315,7 @@ namespace sqid
 					{
 						OSCMsg *msg = _msgQueue.front();
 
-						frames.push_back( SampleFrameContainer( msg->deviceID, msg->sensorID, msg->addressPattern, new SampleFrame( msg->width, msg->height, &msg->values[0], msg->timestamp, msg->depth ) ) );
+						frames.push_back( SampleFrameContainer( msg->addressPattern, new SampleFrame( msg->width, msg->height, &msg->values[0], msg->timestamp, msg->depth ) ) );
 
 						safeDelete( msg );
 						_msgQueue.pop_front();
@@ -336,22 +332,19 @@ namespace sqid
 
 				if( _isStarted )
 				{
+					std::lock_guard<std::mutex> lock( _msgMutex );
+
 					ImGui::Text( "queued: %d", _msgQueue.size() );
 
-					//if( ImGui::TreeNode( "senders", "%d senders", _activeSenders.size() ) )
-					//{
-					//	for( auto &it : _activeSenders )
-					//	{
-					//		char deviceID = ( it >> 8 ) & 0xff;
-					//		char sensorID = ( it ) & 0xff;
+					if( ImGui::TreeNode( "senders", "%d senders", _activeSenders.size() ) )
+					{
+						for( auto &it : _activeSenders )
+							ImGui::Text( "  msg: %s", it.c_str() );
 
-					//		ImGui::Text( "  dID: %d, sID: %d", deviceID, sensorID );
-					//	}
+						ImGui::TreePop();
+					}
 
-					//	ImGui::TreePop();
-					//}
-
-					//_activeSenders.clear();
+					_activeSenders.clear();
 				}
 
 				return true;

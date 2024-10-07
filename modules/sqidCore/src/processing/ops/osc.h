@@ -17,50 +17,6 @@ namespace sqid
 {
 	namespace OSC
 	{
-		namespace Internal
-		{
-			class OSCSourceImpl;
-		}
-
-		class OSCIn : public Op
-		{
-		private:
-			bool _connected;
-
-			Protocol _proto;
-			std::string _ip;
-			int _port;
-
-			std::vector<char> _inputBufferIP;
-
-			std::string _filter;
-
-			Internal::OSCSourceImpl *_impl;
-
-		protected:
-			virtual bool process();
-
-			void start();
-			void stop();
-
-			void updateBuffers();
-
-		public:
-			OSCIn( const std::string &ip = "127.0.0.1", unsigned short port = 6667 );
-			virtual ~OSCIn();
-
-#ifdef __SUPPORT_GUI
-			virtual bool drawUI();
-#endif
-
-			virtual void createPins();
-
-			virtual bool loadFromJSON( const nlohmann::json &j );
-			virtual bool saveToJSON( nlohmann::json &j ) const;
-
-			DECLARE_OP_DESC;
-		};
-
 		class OSCOut : public Op
 		{
 		public:
@@ -111,9 +67,6 @@ namespace sqid
 			OutType _outType;
 			NativeType _nativeType;
 
-			unsigned char _deviceID;
-			unsigned char _sensorID;
-
 			std::vector<char> _inputBufferIP;
 			std::vector<char> _inputBufferPort;
 			std::vector<char> _inputBufferPath;
@@ -129,7 +82,7 @@ namespace sqid
 			virtual bool process();
 
 		public:
-			explicit OSCOut( const std::string &ip = "127.0.0.1", unsigned short port = 6669, const std::string &oscPath = "/sqid", unsigned char sensorID = -1, unsigned char deviceID = -1 );
+			explicit OSCOut( const std::string &ip = "127.0.0.1", unsigned short port = 6667, const std::string &oscPath = "/sqid" );
 			virtual ~OSCOut();
 
 #ifdef __SUPPORT_GUI

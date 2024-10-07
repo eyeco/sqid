@@ -26,8 +26,7 @@ namespace sqid
 
 		std::string _msgFilterOSC;
 		bool _exactOSC;
-		bool _idFilterOSC;
-
+		
 		std::vector<char> _inputBufferMsg;
 
 		float _sensorTimeout;

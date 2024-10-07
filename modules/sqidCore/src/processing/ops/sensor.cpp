@@ -32,7 +32,6 @@ namespace sqid
 		_sensorID( -1 ),
 		_msgFilterOSC( "/" ),
 		_exactOSC( false ),
-		_idFilterOSC( false ),
 		_inputBufferMsg( 128 ),
 		_sensorTimeout( sensorTimeout ),
 		_lastUpdateTime( 0 ),
@@ -91,13 +90,7 @@ namespace sqid
 		if( _interface == DI_COM || _interface == DI_RFCOMM )
 			return ( sfc->deviceID == _deviceID && sfc->sensorID == _sensorID );
 		else if( _interface == DI_OSC )
-		{
-			bool oscMsgOk = ( _exactOSC ? sfc->message.compare( _msgFilterOSC ) == 0 : sfc->message.compare( 0, _msgFilterOSC.size(), _msgFilterOSC ) == 0 );
-			bool idOk = ( _idFilterOSC ? sfc->deviceID == _deviceID && sfc->sensorID == _sensorID : true );
-
-			return oscMsgOk && idOk;
-		}
-
+			return ( _exactOSC ? sfc->message.compare( _msgFilterOSC ) == 0 : sfc->message.compare( 0, _msgFilterOSC.size(), _msgFilterOSC ) == 0 );
 		return false;
 	}
 
@@ -195,19 +188,6 @@ namespace sqid
 			if( ImGui::InputText( "msg filter", &_inputBufferMsg[0], _inputBufferMsg.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				_msgFilterOSC = std::string( &_inputBufferMsg[0] );
 			ImGui::Checkbox( "exact match", &_exactOSC );
-
-			ImGui::Checkbox( "ID filter", &_idFilterOSC );
-
-			if( _idFilterOSC )
-			{
-				i = _deviceID;
-				if( ImGui::InputInt( "deviceID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
-					_deviceID = i % 256;
-
-				i = _sensorID;
-				if( ImGui::InputInt( "sensorID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
-					_sensorID = i % 256;
-			}
 		}
 
 		ImGui::Text( "%.02f sps (in)", _inputRate );
@@ -234,7 +214,6 @@ namespace sqid
 
 		load<std::string>( j, "msgFilter", _msgFilterOSC );
 		load<bool>( j, "exact", _exactOSC );
-		load<bool>( j, "idFilter", _idFilterOSC );
 
 		updateMsgFilter();
 
@@ -253,7 +232,6 @@ namespace sqid
 
 		save( j, "msgFilter", _msgFilterOSC );
 		save( j, "exact", _exactOSC );
-		save( j, "idFilter", _idFilterOSC );
 
 		return ret;
 	}
