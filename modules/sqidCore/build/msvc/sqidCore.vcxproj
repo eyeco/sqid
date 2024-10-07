@@ -39,6 +39,7 @@
     <ClCompile Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.cpp" />
     <ClCompile Include="..\..\src\drawing\sceneUI\sourceDrawer.cpp" />
     <ClCompile Include="..\..\src\drawing\shader.cpp" />
+    <ClCompile Include="..\..\src\drawing\staticShaders.cpp" />
     <ClCompile Include="..\..\src\drawing\vertexBuffer.cpp" />
     <ClCompile Include="..\..\src\fileIO\binWriter.cpp" />
     <ClCompile Include="..\..\src\fileIO\csvWriter.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.h" />
     <ClInclude Include="..\..\src\drawing\sceneUI\sourceDrawer.h" />
     <ClInclude Include="..\..\src\drawing\shader.h" />
+    <ClInclude Include="..\..\src\drawing\staticShaders.h" />
     <ClInclude Include="..\..\src\fileIO\binWriter.h" />
     <ClInclude Include="..\..\src\fileIO\csvWriter.h" />
     <ClInclude Include="..\..\src\fileIO\fileWriter.h" />
@@ -228,7 +230,7 @@
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(ProjectDir)..\..\3rdparty\create.bat</Command>
+      <Command>call $(ProjectDir)..\..\3rdparty\create.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -255,7 +257,7 @@ copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(ProjectDir)..\..\3rdparty\create.bat</Command>
+      <Command>call $(ProjectDir)..\..\3rdparty\create.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

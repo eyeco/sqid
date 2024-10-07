@@ -566,7 +566,7 @@ namespace sqid
 
 		bool load( const std::string &fontFile, uint32_t size )
 		{
-			return _font->load( "resources/courier.ttf", 14 );
+			return _font->load( "resources/fonts/courier.ttf", 14 );
 		}
 
 		void print( const std::string &str, float x, float y, const glm::vec4 &color, float scale )

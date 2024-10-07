@@ -68,7 +68,11 @@ typedef unsigned int DWORD;
 #define __SUPPORT_GUI
 //#define __QUIT_WITH_ESCAPE
 
-
+//NOTE: removed call of makeHeaders.bat from Pre-Build Events since it would trigger a re-build of all 
+// depending source files, even if nothing changed in the code. Furthermore, there apparently is no way 
+// of calling it only if __STATIC_SHADERS is defined. therefore: call it manually whenever you update
+// shader code (find it in sqid/resources/shaders/makeHeaders.bat). 
+#define __STATIC_SHADERS
 
 #ifdef __COMPRESSION_SUPPORT
 #  define __COMPRESSION_SUPPORT_LZO

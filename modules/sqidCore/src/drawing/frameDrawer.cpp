@@ -20,6 +20,10 @@
 #include <drawing/frameBuffer.h>
 #include <drawing/vertexBuffer.h>
 
+#ifdef __STATIC_SHADERS
+#include "staticShaders.h"
+#endif
+
 #include <commonImGui.h>
 
 #include <app.h>
@@ -75,9 +79,15 @@ namespace sqid
 		fragShaderSC = new FragmentShader( "singleChannel" );
 		fragShaderMC = new FragmentShader( "multiChannel" );
 
-		ret &= vertShader->compileFromFile( "shaders\\passthrough.vert" );
-		ret &= fragShaderSC->compileFromFile( "shaders\\singleChannel.frag" );
-		ret &= fragShaderMC->compileFromFile( "shaders\\multiChannel.frag" );
+#ifdef __STATIC_SHADERS
+		ret &= vertShader->compileSource( vertSourcePassthrough );
+		ret &= fragShaderSC->compileSource( fragSourceSingleChannel );
+		ret &= fragShaderMC->compileSource( fragSourceMultiChannel );
+#else
+		ret &= vertShader->compileFromFile( "resources/shaders/passthrough.vert" );
+		ret &= fragShaderSC->compileFromFile( "resources/shaders/singleChannel.frag" );
+		ret &= fragShaderMC->compileFromFile( "resources/shaders/multiChannel.frag" );
+#endif
 
 		programSC = new Program( "singleChannel", vertShader, fragShaderSC );
 		programMC = new Program( "multiChannel", vertShader, fragShaderMC );

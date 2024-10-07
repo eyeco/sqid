@@ -18,6 +18,10 @@
 #include <sstream>
 #include <iostream>
 
+#ifdef __STATIC_SHADERS
+#include "staticShaders.h"
+#endif
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -70,8 +74,13 @@ namespace sqid
 		vertices[2].uv = glm::vec2( 1, 1 );
 		vertices[3].uv = glm::vec2( 0, 1 );
 
-		vertShader->compileFromFile( "shaders/passthrough.vert" );
-		fragShader->compileFromFile( "shaders/font.frag" );
+#ifdef __STATIC_SHADERS
+		vertShader->compileSource( vertSourcePassthrough );
+		fragShader->compileSource( fragSourceFont );
+#else
+		vertShader->compileFromFile( "resources/shaders/passthrough.vert" );
+		fragShader->compileFromFile( "resources/shaders/font.frag" );
+#endif
 
 		program = new Program( "font", vertShader, fragShader );
 		program->link();

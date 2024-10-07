@@ -95,7 +95,7 @@ namespace sqid
 
 	void UIStyle::init()
 	{
-		_font = new Font( "resources/arial.ttf", TextSize );
+		_font = new Font( "resources/fonts/arial.ttf", TextSize );
 	}
 
 	Font &UIStyle::getFont() const

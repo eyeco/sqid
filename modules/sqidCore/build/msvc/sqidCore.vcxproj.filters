@@ -196,6 +196,9 @@
     <ClCompile Include="..\..\src\processing\ops\pointClouds.cpp">
       <Filter>src\processing\ops</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\drawing\staticShaders.cpp">
+      <Filter>src\drawing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\perlin.h">
@@ -407,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\processing\ops\pointClouds.h">
       <Filter>src\processing\ops</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drawing\staticShaders.h">
+      <Filter>src\drawing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -803,7 +803,7 @@ namespace sqid
 
 		std::cout << "initialized GL" << std::endl;
 
-		if( !initFont( "resources/courier.ttf", 12, App().getWindowSize().x, App().getWindowSize().y ) )
+		if( !initFont( "resources/fonts/courier.ttf", 12, App().getWindowSize().x, App().getWindowSize().y ) )
 			std::cerr << "<error> loading font file failed" << std::endl;
 	}
 
