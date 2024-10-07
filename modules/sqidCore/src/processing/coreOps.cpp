@@ -40,7 +40,6 @@ namespace sqid
 		REGISTER_OP_TYPE( General::Noise );
 		REGISTER_OP_TYPE( General::Signal );
 		REGISTER_OP_TYPE( General::ContourDetector );
-		//REGISTER_OP_TYPE( General::ClickWheel );
 
 		//util
 		REGISTER_OP_TYPE( Util::Time );
@@ -48,7 +47,6 @@ namespace sqid
 		REGISTER_OP_TYPE( Util::Sync );
 		REGISTER_OP_TYPE( Util::Sampler );
 		REGISTER_OP_TYPE( Util::Buffer );
-		//REGISTER_OP_TYPE( Util::StaticOffset );
 		REGISTER_OP_TYPE( Util::Split );
 		REGISTER_OP_TYPE( Util::Merge );
 		REGISTER_OP_TYPE( Util::Crop );
@@ -84,7 +82,6 @@ namespace sqid
 		REGISTER_OP_TYPE( Math::Product );
 		REGISTER_OP_TYPE( Math::Invert );
 		REGISTER_OP_TYPE( Math::Slope );
-		REGISTER_OP_TYPE( Math::Gradient );
 		REGISTER_OP_TYPE( Math::Threshold );
 		REGISTER_OP_TYPE( Math::Remap );
 		REGISTER_OP_TYPE( Math::Normalize );

@@ -384,31 +384,6 @@ namespace sqid
 			DECLARE_OP_DESC;
 		};
 
-		class Gradient : public Op
-		{
-		private:
-			float _scale;
-			SampleFrame *_lastValue;
-
-		protected:
-			virtual bool process();
-
-		public:
-			Gradient();
-			virtual ~Gradient();
-
-			bool clear();
-
-#ifdef __SUPPORT_GUI
-			virtual bool drawUI();
-#endif
-
-			virtual bool loadFromJSON( const nlohmann::json &j );
-			virtual bool saveToJSON( nlohmann::json &j ) const;
-
-			DECLARE_OP_DESC;
-		};
-
 		class Threshold : public Op
 		{
 		private:

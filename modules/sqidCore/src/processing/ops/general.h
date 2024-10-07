@@ -210,34 +210,5 @@ namespace sqid
 
 			DECLARE_OP_DESC;
 		};
-
-		/*
-		class ClickWheel : public Op
-		{
-		private:
-			float _blobThresh;
-			float _currentPos;
-
-			bool _isDown;
-
-		protected:
-			virtual bool process();
-
-		public:
-			ClickWheel();// float scale = 1.0f, float offset = 0.0f );
-			virtual ~ClickWheel();
-
-			virtual void createPins();
-
-#ifdef __SUPPORT_GUI
-			virtual bool drawUI();
-#endif
-
-			virtual bool loadFromJSON( const nlohmann::json &j );
-			virtual bool saveToJSON( nlohmann::json &j ) const;
-
-			DECLARE_OP_DESC;
-		};
-		*/
 	}
 }

@@ -161,40 +161,6 @@ namespace sqid
 			DECLARE_OP_DESC;
 		};
 
-		/*
-		class StaticOffset : public Op
-		{
-		private:
-			//bool showOffset;
-			bool _clamp;
-
-			SampleFrame *_offset;
-			SampleFrame *_lastInput;
-
-			void setOffset( const SampleFrame *f );
-
-		protected:
-			virtual bool process();
-
-		public:
-			StaticOffset();
-			virtual ~StaticOffset();
-
-			bool clear();
-
-			bool offsetFromSnapshot();
-
-#ifdef __SUPPORT_GUI
-			virtual bool drawUI();
-#endif
-
-			virtual bool loadFromJSON( const nlohmann::json &j );
-			virtual bool saveToJSON( nlohmann::json &j ) const;
-
-			DECLARE_OP_DESC;
-		};
-		*/
-
 		class Split : public Op
 		{
 		protected:

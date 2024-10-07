@@ -65,8 +65,6 @@ namespace sqid
 			"432A3429-A321-4F68-88A0-A193EB489C94" );
 		DEFINE_OP_DESC( Slope, "slope", "/math",
 			"EA1FC780-B2A9-4BEE-8575-AE5A33EDDFC0" );
-		DEFINE_OP_DESC( Gradient, "gradient", "/math/deprecated",
-			"AA514F71-D86A-41F9-8DD3-DD4DAD03F670" );
 		DEFINE_OP_DESC( Threshold, "threshold", "/math",
 			"F50BAE17-5C98-446E-A957-C79D7C75BF1C" );
 		DEFINE_OP_DESC( Remap, "remap", "/math/transform",
@@ -1489,88 +1487,6 @@ namespace sqid
 			safeDelete( _lastValue );
 
 			return true;
-		}
-
-
-
-
-
-
-		Gradient::Gradient() :
-			Op(),
-			_scale( 0.25f ),
-			_lastValue( nullptr )
-		{}
-
-		Gradient::~Gradient()
-		{
-			this->clear();
-		}
-
-#ifdef __SUPPORT_GUI
-		bool Gradient::drawUI()
-		{
-			if( !Op::drawUI() )
-				return false;
-
-			ImGui::SliderFloat( "scale", &_scale, 0.1f, 5.0f, "%.3f", ImGuiSliderFlags_Logarithmic );
-
-			return true;
-		}
-#endif
-
-		bool Gradient::process()
-		{
-			SampleFrame *sf = fetchInput<SampleFrame>( "in" );
-
-			if( sf )
-			{
-				SampleFrame *ret = nullptr;
-
-				if( _lastValue )
-				{
-					ret = new SampleFrame( *sf );
-					ret->sub( _lastValue )->mul( 1.0f / ( ( sf->timeStamp() - _lastValue->timeStamp() ) * 0.001f ) )->mul( _scale )->add( 0.5f );
-
-					safeDelete( _lastValue );
-				}
-				else
-					ret = new SampleFrame( sf->width(), sf->height(), sf->timeStamp(), sf->depth() );
-
-				_lastValue = sf;
-
-				drawFrame( ret );
-
-				pushOutput( "out", ret );
-				safeDelete( ret );
-			}
-
-			return inputPending( "in" );
-		}
-
-		bool Gradient::clear()
-		{
-			safeDelete( _lastValue );
-
-			return true;
-		}
-
-		bool Gradient::loadFromJSON( const nlohmann::json &j )
-		{
-			bool ret = Op::loadFromJSON( j );
-
-			load<float>( j, "scale", _scale );
-
-			return ret;
-		}
-
-		bool Gradient::saveToJSON( nlohmann::json &j ) const
-		{
-			bool ret = Op::saveToJSON( j );
-
-			save( j, "scale", _scale );
-
-			return ret;
 		}
 
 

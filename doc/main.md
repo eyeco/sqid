@@ -323,8 +323,6 @@ _TODO: add detailed description of each of the ops and their parameters_
 		- xor
 	- clamp
 	- clampConst
-	- deprecated
-		- gradient
 	- exp
 	- expConst
 	- inRange
@@ -374,8 +372,6 @@ _TODO: add detailed description of each of the ops and their parameters_
 		- remap
 		- toPolar
 - networking
-	- deprecated
-		- oscIn
 	- oscOut
 - nop
 - pointClouds
