@@ -140,7 +140,7 @@ Dependencies:
 - move task-/project-specialized Ops somewhere else (e.g., providing plugin system may help a lot), e.g.:
 	- MaxPooling
 	- SensorSyncMerge
-- some data sinks and sources (e.g., CAN, MQTT, OSC) are implmented quite badly, since one Op is usually associated with a specific port/device/... have to find a way to send multiple messages to same target as well as receiving different messages from same source and filter/relay within processing graph
+- some data sinks and sources (e.g., CAN, MQTT) are implmented quite badly, since one Op is usually associated with a specific port/device/... have to find a way to send multiple messages to same target as well as receiving different messages from same source and filter/relay within processing graph
 
 ### oscConsole
 
@@ -161,15 +161,6 @@ Console program for OSC monitoring: prints OSC data to console window.
 Dependencies:
 - cxxopts (tested with version 3.2.0, 64 bit) [[link](https://github.com/jarro2783/cxxopts)]
 - liblo (tested with version 0.30, 64 bit) [[link](http://liblo.sourceforge.net/)]
-
-### TCP2OSC
-
-Workaround C# application for converting TCP raw data stream to OSC packages, as UDP implementation on NodeMCU seemed to be faulty.
-
-#### Build
-
-Dependencies:
-- OSCsharp [[link](https://github.com/valyard/OSCsharp)]
 
 ## Author
 
