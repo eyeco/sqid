@@ -1,7 +1,7 @@
 #ifndef _SQID_RLE
 #define _SQID_RLE
 
-#include "sqid.h"
+#include "common.h"
 
 #include "stddef.h"
 

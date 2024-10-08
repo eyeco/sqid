@@ -8,7 +8,7 @@
 #ifndef _SQID_COM_MSG_PARSER
 #define _SQID_COM_MSG_PARSER
 
-#include "sqid.h"
+#include "common.h"
 
 #include "comMsg.h"
 #include "ringBuffer.h"

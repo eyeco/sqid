@@ -1,7 +1,7 @@
 #ifndef _SQID_TRANSPORT
 #define _SQID_TRANSPORT
 
-#include "sqid.h"
+#include "common.h"
 
 #include "stdint.h"
 #include "stdlib.h"

@@ -13,29 +13,37 @@ const int ARRAY_SIZE  = 3;
 const int MATRIX_SIZE_X = 4;
 const int MATRIX_SIZE_Y = 5;
 
-SampleFrame pointFrame(  DEVICE_ID, SENSOR_ID_BASE + 0, SampleFrame::L_POINT, SampleFrame::DT_FLOAT );
-SampleFrame arrayFrame(  DEVICE_ID, SENSOR_ID_BASE + 1, SampleFrame::L_ARRAY, SampleFrame::DT_FLOAT, ARRAY_SIZE );
-SampleFrame matrixFrame( DEVICE_ID, SENSOR_ID_BASE + 2, SampleFrame::L_MATRIX, SampleFrame::DT_FLOAT, MATRIX_SIZE_X, MATRIX_SIZE_Y );
+const int IMG_WIDTH  = 5;
+const int IMG_HEIGHT = 5;
+const int IMG_DEPTH = 3;
+
+SampleFrame pointFrame( DT_FLOAT );
+SampleFrame arrayFrame( DT_FLOAT, ARRAY_SIZE );
+SampleFrame matrixFrame( DT_FLOAT, MATRIX_SIZE_X, MATRIX_SIZE_Y );
+SampleFrame imgFrame( DT_FLOAT, IMG_WIDTH, IMG_HEIGHT, IMG_DEPTH );
 
 SenderSerial pointSender;
 SenderSerial arraySender;
 SenderSerial matrixSender;
+SenderSerial imgSender;
 
 float t = 0.0f;
 float speed = 1.0f;
-uint8_t offset = 0;
+float offset = 0.0f;
 
 void setup()
 {
   //setup serial connection
   Serial.begin( 115200 );
 
-  if( !pointSender.init( &pointFrame, MF_ENC_UNCOMPRESSED ) )
+  if( !pointSender.init( &pointFrame, DEVICE_ID, SENSOR_ID_BASE + 0 ) )
     Serial.println( "failed to init pointSender" );
-  if( !arraySender.init( &arrayFrame, MF_ENC_UNCOMPRESSED ) )
+  if( !arraySender.init( &arrayFrame, DEVICE_ID, SENSOR_ID_BASE + 1 ) )
     Serial.println( "failed to init arraySender" );
-  if( !matrixSender.init( &matrixFrame, MF_ENC_UNCOMPRESSED ) )
+  if( !matrixSender.init( &matrixFrame, DEVICE_ID, SENSOR_ID_BASE + 2 ) )
     Serial.println( "failed to init matrixSender" );
+  if( !imgSender.init( &imgFrame, DEVICE_ID, SENSOR_ID_BASE + 3 ) )
+    Serial.println( "failed to init imgSender" );
 }
 
 void loop() {
@@ -54,9 +62,17 @@ void loop() {
     ptr[i] = ( (uint8_t)(offset + t + i * 20 ) % 256 ) / 255.0f;
 
   //update matrix data
+  ptr = reinterpret_cast<float*>( matrixFrame.getData() );
   for (size_t j = 0; j < matrixFrame.getHeight(); j++)
     for (size_t i = 0; i < matrixFrame.getHeight(); i++)
-      ptr[i + (j * matrixFrame.getWidth())] = ( (uint8_t)(offset + t + (i + (j * matrixFrame.getWidth()) * 10)) % 256 ) / 255.0f;
+      ptr[i + (j * matrixFrame.getWidth())] = ( (uint8_t)(t + (i + (j * matrixFrame.getWidth()) * 10)) % 256 ) / 255.0f;
+
+  //update img data
+  ptr = reinterpret_cast<float*>( imgFrame.getData() );
+  for (size_t k = 0; k < imgFrame.getDepth(); k++)
+    for (size_t j = 0; j < imgFrame.getHeight(); j++)
+      for (size_t i = 0; i < imgFrame.getHeight(); i++)
+        ptr[i + (j * imgFrame.getWidth()) + k * imgFrame.getWidth() * imgFrame.getHeight()] = ( (uint8_t)(offset + t + k * 500 + (i + (j * matrixFrame.getWidth()) * 10)) % 256 ) / 255.0f;
 
   //send point data
   pointSender.send();
@@ -66,6 +82,9 @@ void loop() {
 
   //send matrix data
   matrixSender.send();
+
+  //send matrix data
+  imgSender.send();
 
   delay(10);
 }

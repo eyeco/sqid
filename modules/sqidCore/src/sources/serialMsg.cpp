@@ -25,12 +25,14 @@ namespace sqid
 		{
 			switch( msgType )
 			{
-			case MT_SINGLE_VALUE:
-				return "SINGLE_VALUES";
+			case MT_VALUE:
+				return "VALUE";
 			case MT_ARRAY:
 				return "ARRAY";
 			case MT_MATRIX:
 				return "MATRIX";
+			case MT_IMAGE:
+				return "IMAGE";
 			case MT_PROPERTY:
 				return "PROPERTY";
 			case MT_FWPROPS_DESC:
@@ -196,9 +198,6 @@ namespace sqid
 			const DataHdrSingleValue *dataHdr = reinterpret_cast<const DataHdrSingleValue*>( data );
 			const unsigned char *dataPayload = reinterpret_cast<const unsigned char*>( data ) + sizeof( DataHdrSingleValue );
 
-			if( dataHdr->sensorType >= ST_COUNT )
-				std::cerr << "<warning> unknown sensor type -- header corrupted?" << std::endl;
-
 			MsgFlags dt = MF_DATATYPE( dataHdr->flags );
 			if( dt != MF_DATATYPE_BYTE && dt != MF_DATATYPE_INT16 && dt != MF_DATATYPE_INT32 && dt != MF_DATATYPE_FLOAT )
 			{
@@ -231,16 +230,16 @@ namespace sqid
 			switch( MF_DATATYPE( dataHdr->flags ) )
 			{
 			case MF_DATATYPE_BYTE:
-				frm = createFrame<unsigned char>( 1, 1, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
+				frm = createFrame<unsigned char>( 1, 1, 1, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
 				break;
 			case MF_DATATYPE_INT16:
-				frm = createFrame<int16_t>( 1, 1, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				frm = createFrame<int16_t>( 1, 1, 1, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
 				break;
 			case MF_DATATYPE_INT32:
-				frm = createFrame<int32_t>( 1, 1, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				frm = createFrame<int32_t>( 1, 1, 1, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
 				break;
 			case MF_DATATYPE_FLOAT:
-				frm = createFrame<float>( 1, 1, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
+				frm = createFrame<float>( 1, 1, 1, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
 				break;
 			default:
 				std::cerr << "<error> unknown data type" << std::endl;
@@ -265,9 +264,6 @@ namespace sqid
 			SampleFrame *frm = nullptr;
 			const DataHdrArray *dataHdr = reinterpret_cast<const DataHdrArray*>( data );
 			const unsigned char *dataPayload = reinterpret_cast<const unsigned char*>( data ) + sizeof( DataHdrArray );
-
-			if( dataHdr->sensorType >= ST_COUNT )
-				std::cerr << "<warning> unknown sensor type -- header corrupted?" << std::endl;
 
 			MsgFlags dt = MF_DATATYPE( dataHdr->flags );
 			if( dt != MF_DATATYPE_BYTE && dt != MF_DATATYPE_INT16 && dt != MF_DATATYPE_INT32 && dt != MF_DATATYPE_FLOAT )
@@ -305,16 +301,16 @@ namespace sqid
 			switch( MF_DATATYPE( dataHdr->flags ) )
 			{
 			case MF_DATATYPE_BYTE:
-				frm = createFrame<unsigned char>( dataHdr->size, 1, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
+				frm = createFrame<unsigned char>( dataHdr->size, 1, 1, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
 				break;
 			case MF_DATATYPE_INT16:
-				frm = createFrame<int16_t>( dataHdr->size, 1, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				frm = createFrame<int16_t>( dataHdr->size, 1, 1, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
 				break;
 			case MF_DATATYPE_INT32:
-				frm = createFrame<int32_t>( dataHdr->size, 1, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				frm = createFrame<int32_t>( dataHdr->size, 1, 1, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
 				break;
 			case MF_DATATYPE_FLOAT:
-				frm = createFrame<float>( dataHdr->size, 1, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
+				frm = createFrame<float>( dataHdr->size, 1, 1, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
 				break;
 			default:
 				std::cerr << "<error> unknown data type" << std::endl;
@@ -339,9 +335,6 @@ namespace sqid
 			SampleFrame *frm = nullptr;
 			const DataHdrMatrix *dataHdr = reinterpret_cast<const DataHdrMatrix*>( data );
 			const unsigned char *dataPayload = reinterpret_cast<const unsigned char*>( data ) + sizeof( DataHdrMatrix );
-
-			if( dataHdr->sensorType >= ST_COUNT )
-				std::cerr << "<warning> unknown sensor type -- header corrupted?" << std::endl;
 
 			MsgFlags dt = MF_DATATYPE( dataHdr->flags );
 			if( dt != MF_DATATYPE_BYTE && dt != MF_DATATYPE_INT16 && dt != MF_DATATYPE_INT32 && dt != MF_DATATYPE_FLOAT )
@@ -382,16 +375,16 @@ namespace sqid
 			switch( MF_DATATYPE( dataHdr->flags ) )
 			{
 			case MF_DATATYPE_BYTE:
-				frm = createFrame<unsigned char>( dataHdr->width, dataHdr->height, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
+				frm = createFrame<unsigned char>( dataHdr->width, dataHdr->height, 1, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
 				break;
 			case MF_DATATYPE_INT16:
-				frm = createFrame<int16_t>( dataHdr->width, dataHdr->height, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				frm = createFrame<int16_t>( dataHdr->width, dataHdr->height, 1, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
 				break;
 			case MF_DATATYPE_INT32:
-				frm = createFrame<int32_t>( dataHdr->width, dataHdr->height, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				frm = createFrame<int32_t>( dataHdr->width, dataHdr->height, 1, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
 				break;
 			case MF_DATATYPE_FLOAT:
-				frm = createFrame<float>( dataHdr->width, dataHdr->height, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
+				frm = createFrame<float>( dataHdr->width, dataHdr->height, 1, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
 				break;
 			default:
 				std::cerr << "<error> unknown data type" << std::endl;
@@ -405,21 +398,99 @@ namespace sqid
 			return frm;
 		}
 
-		MsgType typeFromFrame( const SampleFrame *frame )
+		SampleFrame* ComMsgParser::createFrameFromImage( const ComMsgHdr& hdr, const void* data )
 		{
-			if( !frame->width() || !frame->height() || !frame->depth() )
-				return MT_COUNT;
-
-			if( frame->width() > 1 )
+			if( !data )
 			{
-				if( frame->height() > 1 )
-					return MT_MATRIX;
-				return MT_ARRAY;
+				std::cerr << "<error> data ptr must not be NULL" << std::endl;
+				return nullptr;
 			}
 
-			if( frame->height() > 1 )
-				return MT_ARRAY;
-			return MT_SINGLE_VALUE;
+			SampleFrame* frm = nullptr;
+			const DataHdrImage* dataHdr = reinterpret_cast<const DataHdrImage*>( data );
+			const unsigned char* dataPayload = reinterpret_cast<const unsigned char*>( data ) + sizeof( DataHdrImage );
+
+			MsgFlags dt = MF_DATATYPE( dataHdr->flags );
+			if( dt != MF_DATATYPE_BYTE && dt != MF_DATATYPE_INT16 && dt != MF_DATATYPE_INT32 && dt != MF_DATATYPE_FLOAT )
+			{
+				std::cerr << "<error> unknown data type -- header corrupted?" << std::endl;
+				return nullptr;
+			}
+
+			size_t size = dataHdr->width * dataHdr->height * dataHdr->depth;
+			if( !size )
+			{
+				std::cerr << "<error> image size is 0 -- header corrupted?" << std::endl;
+				return nullptr;
+			}
+
+			bool isNormalized = dataHdr->flags & MF_NORMALIZED;
+
+			Decompressor* decomp = nullptr;
+
+			size_t expectedSize = size * getElementSize( dt );
+			size_t payloadBytes = hdr.dataBytes - sizeof( DataHdrImage );
+			MsgFlags encoding = MF_ENCODING( dataHdr->flags );
+			const void* values = getPayload( encoding, dataPayload, payloadBytes, expectedSize );
+			if( !values )
+			{
+				std::cerr << "<error> getting data failed" << std::endl;
+				return nullptr;
+			}
+
+			float ratio = (float) payloadBytes / expectedSize;
+			if( encoding == MF_NONE && payloadBytes != expectedSize )
+			{
+				std::cerr << "<error> expected " << expectedSize << " bytes in uncompressed image (" << dataHdr->width << "x" << dataHdr->height << "x" << dataHdr->depth << ") frame, but got " << hdr.dataBytes << std::endl;
+				return nullptr;
+			}
+
+			//TODO: adjust normalization max values here (maybe have to add this to the data header, not sure if a hard-coded value is reasonable here)
+			switch( MF_DATATYPE( dataHdr->flags ) )
+			{
+			case MF_DATATYPE_BYTE:
+				frm = createFrame<unsigned char>( dataHdr->width, dataHdr->height, dataHdr->depth, reinterpret_cast<const unsigned char*>( values ), hdr.timeStamp, !isNormalized, 255 );
+				break;
+			case MF_DATATYPE_INT16:
+				frm = createFrame<int16_t>( dataHdr->width, dataHdr->height, dataHdr->depth, reinterpret_cast<const int16_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				break;
+			case MF_DATATYPE_INT32:
+				frm = createFrame<int32_t>( dataHdr->width, dataHdr->height, dataHdr->depth, reinterpret_cast<const int32_t*>( values ), hdr.timeStamp, !isNormalized, ( 0x01 << 10 ) - 1 );
+				break;
+			case MF_DATATYPE_FLOAT:
+				frm = createFrame<float>( dataHdr->width, dataHdr->height, dataHdr->depth, reinterpret_cast<const float*>( values ), hdr.timeStamp, !isNormalized, 1.0f );
+				break;
+			default:
+				std::cerr << "<error> unknown data type" << std::endl;
+				break;
+			}
+
+			char tempStr[128];
+			sprintf( tempStr, "%s, %s %.2f", dataTypeToString( dataHdr->flags ), encodingToString( dataHdr->flags ), ratio ); //TODO: add compression rate here
+			_desc = tempStr;
+
+			return frm;
+		}
+
+		MsgType typeFromFrame( const SampleFrame *frame )
+		{
+			if( !( frame->width() * frame->height() * frame->depth() ) )
+				return MT_COUNT;
+
+			if( frame->depth() == 1 )
+			{
+				if( frame->height() == 1 )
+				{
+					if( frame->width() == 1 )
+						return MT_VALUE;
+					else
+						return MT_ARRAY;
+				}
+				else
+					return MT_MATRIX;
+			}
+			else
+				return MT_IMAGE;
 		}
 	}
 }

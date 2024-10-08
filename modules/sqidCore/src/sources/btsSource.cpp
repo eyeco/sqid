@@ -490,7 +490,7 @@ namespace sqid
 
 						switch( msg.hdr.hdr.type )
 						{
-						case MT_SINGLE_VALUE:
+						case MT_VALUE:
 							frame = _parser.createFrameFromSingleValue( msg.hdr.hdr, msg.data );
 							break;
 						case MT_ARRAY:
@@ -498,6 +498,9 @@ namespace sqid
 							break;
 						case MT_MATRIX:
 							frame = _parser.createFrameFromMatrix( msg.hdr.hdr, msg.data );
+							break;
+						case MT_IMAGE:
+							frame = _parser.createFrameFromImage( msg.hdr.hdr, msg.data );
 							break;
 						default:
 							std::cerr << "<error> unknown type: " << msgTypeToString( msg.hdr.hdr.type ) << " (" << msg.hdr.hdr.type << ")" << std::endl;

@@ -8,7 +8,7 @@
 #ifndef _SQID_COM_MSG
 #define _SQID_COM_MSG
 
-#include "sqid.h"
+#include "common.h"
 
 #include <stddef.h>
 #include <inttypes.h>
@@ -17,16 +17,17 @@ namespace sqid
 {
     enum ProtocolVersion : unsigned char
     {
-        PV_1 = 1
+        PV_2 = 2
     };
 
-    #define PV_LATEST PV_1
+    #define PV_LATEST PV_2
 
     enum MsgType : unsigned char
     {
-        MT_SINGLE_VALUE,
+        MT_VALUE,
         MT_ARRAY,
         MT_MATRIX,
+        MT_IMAGE,
 
         MT_PROPERTY,
 
@@ -65,16 +66,6 @@ namespace sqid
 #define MF_DATATYPE( a ) ( (MsgFlags)( a & MF_DATATYPE_MASK ) )
 #define MF_ENCODING( a ) ( (MsgFlags)( a & MF_ENC_MASK ) )
 
-    enum SensorType : unsigned char
-    {
-        ST_UNKNOWN = 0,
-
-        ST_RESISTIVE = 1,
-        ST_CAPACITIVE = 2,
-
-        ST_COUNT
-    };
-
     #pragma pack(push)
     #pragma pack(1)
 
@@ -106,28 +97,30 @@ namespace sqid
         uint8_t *data;
     };
 
-    struct DataHdrSingleValue
+    struct DataHdrValue
     {
-        SensorType sensorType; // see enum
-
-        MsgFlags flags; // data flags
+        MsgFlags flags;
     };
 
     struct DataHdrArray
     {
-        SensorType sensorType; // see enum
-
-        MsgFlags flags; // data flags
-        uint16_t size;  // size of data array
+        MsgFlags flags;
+        uint16_t size;
     };
 
     struct DataHdrMatrix
     {
-        SensorType sensorType; // see enum
+        MsgFlags flags;
+        uint16_t width;
+        uint16_t height;
+    };
 
-        MsgFlags flags;  // data flags
-        uint16_t width;  // width of data array
-        uint16_t height; // height of data array (may be 1 in case of 1D-array)
+    struct DataHdrImage
+    {
+        MsgFlags flags;
+        uint16_t width;
+        uint16_t height;
+        uint16_t depth;
     };
     #pragma pack(pop)
 

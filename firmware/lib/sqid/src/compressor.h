@@ -1,7 +1,7 @@
 #ifndef _SQID_COMPRESSOR
 #define _SQID_COMPRESSOR
 
-#include "sqid.h"
+#include "common.h"
 
 #include "stddef.h"
 

@@ -136,14 +136,14 @@ namespace sqid
 	SQID_API bool SQID_API_CALL dimensionsCompatible( const SampleFrame *a, const SampleFrame *b );
 
 	template<typename T>
-	inline SampleFrame *createFrame( unsigned int width, unsigned int height, const T *values, uint32_t ts, bool normalize = false, T maxValue = std::numeric_limits<T>::max(), bool clamp = false )
+	inline SampleFrame *createFrame( unsigned int width, unsigned int height, unsigned int depth, const T *values, uint32_t ts, bool normalize = false, T maxValue = std::numeric_limits<T>::max(), bool clamp = false )
 	{
 		if( !values )
 			return nullptr;
 
-		SampleFrame *frame = new SampleFrame( width, height, ts );
+		SampleFrame *frame = new SampleFrame( width, height, ts, depth );
 
-		int size = width * height;
+		int size = width * height * depth;
 
 		if( normalize )
 		{

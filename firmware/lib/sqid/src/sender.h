@@ -1,7 +1,7 @@
 #ifndef _SQID_SENDER
 #define _SQID_SENDER
 
-#include "sqid.h"
+#include "common.h"
 #include "comMsg.h"
 
 #ifdef SUPPORT_OSC
@@ -35,10 +35,10 @@ namespace sqid
     class SenderSerial : public Sender
     {
     public:
-        explicit SenderSerial( ProtocolVersion protocolVersion = PV_LATEST );
+        explicit SenderSerial();
         virtual ~SenderSerial();
 
-        virtual bool init( const SampleFrame *frame, MsgFlags encoding = MF_ENC_UNCOMPRESSED );
+        virtual bool init( const SampleFrame *frame, unsigned char deviceID, unsigned char sensorID, MsgFlags encoding = MF_ENC_UNCOMPRESSED );
 
         virtual bool send();
 
@@ -76,7 +76,7 @@ namespace sqid
     class SenderRFCOMM : public SenderSerial
     {
     public:
-        explicit SenderRFCOMM( ProtocolVersion protocolVersion );
+        explicit SenderRFCOMM();
         virtual ~SenderRFCOMM();
 
         virtual int available();

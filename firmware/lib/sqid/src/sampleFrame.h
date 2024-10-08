@@ -1,7 +1,7 @@
 #ifndef _SQID_SAMPLEFRAME
 #define _SQID_SAMPLEFRAME
 
-#include "sqid.h"
+#include "common.h"
 
 #include <stddef.h>
 #include <inttypes.h>
@@ -11,30 +11,9 @@ namespace sqid
     class SampleFrame
     {
     public:
-        enum Layout
-        {
-            L_POINT,
-            L_ARRAY,
-            L_MATRIX,
 
-            L_COUNT
-        };
-
-        enum DataType
-        {
-            DT_BYTE,
-            DT_USHORT,
-            DT_ULONG,
-            DT_FLOAT,
-
-            DT_COUNT
-        };
-
-        SampleFrame( unsigned char deviceID, unsigned char sensorID, Layout layout, DataType type, size_t width = 1, size_t height = 1, size_t depth = 1 );
+        explicit SampleFrame( DataType type = DT_BYTE, size_t width = 1, size_t height = 1, size_t depth = 1 );
         ~SampleFrame();
-
-        unsigned char getDeviceID() const { return _deviceID; }
-        unsigned char getSensorID() const { return _sensorID; }
 
         size_t getWidth() const { return _width; }
         size_t getHeight() const { return _height; }

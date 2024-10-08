@@ -29,7 +29,7 @@ namespace sqid
         return 0;
     }
 
-    SenderSerial::SenderSerial( ProtocolVersion protocolVersion ) :
+    SenderSerial::SenderSerial() :
         Sender(),
         _flags( MF_NONE ),
         _err( false ),
@@ -39,7 +39,7 @@ namespace sqid
         _frame( nullptr ),
         _compressor( nullptr )
     {
-        _comMsg.hdr.hdr.ver = protocolVersion;
+        _comMsg.hdr.hdr.ver = PV_2;
         _comMsg.hdr.hdr.timeStamp = 0;
     }
 
@@ -51,7 +51,7 @@ namespace sqid
         safeDeleteArray( _comMsg.data );
     }
 
-    bool SenderSerial::init( const SampleFrame *frame, MsgFlags encoding )
+    bool SenderSerial::init( const SampleFrame *frame, unsigned char deviceID, unsigned char sensorID, MsgFlags encoding )
     {
         _flags = MF_NONE;
         _frame = frame;
@@ -59,19 +59,24 @@ namespace sqid
         MsgType messageType = MT_COUNT;
         switch( _frame->getLayout() ) 
         {
-        case SampleFrame::L_POINT:
+        case L_0D:
         {
-            messageType = MT_SINGLE_VALUE;
+            messageType = MT_VALUE;
             break;
         }
-        case SampleFrame::L_ARRAY:
+        case L_1D:
         {
-            messageType = MT_ARRAY;           
+            messageType = MT_ARRAY;
             break;
         }
-        case SampleFrame::L_MATRIX:
+        case L_2D:
         {
             messageType = MT_MATRIX;
+            break;
+        }
+        case L_3D:
+        {
+            messageType = MT_IMAGE;
             break;
         }
         default:
@@ -84,22 +89,22 @@ namespace sqid
 
         switch( _frame->getDataType() )
         {
-        case SampleFrame::DT_BYTE:
+        case DT_BYTE:
         {
             _flags = (MsgFlags)( (int)_flags | (int)MF_DATATYPE_BYTE );
             break;
         }
-        case SampleFrame::DT_USHORT:
+        case DT_USHORT:
         {
             _flags = (MsgFlags)( (int)_flags | (int)MF_DATATYPE_INT16 );
             break;
         }
-        case SampleFrame::DT_ULONG:
+        case DT_ULONG:
         {
             _flags = (MsgFlags)( (int)_flags | (int)MF_DATATYPE_INT32 );
             break;
         }
-        case SampleFrame::DT_FLOAT:
+        case DT_FLOAT:
         {
             _flags = (MsgFlags)( (int)_flags | (int)MF_DATATYPE_FLOAT );
             break;
@@ -183,30 +188,28 @@ namespace sqid
         //TODO: switch to sending raw data in case block is not compressible
         _payloadBytesMax = _compressor->getMinOutBufferSize( _inputDataBytes );
 
-        if(messageType == MsgType::MT_SINGLE_VALUE)
+        if(messageType == MsgType::MT_VALUE)
         {
             //calculate required data array size for a single frame value and set it 
-            size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrSingleValue);
+            size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrValue);
             _comMsg.data = new unsigned char[dataBytesMax];
 
-            //create single value header to set attributes
-            DataHdrSingleValue *dataSingleHdrPtr = (DataHdrSingleValue*) _comMsg.data;
-            dataSingleHdrPtr->flags = _flags;
-            dataSingleHdrPtr->sensorType = ST_RESISTIVE;
+            //create value header to set attributes
+            DataHdrValue *dataHdrPtr = (DataHdrValue*) _comMsg.data;
+            dataHdrPtr->flags = _flags;
 
             //store header size for later use (data object pointer offset)
-            _headerBytes = sizeof(DataHdrSingleValue);
+            _headerBytes = sizeof(DataHdrValue);
         }
         else if(messageType == MsgType::MT_ARRAY)
         {
-            //calculate required data array size for a single frame value and set it 
+            //calculate required data array size for array frame and set it 
             size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrArray);
             _comMsg.data = new unsigned char[dataBytesMax];
 
-            //create single value header to set attributes
+            //create array header to set attributes
             DataHdrArray *dataArrayHdrPtr = (DataHdrArray*) _comMsg.data;
             dataArrayHdrPtr->flags = _flags;
-            dataArrayHdrPtr->sensorType = ST_RESISTIVE;
             dataArrayHdrPtr->size = width;
 
             //store header size for later use (data object pointer offset)
@@ -214,19 +217,34 @@ namespace sqid
         }
         else if(messageType == MT_MATRIX)
         {
-            //calculate required data array size for a single frame value and set it 
+            //calculate required data array size for a matrix frame and set it 
             size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrMatrix);
             _comMsg.data = new unsigned char[dataBytesMax];
 
-            //create single value header to set attributes
+            //create matrix header to set attributes
             DataHdrMatrix *dataMatrixHdrPtr = (DataHdrMatrix*) _comMsg.data;
             dataMatrixHdrPtr->flags = _flags;
-            dataMatrixHdrPtr->sensorType = ST_RESISTIVE;
             dataMatrixHdrPtr->width = width;
             dataMatrixHdrPtr->height = height;
 
             //store header size for later use (data object pointer offset)
             _headerBytes = sizeof(DataHdrMatrix);
+        }
+        else if(messageType == MT_IMAGE)
+        {
+            //calculate required data array size for an image frame and set it 
+            size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrImage);
+            _comMsg.data = new unsigned char[dataBytesMax];
+
+            //create image header to set attributes
+            DataHdrImage *dataMatrixHdrPtr = (DataHdrImage*) _comMsg.data;
+            dataMatrixHdrPtr->flags = _flags;
+            dataMatrixHdrPtr->width = width;
+            dataMatrixHdrPtr->height = height;
+            dataMatrixHdrPtr->depth = depth;
+
+            //store header size for later use (data object pointer offset)
+            _headerBytes = sizeof(DataHdrImage);
         }
         else
         {
@@ -235,8 +253,8 @@ namespace sqid
             return false;
         }
 
-        _comMsg.hdr.hdr.deviceID = _frame->getDeviceID();
-        _comMsg.hdr.hdr.sensorID = _frame->getSensorID();
+        _comMsg.hdr.hdr.deviceID = deviceID;
+        _comMsg.hdr.hdr.sensorID = sensorID;
 
         //set header type to single value for the receiver to to able to identify the data type
         _comMsg.hdr.hdr.type = messageType;
@@ -290,9 +308,9 @@ namespace sqid
 
         switch( _comMsg.hdr.hdr.type )
         {
-        case MT_SINGLE_VALUE:
+        case MT_VALUE:
         {
-            DataHdrSingleValue *hdr = (DataHdrSingleValue*)_comMsg.data;
+            DataHdrValue *hdr = (DataHdrValue*)_comMsg.data;
             hdr->flags = (MsgFlags)( ( (int)hdr->flags & ~MF_ENC_MASK ) | (int)enc );
             break;
         }
@@ -305,6 +323,12 @@ namespace sqid
         case MT_MATRIX:
         {
             DataHdrMatrix *hdr = (DataHdrMatrix*)_comMsg.data;
+            hdr->flags = (MsgFlags)( ( (int)hdr->flags & ~MF_ENC_MASK ) | (int)enc );
+            break;
+        }
+        case MT_IMAGE:
+        {
+            DataHdrImage *hdr = (DataHdrImage*)_comMsg.data;
             hdr->flags = (MsgFlags)( ( (int)hdr->flags & ~MF_ENC_MASK ) | (int)enc );
             break;
         }
@@ -405,8 +429,8 @@ namespace sqid
 
 
 #ifdef SUPPORT_BLUETOOTH_SERIAL
-    SenderRFCOMM::SenderRFCOMM( ProtocolVersion protocolVersion ) :
-        SenderSerial( protocolVersion )
+    SenderRFCOMM::SenderRFCOMM() :
+        SenderSerial()
     {}
 
     SenderRFCOMM::~SenderRFCOMM()

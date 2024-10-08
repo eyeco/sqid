@@ -82,11 +82,10 @@ namespace sqid
 						_sending = false;
 					else
 					{
+						
+
 						bool err = false;
-						Internal::MsgType type = 
-							( sf->depth() > 1 ? Internal::MT_MATRIX :
-							( sf->height() > 1 ? Internal::MT_MATRIX :
-							( sf->width() > 1 ? Internal::MT_ARRAY : Internal::MT_SINGLE_VALUE ) ) );
+						Internal::MsgType type = Internal::typeFromFrame( sf );
 
 						//TODO: implement compression
 						//TODO: implement quantization and normalization to, e.g., 10-bit or 12-bit int values
@@ -96,7 +95,7 @@ namespace sqid
 						size_t payloadSize = elements * sizeof( float );
 						switch( type )
 						{
-						case Internal::MT_SINGLE_VALUE:
+						case Internal::MT_VALUE:
 						{
 							hdrSize = sizeof( Internal::DataHdrSingleValue );
 							break;
@@ -109,6 +108,11 @@ namespace sqid
 						case Internal::MT_MATRIX:
 						{
 							hdrSize = sizeof( Internal::DataHdrMatrix );
+							break;
+						}
+						case Internal::MT_IMAGE:
+						{
+							hdrSize = sizeof( Internal::DataHdrImage );
 							break;
 						}
 						default:
@@ -127,18 +131,16 @@ namespace sqid
 						std::vector<uint8_t> data( hdrSize + payloadSize );
 						switch( type )
 						{
-						case Internal::MT_SINGLE_VALUE:
+						case Internal::MT_VALUE:
 						{
 							Internal::DataHdrSingleValue *dh = reinterpret_cast<Internal::DataHdrSingleValue*>( &data[0] );
 							dh->flags = flags;
-							dh->sensorType = Internal::ST_UNKNOWN;
 							break;
 						}
 						case Internal::MT_ARRAY:
 						{
 							Internal::DataHdrArray *dh = reinterpret_cast<Internal::DataHdrArray*>( &data[0] );
 							dh->flags = flags;
-							dh->sensorType = Internal::ST_UNKNOWN;
 							dh->size = elements;
 							break;
 						}
@@ -146,14 +148,17 @@ namespace sqid
 						{
 							Internal::DataHdrMatrix *dh = reinterpret_cast<Internal::DataHdrMatrix*>( &data[0] );
 							dh->flags = flags;
-							dh->sensorType = Internal::ST_UNKNOWN;
 							dh->width = sf->width();
 							dh->height = sf->height();
-							if( sf->depth() > 1 )
-							{
-								std::cerr << "<warning> 3D-matrices not supported in serial format -- have to send interleaved rows" << std::endl;
-								dh->width *= sf->depth();
-							}
+							break;
+						}
+						case Internal::MT_IMAGE:
+						{
+							Internal::DataHdrImage* dh = reinterpret_cast<Internal::DataHdrImage*>( &data[0] );
+							dh->flags = flags;
+							dh->width = sf->width();
+							dh->height = sf->height();
+							dh->depth = sf->depth();
 							break;
 						}
 						default:
@@ -168,7 +173,7 @@ namespace sqid
 						Internal::ComMsg msg;
 						msg.hdr.hdr =
 						{
-							Internal::ProtocolVersion::PV_1,
+							Internal::ProtocolVersion::PV_2,
 							type,
 							_deviceID,
 							_sensorID,

@@ -197,6 +197,16 @@ namespace sqid
 									{
 										_buffer.peek( reinterpret_cast<unsigned char*>( &_hdrEx ), sizeof( ComMsgHdrEx ) );
 
+										if( _hdrEx.hdr.ver != PV_2 )
+										{
+											std::cerr << "<error> serial protocol " << _hdrEx.hdr.ver << " not supported (requiring PV" << PV_2 << "), stopping reading from source..." << std::endl;
+											
+											_tryReconnect = false;
+											_keepRunning = false;
+
+											closeCOM();
+										}
+
 										if( !checkHdr( &_hdrEx ) )
 										{
 											std::cerr << "<error> checksum of header corrupt -- maybe out of sync, trying to resync..." << std::endl;
@@ -404,7 +414,7 @@ namespace sqid
 
 						switch( msg.hdr.hdr.type )
 						{
-						case MT_SINGLE_VALUE:
+						case MT_VALUE:
 							frame = _parser.createFrameFromSingleValue( msg.hdr.hdr, msg.data );
 							break;
 						case MT_ARRAY:
@@ -412,6 +422,9 @@ namespace sqid
 							break;
 						case MT_MATRIX:
 							frame = _parser.createFrameFromMatrix( msg.hdr.hdr, msg.data );
+							break;
+						case MT_IMAGE:
+							frame = _parser.createFrameFromImage( msg.hdr.hdr, msg.data );
 							break;
 						default:
 							std::cerr << "<error> unknown type: " << msgTypeToString( msg.hdr.hdr.type ) << " (" << msg.hdr.hdr.type << ")" << std::endl;
