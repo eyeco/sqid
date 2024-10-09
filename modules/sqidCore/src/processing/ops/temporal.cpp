@@ -1006,7 +1006,7 @@ namespace sqid
 			if( !Op::drawUI() )
 				return false;
 
-			if( ImGui::InputFloat( "f [Hz]", &_targetFPS, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_EnterReturnsTrue ) )
+			if( ImGui::InputFloat( "f [Hz]", &_targetFPS, 0.0f, 0.0f, "%.4f" ) )
 			{
 				_targetFPS = clamp<float>( _targetFPS, 0.0001f, 1000.0f );
 				clear();

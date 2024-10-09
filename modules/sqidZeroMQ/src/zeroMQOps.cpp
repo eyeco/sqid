@@ -329,22 +329,28 @@ namespace sqid
 			{
 				ScopedImGuiDisable disable( _impl ? true : false );
 
-				if( ImGui::InputText( "ip", &_ipBuffer[0], _ipBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					_ip = trim( &_ipBuffer[0] );
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _ip.c_str(), &_ipBuffer[0] ) );
+					if( ImGui::InputText( "ip", &_ipBuffer[0], _ipBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
+					{
+						_ip = trim( &_ipBuffer[0] );
 
-					updateBuffers();
+						updateBuffers();
+					}
 				}
 
 				int p = _port;
 				if( ImGui::InputInt( "port", &p ) )
 					_port = p;
 
-				if( ImGui::InputText( "topic", &_topicBuffer[0], _topicBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					_topic = trim( &_topicBuffer[0] );
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _topic.c_str(), &_topicBuffer[0] ) );
+					if( ImGui::InputText( "topic", &_topicBuffer[0], _topicBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
+					{
+						_topic = trim( &_topicBuffer[0] );
 
-					updateBuffers();
+						updateBuffers();
+					}
 				}
 			}
 
@@ -523,11 +529,14 @@ namespace sqid
 				if( ImGui::InputInt( "port", &p ) )
 					_port = p;
 
-				if( ImGui::InputText( "topic", &_topicBuffer[0], _topicBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					_topic = trim( &_topicBuffer[0] );
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _topic.c_str(), &_topicBuffer[0] ) );
+					if( ImGui::InputText( "topic", &_topicBuffer[0], _topicBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
+					{
+						_topic = trim( &_topicBuffer[0] );
 
-					updateBuffers();
+						updateBuffers();
+					}
 				}
 			}
 

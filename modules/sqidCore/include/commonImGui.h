@@ -68,7 +68,7 @@ namespace sqid
 
 	public:
 		ScopedImGuiStyleColor();
-		ScopedImGuiStyleColor( ImGuiCol idx, const ImVec4& col );
+		ScopedImGuiStyleColor( ImGuiCol idx, const ImVec4& col, bool apply = true );
 		~ScopedImGuiStyleColor();
 
 		void set( ImGuiCol idx, const ImVec4& col );

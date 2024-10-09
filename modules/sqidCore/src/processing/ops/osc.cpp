@@ -322,54 +322,63 @@ namespace sqid
 					open();
 				}
 
-				if( ImGui::InputText( "ip", &_inputBufferIP[0], _inputBufferIP.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					bool valid = true;
-
-					std::string str = trim( &_inputBufferIP[0] );
-					std::vector<std::string> subs = split( str, '.' );
-					if( subs.size() != 4 )
-						valid = false;
-					else for( auto it = subs.begin(); it != subs.end(); ++it )
-						for( auto it2 = it->begin(); it2 != it->end(); ++it2 )
-							if( *it2 < '0' || *it2 > '9' )
-								valid = false;
-
-					if( valid )
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _ip.c_str(), &_inputBufferIP[0] ) );
+					if( ImGui::InputText( "ip", &_inputBufferIP[0], _inputBufferIP.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 					{
-						_ip = str;
+						bool valid = true;
+
+						std::string str = trim( &_inputBufferIP[0] );
+						std::vector<std::string> subs = split( str, '.' );
+						if( subs.size() != 4 )
+							valid = false;
+						else for( auto it = subs.begin(); it != subs.end(); ++it )
+							for( auto it2 = it->begin(); it2 != it->end(); ++it2 )
+								if( *it2 < '0' || *it2 > '9' )
+									valid = false;
+
+						if( valid )
+						{
+							_ip = str;
+
+							open();
+						}
+						else
+							strcpy( &_inputBufferIP[0], _ip.c_str() );
+
+						updateBuffers();
+					}
+				}
+
+				{
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), _port != atoi( &_inputBufferPort[0] ) );
+					if( ImGui::InputText( "port", &_inputBufferPort[0], _inputBufferPort.size(), ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue ) )
+					{
+						_port = atoi( &_inputBufferPort[0] );
 
 						open();
+
+						updateBuffers();
 					}
-					else
-						strcpy( &_inputBufferIP[0], _ip.c_str() );
-
-					updateBuffers();
 				}
 
-				if( ImGui::InputText( "port", &_inputBufferPort[0], _inputBufferPort.size(), ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					_port = atoi( &_inputBufferPort[0] );
-
-					open();
-
-					updateBuffers();
-				}
-
-				if( ImGui::InputText( "path", &_inputBufferPath[0], _inputBufferPath.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
-				{
-					std::string str = trim( &_inputBufferPath[0] );
-					if( str.size() )
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _path.c_str(), &_inputBufferPath[0] ) );
+					if( ImGui::InputText( "path", &_inputBufferPath[0], _inputBufferPath.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 					{
-						if( str[0] != '/' )
-							_path = "/" + str;
+						std::string str = trim( &_inputBufferPath[0] );
+						if( str.size() )
+						{
+							if( str[0] != '/' )
+								_path = "/" + str;
+							else
+								_path = str;
+						}
 						else
-							_path = str;
-					}
-					else
-						_path = "/";
+							_path = "/";
 
-					updateBuffers();
+						updateBuffers();
+					}
 				}
 
 				bool native = ( _outType == OT_NATIVE || _outType == OT_NATIVE_CUSTOM );

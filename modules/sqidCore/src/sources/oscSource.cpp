@@ -448,25 +448,28 @@ namespace sqid
 			{
 				ScopedImGuiDisable disableIP( _proto == P_UDP );
 
-				if( ImGui::InputText( "ip", &_inputBufferIP[0], _inputBufferIP.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					bool valid = true;
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _ip.c_str(), &_inputBufferIP[0] ) );
+					if( ImGui::InputText( "ip", &_inputBufferIP[0], _inputBufferIP.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
+					{
+						bool valid = true;
 
-					std::string str = trim( &_inputBufferIP[0] );
-					std::vector<std::string> subs = split( str, '.' );
-					if( subs.size() != 4 )
-						valid = false;
-					else for( auto it = subs.begin(); it != subs.end(); ++it )
-						for( auto it2 = it->begin(); it2 != it->end(); ++it2 )
-							if( *it2 < '0' || *it2 > '9' )
-								valid = false;
+						std::string str = trim( &_inputBufferIP[0] );
+						std::vector<std::string> subs = split( str, '.' );
+						if( subs.size() != 4 )
+							valid = false;
+						else for( auto it = subs.begin(); it != subs.end(); ++it )
+							for( auto it2 = it->begin(); it2 != it->end(); ++it2 )
+								if( *it2 < '0' || *it2 > '9' )
+									valid = false;
 
-					if( valid )
-						_ip = str;
-					else
-						strcpy( &_inputBufferIP[0], _ip.c_str() );
+						if( valid )
+							_ip = str;
+						else
+							strcpy( &_inputBufferIP[0], _ip.c_str() );
 
-					updateBuffers();
+						updateBuffers();
+					}
 				}
 			}
 

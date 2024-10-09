@@ -57,10 +57,11 @@ namespace sqid
 		_pushed( false )
 	{}
 
-	ScopedImGuiStyleColor::ScopedImGuiStyleColor( ImGuiCol idx, const ImVec4& col ) :
+	ScopedImGuiStyleColor::ScopedImGuiStyleColor( ImGuiCol idx, const ImVec4& col, bool apply ) :
 		_pushed( false )
 	{
-		set( idx, col );
+		if( apply )
+			set( idx, col );
 	}
 
 	ScopedImGuiStyleColor::~ScopedImGuiStyleColor()

@@ -2733,11 +2733,8 @@ namespace sqid
 			if( !Op::drawUI() )
 				return false;
 
-			if( ImGui::InputFloat2( "p0", glm::value_ptr( _p0 ), "%.03f", ImGuiInputTextFlags_EnterReturnsTrue ) )
-			{}
-
-			if( ImGui::InputFloat2( "p1", glm::value_ptr( _p1 ), "%.03f", ImGuiInputTextFlags_EnterReturnsTrue ) )
-			{}
+			ImGui::InputFloat2( "p0", glm::value_ptr( _p0 ), "%.03f" );
+			ImGui::InputFloat2( "p1", glm::value_ptr( _p1 ), "%.03f" );
 
 			/*
 			//TODO: setting from current value(s) via UI is broken since non-single-value frames are supported
@@ -2869,6 +2866,7 @@ namespace sqid
 					char tempStr[64];
 					sprintf( tempStr, "#%d", i );
 
+					//TODO: color text red as long as input is not applied with Return (e.g., use ScopedImGuiStyleColor, see oscOut)
 					if( ImGui::InputFloat2( tempStr, f, "%.03f", ImGuiInputTextFlags_EnterReturnsTrue ) )
 					{
 						_points[i].first = f[0];

@@ -464,17 +464,20 @@ namespace sqid
 			{
 				ScopedImGuiDisable disable( _impl != nullptr );
 
-				if( ImGui::InputText( "path", &_inputBufferPath[0], _inputBufferPath.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					std::string str = trim( &_inputBufferPath[0] );
-
-					if( str.size() )
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _path.c_str(), &_inputBufferPath[0] ) );
+					if( ImGui::InputText( "path", &_inputBufferPath[0], _inputBufferPath.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 					{
-						//TODO: validate file path, check if file exists
-						_path = str;
-					}
+						std::string str = trim( &_inputBufferPath[0] );
 
-					updateBuffers();
+						if( str.size() )
+						{
+							//TODO: validate file path, check if file exists
+							_path = str;
+						}
+
+						updateBuffers();
+					}
 				}
 			}
 
@@ -616,17 +619,20 @@ namespace sqid
 			{
 				ScopedImGuiDisable disable( _impl != nullptr );
 
-				if( ImGui::InputText( "path", &_inputBufferPath[0], _inputBufferPath.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				{
-					std::string str = trim( &_inputBufferPath[0] );
-
-					if( str.size() )
+					ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _path.c_str(), &_inputBufferPath[0] ) );
+					if( ImGui::InputText( "path", &_inputBufferPath[0], _inputBufferPath.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 					{
-						//TODO: validate file path, check if file exists
-						_path = str;
-					}
+						std::string str = trim( &_inputBufferPath[0] );
 
-					updateBuffers();
+						if( str.size() )
+						{
+							//TODO: validate file path, check if file exists
+							_path = str;
+						}
+
+						updateBuffers();
+					}
 				}
 
 				ImGui::InputFloat( "fps", &_fps );

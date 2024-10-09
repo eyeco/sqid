@@ -170,21 +170,25 @@ namespace sqid
 		}
 
 		int i = _port;
+		//TODO: color text red as long as input is not applied with Return (e.g., use ScopedImGuiStyleColor, see oscOut)
 		if( ImGui::InputInt( "port", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
 			_port = i;
 
 		if( _interface == DI_COM || _interface == DI_RFCOMM )
 		{
 			i = _deviceID;
+			//TODO: color text red as long as input is not applied with Return (e.g., use ScopedImGuiStyleColor, see oscOut)
 			if( ImGui::InputInt( "deviceID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
 				_deviceID = i % 256;
 
 			i = _sensorID;
+			//TODO: color text red as long as input is not applied with Return (e.g., use ScopedImGuiStyleColor, see oscOut)
 			if( ImGui::InputInt( "sensorID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
 				_sensorID = i % 256;
 		}
 		else if( _interface == DI_OSC )
 		{
+			ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _msgFilterOSC.c_str(), &_inputBufferMsg[0] ) );
 			if( ImGui::InputText( "msg filter", &_inputBufferMsg[0], _inputBufferMsg.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
 				_msgFilterOSC = std::string( &_inputBufferMsg[0] );
 			ImGui::Checkbox( "exact match", &_exactOSC );
