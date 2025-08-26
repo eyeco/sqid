@@ -199,7 +199,7 @@ namespace sqid
 
 										if( _hdrEx.hdr.ver != PV_2 )
 										{
-											std::cerr << "<error> serial protocol " << _hdrEx.hdr.ver << " not supported (requiring PV" << PV_2 << "), stopping reading from source..." << std::endl;
+											std::cerr << "<error> serial protocol " << (int)_hdrEx.hdr.ver << " not supported (requiring PV_" << (int)PV_2 << "), stopping reading from source..." << std::endl;
 											
 											_tryReconnect = false;
 											_keepRunning = false;
