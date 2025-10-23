@@ -1,18 +1,67 @@
-# sqid Visual Programming Environment
+# sqıd: a Visual Programming Environment for Prototyping in HCI and PC Research
 
-_TODO: general description_
+sqıd is a multi-purpose tool for virtualization of data processing and relaying tasks. It is intended to simplify repetitive and time consuming tasks for prototyping and research scenarios in human computer interaction (HCI), Internet of Things (IoT), and Ubiquitous Computing (UbiComp) tedious, at least that's the initial intention it was built with. Such tasks include setting up multi-component multimedia installations, data capturing and evaluation, as well as live tuning of data processing methods for novel user interface (UI) devices or combinations thereof. It employs the visual programming (VP) paradigm to provide an accessible means for data flow programming that does not necessarily require technically skilled personnel to handle and configure.
 
-A user documentation can be found [here](./doc/main.md).
+![UI](./doc/img/sqid.png)
+
+## Concept
+
+The primary idea is to split the entirety of the dataflow&mdash;from source device to sink&mdash;strictly into three stages: 
+- acquisition: sampling (e.g., via embedded device)
+- processing: low-level filtering and/or high-level feature extraction (sqıd)
+- utilization: display or control of machinery, display content, or other artifacts
+
+![pipeline](./doc/img/main-pipeline.png)
+
+By offloading *the entirety* of sampling, filtering, and data interpretation tasks enables the user to virtulize this in a central application, where design of processing graph, parameter tuning, and data relaying to/from multiple devices can be done via GUI, operating on live data, and visually inspecting the effect of modifications immediately. 
+
+Obviously, this is not the architecture of choice for production code, where low-level parts of the pipeline will be on hardware and more high-level tasks may be handled by the application, or some layer in between. For prototyping, and for a great range of use cases, there is arguably limited benefit from this separation; instead, it often results in tedious workflows. The sqıd approach is to devise, prototype, and tune first, and only later port parts of the finished pipeline to dedicated platforms&mdash;if this is even required.
+
+![proto.vs.prod](./doc/img/prototyping-vs-production.png)
+
+Another frequent use case in research involves the requirement to capture data either for offline evaluation with data analysis tools or for objectively comparing different techniques on identical input data and compare based on performance metrics. sqıd supports this by the capability of capturing timed data to file (binary, CSV, MATLAB) for analysis or replay.
+
+![proto.vs.prod](./doc/img/capture-to-file.png)
+
+Additional notes regarding system overview and purpose can be found on the [project site](https://www.rolandaigner.com/sub/sqid.html).
+A preliminary user documentation can be found in the [doc folder](./doc/main.md).
+
+## Disclaimer
+
+The project is a work in progress, hence, although the main features are available and the program can be (and was in numerous cases) successfully used to support numerous scenarios, the codebase it is not complete and there are features incomplete or missing. 
+Since the project is a byproduct of a multi-year research endeavor in an HCI/IoT/UbiComp project, it was developed to serve the researchers' purpose and no further, due to time constraints.
+When stepping through the source code, you will find passages that are marked as `TODO`, futhermore, there is a section at the bottom of this document, listing features that need implementation and/or improvement.
+Unfortunately, as currently there is no funding to to do any of those, the further development is at the moment halted.
+
+This includes not only comments and documentation in code, but also the [user documentation](./doc/main.md), which is still lacking an in-depth description of available operators (inputs, outputs, as well as processing applied to the data). Yet, most of them can be considered self-explanatory, can be figured out with some trial-and-error, or by looking at the source code, if the user exhibits some basic understanding of computer programming. In the latter case, refer to the `.cpp` files in the core module's [operators](./modules/sqidCore/src/processing/ops) code base, in particular inspect the respective class' `process()` method.
+
+Bottom line: **use at your own discretion.** You may want to contact the author if questions arise, who will do his best to respond, depending on his momentary schedule.
+
+## Crediting
+
+The purpose, use cases (including intended architecture thereof), and (to some degree) usage of sqıd is elaborated in an [IEEE Pervasive Compouting magazine](https://www.computer.org/csdl/magazine/pc) article, entitled [A Multi-Purpose Virtualization Tool, Streamlining Setups for UbiComp Research]() (2025) by Aigner et al. If you use the tool for your own research, you can show gratitude by citing the article in your own publication(s).
+
+_add DOI, guidance for citation, add bibtex_
 
 ## Projects
 
-### sqid
+The code base consists of several C++ projects: 
+- sqıd: main application
+- oscListener: for debugging purposes, handy for inspecting OSC traffic
+- oscConsole: for debugging purposes
+- oscHub: utility application for routing and distributing OSC messages
+
+### sqıd
 
 Basic data processing of raw sensor data (as received via OSC and numerous other sources) and sending of processed data (also via OSC) with optional graphical output.
 
+#### modules
+
+sqıd is using a plugin system to extend functionality that goes beyond standard operations, to (1) somewhat contain the core codebase and (2) keep the application footprint reasonably low, i.e., to avoid clutter with special purpose features and devices. These include input by certain human interface devices (HID) like Thalmic Labs' Myo, Microsoft's Kinect for Windows, LeapMotion's The Leap, and others. Those were moved to separate Git repositories, some of which are public, others are not, for licensing reasons (some of which are merely not clarified; contact the author if you need access and he'll have a look in detail). Other, more common purpose ones are included in the main repository, such as Audio, MQTT, Midi, etc.
+
 #### Build
 
-Only tested on windows, so far, using MSVS 2017.
+So far, only tested on windows, using MSVS 2017-2022. Configurations present for x64 platform only.
 
 Note: Support of 2D FFT (via FFTW library), compression, and RFCOMM (i.e. Bluetooth) are optional; you can deactivate them by preprocessor switches. Use the respective defines `__FFTW_SUPPORT`, `__COMPRESSION_SUPPORT`, and `__RFCOMM_SUPPORT` in [common.h](./modules/sqidCore/include/common.h) accordingly. You can also build a head-less version without GUI (not just deactivating but purging all GL dependencies, e.g., for CL-only operating systems) by removing `__SUPPORT_GUI`. Note however that plugins binaries must match all of these configurations.
 
@@ -50,7 +99,7 @@ Dependencies:
 - TUIO 2.0 [[link](https://github.com/mkalten/TUIO20_CPP)]
 - ZeroMQ (tested with 4.3.2, 64 bit) [[link](https://zeromq.org/)]
 
-##### Plugins (external)
+##### Plugins (external Git submodules)
 - Peak System PCAN-Basic API (tested with version 4.5.4.508) [[link](https://www.peak-system.com/Development.526.0.html)]
 - NvGamepad (tested with 1.0, 64 bit) [[link](https://developer.nvidia.com/cross-platform-gamepad-api)]
 	- Microsoft DirectX End-User Runtime [[link](https://www.microsoft.com/en-us/download/details.aspx?id=35)]
@@ -168,6 +217,6 @@ Roland Aigner [[link](https://www.rolandaigner.com)]
 
 ## License
 
-Copyright (C) 2024 eyeco
+Copyright (C) 2025 eyeco
 
-sqid Visual Programming Environment is licensed under the GPL3 License. See LICENSE file in the package root for license information.
+sqıd Visual Programming Environment is licensed under the GPL3 License. See LICENSE file in the package root for license information.

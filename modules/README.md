@@ -1,4 +1,4 @@
-# sqid Submodules
+# sqid Submodules & Plugins
 
 This folder contains all modules (i.e., [sqid core](./sqidCore/) as well as several plugins). Several plugins are contained in this repository, while others are found in separate ones. 
 
