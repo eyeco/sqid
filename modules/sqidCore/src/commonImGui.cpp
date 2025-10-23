@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------------------------
-* Copyright (C) 2024 eyeco https://github.com/eyeco https://www.rolandaigner.com
+* Copyright (C) 2025 eyeco https://github.com/eyeco https://www.rolandaigner.com
 * This file is part of the sqid Visual Programming Environment
 *
 * Licensed under the GPL3 License. See LICENSE file in the package root for license information.
 *
 * You should have received a copy of the GNU General Public License
-* along with this code. If not, see < http://www.gnu.org/licenses/>.
+* along with this code. if not, see <http://www.gnu.org/licenses/>.
 *--------------------------------------------------------------------------------------------*/
 
 
@@ -57,10 +57,11 @@ namespace sqid
 		_pushed( false )
 	{}
 
-	ScopedImGuiStyleColor::ScopedImGuiStyleColor( ImGuiCol idx, const ImVec4& col ) :
+	ScopedImGuiStyleColor::ScopedImGuiStyleColor( ImGuiCol idx, const ImVec4& col, bool use ) :
 		_pushed( false )
 	{
-		set( idx, col );
+		if( use )
+			set( idx, col );
 	}
 
 	ScopedImGuiStyleColor::~ScopedImGuiStyleColor()

@@ -1,9 +1,14 @@
-/*
-    Parser for data incoming in potentially incomplete chunks, e.g. via
-    Serial interface
-    Authors: Roland Aigner, Andreas Pointner
-    Version: 1.0
- */
+/*---------------------------------------------------------------------------------------------
+* Copyright (C) 2025 eyeco https://github.com/eyeco https://www.rolandaigner.com
+* This file is part of the sqid Visual Programming Environment
+*
+* Licensed under the GPL3 License. See LICENSE file in the package root for license information.
+*
+* You should have received a copy of the GNU General Public License
+* along with this code. If not, see <http://www.gnu.org/licenses/>.
+*--------------------------------------------------------------------------------------------
+* Authors: Roland Aigner, Andreas Pointner
+*--------------------------------------------------------------------------------------------*/
 
 #ifndef _SQID_COM_MSG_PARSER
 #define _SQID_COM_MSG_PARSER
