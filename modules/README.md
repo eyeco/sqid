@@ -1,4 +1,4 @@
-# sqid Submodules & Plugins
+﻿# sqıd Submodules & Plugins
 
 This folder contains all modules (i.e., [sqid core](./sqidCore/) as well as several plugins). Several plugins are contained in this repository, while others are found in separate ones. 
 
@@ -13,11 +13,11 @@ To add new modules follow these steps:
 
 To create additional plugins, use the provided [template](sqidPluginTemplate.zip) and follow these steps to prepare for your custom plugin:
 1. run script [generate.bat](./generate.bat), passing the name of your plugin. naming convention is camel case, 1st character will be lower-cased for some files, plugin name, etc. so avoid all-uppercase names
-2. add your project to the sqid solution in the folder "plugins"
+2. add your project to the sqıd solution in the folder "plugins"
 3. adjust build dependencies, set your plugin to depend on squidCore, so it is always built against up-to-date libraries and include files
 4. add 3rd party dependencies into the 3rdparty folder of your plugin, try to stick to the usual directory layout and naming conventions
 5. add include directories, library directories, and library dependencies in the project file within MSVS. Use VS macros wherever possible when doing so. Most importantly: avoid absolute paths.
-6. for sqid to actually load your plugin, add its name (filename of dll, without extension) to the ```plugins``` array in config.json.
+6. for sqıd to actually load your plugin, add its name (filename of dll, without extension) to the ```plugins``` array in config.json.
 
 ## Providing Dependencies
 It is best practice to put all your dependencies in tar.gz archives using ```tar -czf myPluginDependency.tar.gz myPluginDependency``` and place them in a folder ```3rdparty```, along with a script to unpack the archive if this has not been done before. See [the TUIO plugin 3rdparty folder](./sqidTUIO2/3rdparty/) for an example:
@@ -83,9 +83,9 @@ content of 'myLibraryDependency-0.1.0.tar.gz'
 
 Try to stick to the folder structure above. Place all static library files into the ```lib``` branch and all executable/shared library files into ```bin``` and separate build system, architecture, and build configuration, as in the example, whenever possible. Don't provide superfluous code, stick to the basic required files (i.e., header files, pre-compiled binaries and libs as well as dependencies, debug symbols, etc.), don't add source code or surplus binaries. In Visual Studio, use only paths relative to the project directories, and make use of VS macros to do so and to locate the correct directories (such as ```$(ProjectDir)```, ```$(ConfigurationName)```, ```$(PlatformName)```, ```$(PlatformShortName)```, etc.). Again, see the provided examples as a guideline.
 
-## Placing compiled plugin binaries for use by the sqid application 
+## Placing compiled plugin binaries for use by the sqıd application 
 
-The available plugins are set up with post-build events that copy the generated files into the sqid output folder:
+The available plugins are set up with post-build events that copy the generated files into the sqıd output folder:
 
 ```
 copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
