@@ -1,4 +1,4 @@
-# sqıd: a Visual Programming Environment for Prototyping in HCI and PC Research
+# sqıd: a Visual Programming Environment for Prototyping in HCI and UbiComp Research
 
 sqıd is a multi-purpose tool for virtualization of data processing and relaying tasks. It is intended to simplify repetitive and time consuming tasks for prototyping and research scenarios in human computer interaction (HCI), Internet of Things (IoT), and Ubiquitous Computing (UbiComp) tedious, at least that's the initial intention it was built with. Such tasks include setting up multi-component multimedia installations, data capturing and evaluation, as well as live tuning of data processing methods for novel user interface (UI) devices or combinations thereof. It employs the visual programming (VP) paradigm to provide an accessible means for data flow programming that does not necessarily require technically skilled personnel to handle and configure.
 
@@ -13,7 +13,7 @@ The primary idea is to split the entirety of the dataflow&mdash;from source devi
 
 ![pipeline](./doc/img/main-pipeline.png)
 
-By offloading *the entirety* of sampling, filtering, and data interpretation tasks enables the user to virtulize this in a central application, where design of processing graph, parameter tuning, and data relaying to/from multiple devices can be done via GUI, operating on live data, and visually inspecting the effect of modifications immediately. 
+By offloading *the entirety* of sampling, filtering, and data interpretation tasks into the processing stage enables the user to virtulize this in a central application, where design of processing graph, parameter tuning, and data relaying to/from multiple devices can be done via GUI, thus operating on live data, and visually inspecting the effect of modifications immediately. 
 
 Obviously, this is not the architecture of choice for production code, where low-level parts of the pipeline will be on hardware and more high-level tasks may be handled by the application, or some layer in between. For prototyping, and for a great range of use cases, there is arguably limited benefit from this separation; instead, it often results in tedious workflows. The sqıd approach is to devise, prototype, and tune first, and only later port parts of the finished pipeline to dedicated platforms&mdash;if this is even required.
 
