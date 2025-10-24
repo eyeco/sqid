@@ -6,8 +6,6 @@ apps/bin/
 modules/bin/
 modules/lib/
 
-resources/shaders/include
-
 **/*.mat
 **/*.vcxproj.user
 **/3rdparty/*/
