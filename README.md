@@ -37,6 +37,10 @@ This includes not only comments and documentation in code, but also the [user do
 
 Bottom line: **use at your own discretion.** You may want to contact the author if questions arise, who will do his best to respond, depending on his momentary schedule.
 
+### Contribution
+
+Due to mentioned time constraints, there are aspects in both code and project configuration that are far from optimal but weren't yet addressed. In that light, collaborators are welcome; if you find the project interesting and useful and want to help improve it, don't hesitated to get in touch with the author.
+
 ## Crediting
 
 The purpose, use cases (including intended architecture thereof), and (to some degree) usage of sqıd is elaborated in an [IEEE Pervasive Compouting magazine](https://www.computer.org/csdl/magazine/pc) article, entitled [A Multi-Purpose Virtualization Tool, Streamlining Setups for UbiComp Research]() (2025) by Aigner et al. If you use the tool for your own research, you can show gratitude by citing the article in your own publication(s).
