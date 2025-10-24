@@ -85,7 +85,7 @@ Usually, the sqıd executable tries to load all plugins that are co-located with
 
 #### Build
 
-So far, only tested on windows, using MSVS 2017-2022. Configurations present for x64 platform only.
+So far, only tested on windows, using MSVS 2017-2022. Configurations present for x64 platform only. Although Windows is the only supported OS so far, the codebase is written and the dependencies chosen with cross-platform capability in mind, hence, porting to Linux and MacOS should be possible with reasonable effort.
 
 Visual Studio solution file found in [build/msvc](./build/msvc/). Use of KindDragon [Visual Leak Detector](https://kinddragon.github.io/vld/) (VLD) is highly recommended (tested with version 2.5.1). Should you decide to not use VLD, remove the definition of `__USE_VLD` from [config.h](./modules/sqidCore/include/common.h).
 
