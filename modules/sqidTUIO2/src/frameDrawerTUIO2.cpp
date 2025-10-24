@@ -23,6 +23,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#ifdef _WIN32
+#pragma comment( lib, "OpenGL32.lib" )
+#endif
+
 namespace sqid
 {
 	DEFINE_FRAMEDRAWER_DESC( FrameDrawerTUIO2, "TUIO", "6BA16A9D-3CC4-4636-AB06-9C0CA81EF553" );

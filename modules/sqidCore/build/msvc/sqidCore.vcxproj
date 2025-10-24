@@ -226,8 +226,10 @@
       <AdditionalDependencies>iphlpapi.lib;Ws2_32.lib;imgui.lib;liblo_static.lib;serial.lib;dl.lib;opencv_world410.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
-copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
+      <Command>mkdir $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+$(ProjectDir)copyDependencies $(Configuration) $(PlatformName)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>call $(ProjectDir)..\..\3rdparty\create.bat</Command>
@@ -253,8 +255,10 @@ copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName
       <AdditionalDependencies>iphlpapi.lib;Ws2_32.lib;imgui.lib;liblo_static.lib;serial.lib;dl.lib;opencv_world410d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
-copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
+      <Command>mkdir $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+$(ProjectDir)copyDependencies $(Configuration) $(PlatformName)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>call $(ProjectDir)..\..\3rdparty\create.bat</Command>

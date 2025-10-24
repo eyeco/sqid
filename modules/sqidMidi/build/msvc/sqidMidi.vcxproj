@@ -70,7 +70,7 @@
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\include;$(ProjectDir)..\..\3rdparty\rtmidi-4.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\include;$(ProjectDir)..\..\3rdparty\rtmidi-4.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SQID_DLL;GLM_FORCE_SWIZZLE;GLM_ENABLE_EXPERIMENTAL;IMGUI_IMPL_OPENGL_LOADER_GLEW;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -88,6 +88,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -100,7 +101,7 @@ copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\include;$(ProjectDir)..\..\3rdparty\rtmidi-4.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\src;$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\imgui-1.91.1\include;$(ProjectDir)..\..\3rdparty\rtmidi-4.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SQID_DLL;GLM_FORCE_SWIZZLE;GLM_ENABLE_EXPERIMENTAL;IMGUI_IMPL_OPENGL_LOADER_GLEW;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -115,6 +116,7 @@ copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
+
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
