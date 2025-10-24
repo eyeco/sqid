@@ -65,7 +65,7 @@
       <EnableParallelCodeGeneration>
       </EnableParallelCodeGeneration>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;__WINDOWS_DS__;__WINDOWS_ASIO__;_CONSOLE;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;_DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-2.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-3.2.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -96,7 +96,7 @@
       <EnableParallelCodeGeneration>
       </EnableParallelCodeGeneration>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;__WINDOWS_DS__;__WINDOWS_ASIO__;_CONSOLE;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;NDEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-2.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\3rdparty\liblo-0.31\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-3.2.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
