@@ -24,7 +24,9 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#ifdef __USE_VLD
 #include <vld.h>
+#endif
 #endif
 
 #include <glm/glm.hpp>

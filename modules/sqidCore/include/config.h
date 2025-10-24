@@ -67,6 +67,7 @@ typedef unsigned int DWORD;
 
 #define __SUPPORT_GUI
 //#define __QUIT_WITH_ESCAPE
+//#define __USE_VLD
 
 //NOTE: removed call of makeHeaders.bat from Pre-Build Events since it would trigger a re-build of all 
 // depending source files, even if nothing changed in the code. Furthermore, there apparently is no way 
