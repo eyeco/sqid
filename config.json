@@ -1,18 +1,9 @@
 {
     "plugins": [
-        "sqidGamepad",
         "sqidAudio",
-        "sqidTUIO2",
         "sqidMidi",
-        "sqidZeroMQ",
-        "sqidMyo",
-        "sqidSensel",
         "sqidMQTT",
-        "sqidCAN",
-        "sqidOptiTrack",
-        "sqidNatNet",
-        "sqidLeap",
-        "sqidKinect",
-        "sqidRealSense"
+        "sqidTUIO2",
+        "sqidZeroMQ"
     ]
 }
