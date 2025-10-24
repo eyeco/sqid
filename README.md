@@ -6,12 +6,14 @@ sqıd is a multi-purpose tool for virtualization of data processing and relaying
 
 ## Concept
 
-The primary idea is to split the entirety of the dataflow&mdash;from source device to sink&mdash;strictly into three stages: 
+The primary idea is to split the entirety of the dataflow&mdash;from source device to sink&mdash;strictly into three stages, by relying mostly on networking interfaces for inter-process communication (IPC): 
 - acquisition: sampling (e.g., via embedded device)
 - processing: low-level filtering and/or high-level feature extraction (sqıd)
 - utilization: display or control of machinery, display content, or other artifacts
 
 ![pipeline](./doc/img/main-pipeline.png)
+
+Due to a nature of the data that is commonly at hand in the targeted scenarios, the IPC is building heavily on the OSC protocol via UDP (TPC is also supported), while alternatives are also provided via optional plugins, such as MQTT and ZeroMQ (see below).
 
 By offloading *the entirety* of sampling, filtering, and data interpretation tasks into the processing stage enables the user to virtulize this in a central application, where design of processing graph, parameter tuning, and data relaying to/from multiple devices can be done via GUI, thus operating on live data, and visually inspecting the effect of modifications immediately. 
 
@@ -22,6 +24,10 @@ Obviously, this is not the architecture of choice for production code, where low
 Another frequent use case in research involves the requirement to capture data either for offline evaluation with data analysis tools or for objectively comparing different techniques on identical input data and compare based on performance metrics. sqıd supports this by the capability of capturing timed data to file (binary, CSV, MATLAB) for analysis or replay.
 
 ![proto.vs.prod](./doc/img/capture-to-file.png)
+
+A sample firmware implementation for Serial (RS232) and RFCOMM (aka. Bluetooth Serial) can be found in the directory [firmware](./firmware/).
+
+Reference implementations and templates for data sinks can be found in separate repositories for [Unity3D](https://github.com/eyeco/sqid-template-Unity3D), [Python](https://github.com/eyeco/sqid-template-Python), [Processing](https://github.com/eyeco/sqid-template-Processing), [MATLAB](https://github.com/eyeco/sqid-template-MATLAB), and Grasshopper3D (not yet public, contact author if you're interested).
 
 Additional notes regarding system overview and purpose can be found on the [project site](https://www.rolandaigner.com/sub/sqid.html).
 A preliminary user documentation can be found in the [doc folder](./doc/main.md).
@@ -50,10 +56,22 @@ _add DOI, guidance for citation, add bibtex_
 ## Projects
 
 The code base consists of several C++ projects: 
-- sqıd: main application
-- oscListener: for debugging purposes, handy for inspecting OSC traffic
-- oscConsole: for debugging purposes
-- oscHub: utility application for routing and distributing OSC messages
+- apps folder
+	- utils folder
+		- oscListener: for debugging purposes, handy for inspecting OSC traffic
+		- oscConsole: for debugging purposes
+		- oscHub: utility application for routing and distributing OSC messages
+		- sc: utility for monitoring serial/RS232 input
+	- sqid: main application, basically wrapping the sqidCore module and loading available and configured plugins
+
+- modules folder
+	- sqidCore: core codebase
+	- plugins folder
+		- sqidAudio: for reading audio input
+		- sqidMidi: for reading MIDI input
+		- sqidMQTT: for sending and receiving messages in an MQTT network (as a client)
+		- sqidTUIO2: for receiving cursor and object data using the TUIO2 protocol
+		- sqidZeroMQ: ZeroMQ implementation for sending and receiving data; recommended over OSC for larger chunks
 
 ### sqıd
 
@@ -124,6 +142,8 @@ Dependencies:
 #### Run
 
 sqıd will currently start headless by default. Call the executable with `-g` (GUI) parameter to run it with UI. When you use to start it from the Explorer window, it is convenient to create a `.lnk` or `.bat` file, accordingly. However, since there is currently no File > Open dialog to open scene files it is more common to run it from command line, and add the scene file you want to load, e.g., `sqid.exe -g myScene`. Note you have to use `myScene` *without* JSON file extension, since the loaded information is actually split into three files, one containing the filter graph configuration (`.json`), one containing the layout on the UI canvas (`.ui.json`) and one storing the window position and size, as well as configuration, such as auto-save and view settings (`-app.ini`). The latter two are obviously irrelevant when run headless, therefore the split. Scene files will be opened (or created, if not present) relative to the current working directory, so you can also use, e.g., `../scenes/myScene`, just make sure the directory exists, as it will not be created.
+
+Make sure the [resources](./resources/) folder is located in the current working directory when you run sqıd using the UI, otherwise TTF fonts and (potentially) shader files cannot be located by the application, causing it to shut down.
 
 In order to control which plugins will be loaded by the application, a file `config.json` can be used, which will also be opened in the current working directory. The contained JSON string array specifies the names (without extension) of all the plugins that should be loaded. DLLs need to be co-located with the executable file. If a plugin fails to load, make sure all of its dependencies can be found by the system (a handy tool for troubleshooting is [Dependencies](https://github.com/lucasg/Dependencies)).
 
