@@ -59,11 +59,17 @@ Basic data processing of raw sensor data (as received via OSC and numerous other
 
 sqıd is using a plugin system to extend functionality that goes beyond standard operations, to (1) somewhat contain the core codebase and (2) keep the application footprint reasonably low, i.e., to avoid clutter with special purpose features and devices. These include input by certain human interface devices (HID) like Thalmic Labs' Myo, Microsoft's Kinect for Windows, LeapMotion's The Leap, and others. Those were moved to separate Git repositories, some of which are public, others are not, for licensing reasons (some of which are merely not clarified; contact the author if you need access and he'll have a look in detail). Other, more common purpose ones are included in the main repository, such as Audio, MQTT, Midi, etc.
 
+Usually, the sqıd executable tries to load all plugins that are co-located with the `exe` file. You can control which ones will be loaded, by modifying the `plugins` array in the `config.json` file (see section "Run", below).
+
 #### Build
 
 So far, only tested on windows, using MSVS 2017-2022. Configurations present for x64 platform only.
 
-Note: Support of 2D FFT (via FFTW library), compression, and RFCOMM (i.e. Bluetooth) are optional; you can deactivate them by preprocessor switches. Use the respective defines `__FFTW_SUPPORT`, `__COMPRESSION_SUPPORT`, and `__RFCOMM_SUPPORT` in [common.h](./modules/sqidCore/include/common.h) accordingly. You can also build a head-less version without GUI (not just deactivating but purging all GL dependencies, e.g., for CL-only operating systems) by removing `__SUPPORT_GUI`. Note however that plugins binaries must match all of these configurations.
+Visual Studio solution file found in [build/msvc](./build/msvc/). Use of KindDragon [Visual Leak Detector](https://kinddragon.github.io/vld/) (VLD) is highly recommended (tested with version 2.5.1). Should you decide to not use VLD, remove the definition of `__USE_VLD` from [config.h](./modules/sqidCore/include/common.h).
+
+The built application binaries will be found in `apps/bin/<platform>/<configuration>/`, e.g., `apps/bin/x64/Release/`. Module binaries will be built into `modules/bin/<platform>/<configuration>/`, with import libraries located in `modules/libs/<platform>/<configuraton>`. Module binaries as well as their dependencies will be automatically copied into the apps directories, so executables should be able to run out-of-the-box.
+
+Note: Support of 2D FFT (via FFTW library), compression, and RFCOMM (i.e. Bluetooth) are optional; you can deactivate them by preprocessor switches. Remove/add the respective defines `__FFTW_SUPPORT`, `__COMPRESSION_SUPPORT`, and `__RFCOMM_SUPPORT` in [config.h](./modules/sqidCore/include/config.h) accordingly. You can also build a head-less version without GUI (not just deactivating but purging all GL dependencies, e.g., for CL-only operating systems) by removing `__SUPPORT_GUI`. Note however that plugins binaries must match all of these configurations.
 
 Dependencies:
 ##### General (used across modules and applications)
@@ -110,6 +116,12 @@ Dependencies:
 - OptiTrack Camera SDK (tested with 2.2.0) [[link](https://optitrack.com/software/camera-sdk/)]
 - librealsense2 (tested with version 2.36.0.2034, 64 bit) [[link](https://github.com/IntelRealSense/librealsense)]
 - senselLib (tested with 0.8.3, 64 bit) [[link](https://github.com/sensel/sensel-api)]
+
+#### Run
+
+sqıd will currently start headless by default. Call the executable with `-g` (GUI) parameter to run it with UI. When you use to start it from the Explorer window, it is convenient to create a `.lnk` or `.bat` file, accordingly. However, since there is currently no File > Open dialog to open scene files it is more common to run it from command line, and add the scene file you want to load, e.g., `sqid.exe -g myScene`. Note you have to use `myScene` *without* JSON file extension, since the loaded information is actually split into three files, one containing the filter graph configuration (`.json`), one containing the layout on the UI canvas (`.ui.json`) and one storing the window position and size, as well as configuration, such as auto-save and view settings (`-app.ini`). The latter two are obviously irrelevant when run headless, therefore the split. Scene files will be opened (or created, if not present) relative to the current working directory, so you can also use, e.g., `../scenes/myScene`, just make sure the directory exists, as it will not be created.
+
+In order to control which plugins will be loaded by the application, a file `config.json` can be used, which will also be opened in the current working directory. The contained JSON string array specifies the names (without extension) of all the plugins that should be loaded. DLLs need to be co-located with the executable file. If a plugin fails to load, make sure all of its dependencies can be found by the system (a handy tool for troubleshooting is [Dependencies](https://github.com/lucasg/Dependencies)).
 
 #### TODO
 - implement a more reasonable (less historically burdened) serial communication protocol
