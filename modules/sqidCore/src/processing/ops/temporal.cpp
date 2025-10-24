@@ -11,15 +11,12 @@
 
 #include "temporal.h"
 
-//#include <processing/pin.h>
-
 #include <app.h>
 #include <fileIO/json.h>
 
 #include <commonImGui.h>
 
 #include <opencv2/imgproc.hpp>
-//#include <opencv2/imgproc/types_c.h>
 
 
 namespace sqid

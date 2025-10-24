@@ -15,13 +15,7 @@
 
 #include <fileIO/json.h>
 
-//#include <processing/pin.h>
-
 #include <imgui/imgui.h>
-//#include <imgui/imgui_internal.h>
-
-//#include <opencv2/imgproc.hpp>
-//#include <opencv2/imgproc/types_c.h>
 
 namespace sqid
 {

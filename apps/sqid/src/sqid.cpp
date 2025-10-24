@@ -16,14 +16,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#ifdef _WIN32
-//#include <conio.h>
-//#include <filesystem>
-#elif defined __GNUC__
-//#include <unistd.h>
-//#include <signal.h>
-//#include <experimental/filesystem>
-#endif
 
 #include <config.h>
 
@@ -92,8 +84,7 @@ namespace sqid
 				if( result.count( "help" ) )
 				{
 					std::cout << options.help( {
-						""//, 
-						//"OSC" 
+						"" 
 						} ) << std::endl;
 
 					return false;

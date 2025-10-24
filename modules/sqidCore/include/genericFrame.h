@@ -13,9 +13,6 @@
 
 #include <common.h>
 
-//#include <opencv2/opencv.hpp>
-//#include <nlohmann/json.hpp>
-
 namespace sqid
 {
 	template<typename T>

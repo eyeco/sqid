@@ -11,21 +11,16 @@
 
 #include "serial.h"
 
-//#include <drawing/frameDrawer.h>
-
 #include <fileIO/json.h>
 
 #include "../sceneGraph.h"
 #include "../../sources/serialMsg.h"
-
-//#include <processing/pin.h>
 
 #include <commonImGui.h>
 
 #include <serial/serial.h>
 
 #include <opencv2/imgproc.hpp>
-//#include <opencv2/imgproc/types_c.h>
 
 
 namespace sqid

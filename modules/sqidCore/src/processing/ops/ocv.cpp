@@ -12,7 +12,6 @@
 #include "ocv.h"
 
 #include <app.h>
-//#include <processing/pin.h>
 #include "../sceneGraph.h"
 
 #include <fileIO/json.h>
@@ -20,7 +19,6 @@
 #include <commonImGui.h>
 
 #include <opencv2/imgproc.hpp>
-//#include <opencv2/imgproc/types_c.h>
 
 namespace sqid
 {

@@ -21,11 +21,7 @@
 #include <processing/pin.h>
 
 #include <opencv2/imgproc.hpp>
-//#include <opencv2/imgproc/types_c.h>
 
-
-//#include <filesystem>
-//#include <experimental/filesystem>
 
 #ifdef _WIN32
     #include <filesystem>
