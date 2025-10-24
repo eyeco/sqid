@@ -43,7 +43,7 @@ Due to mentioned time constraints, there are aspects in both code and project co
 
 ## Crediting
 
-The purpose, use cases (including intended architecture thereof), and (to some degree) usage of sqıd is elaborated in an [IEEE Pervasive Compouting magazine](https://www.computer.org/csdl/magazine/pc) article, entitled [A Multi-Purpose Virtualization Tool, Streamlining Setups for UbiComp Research]() (2025) by Aigner et al. If you use the tool for your own research, you can show gratitude by citing the article in your own publication(s).
+The purpose, use cases (including intended architecture thereof), and (to some degree) usage of sqıd is elaborated in an [IEEE Pervasive Compouting magazine](https://www.computer.org/csdl/magazine/pc) article, entitled [A Multipurpose Virtualization Tool, Streamlining Setups for UbiComp Research]() (2025) by Aigner et al. If you use the tool for your own research, you can show gratitude by citing the article in your own publication(s).
 
 _add DOI, guidance for citation, add bibtex_
 
