@@ -4,12 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{1370F620-47B0-41E8-B4A4-53AF24847D9B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{DB3A3289-2674-4226-AFE7-2A2006F1DEFB}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\ACKNOWLEDGMENTS = ..\..\ACKNOWLEDGMENTS
 		..\..\LICENSE = ..\..\LICENSE
 		..\..\README.md = ..\..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{DB3A3289-2674-4226-AFE7-2A2006F1DEFB}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\modules\README.md = ..\..\modules\README.md
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sc", "..\..\apps\sc\build\msvc\sc.vcxproj", "{E69176DE-E777-4492-A552-E6E67DD1D144}"
