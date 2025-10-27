@@ -1,6 +1,6 @@
 # User Documentation
 
-## Supported features
+## General
 
 Some features are selectively built into the main module, according to pre-processor switches. Refer to the console output to learn about included features e.g.
 ```
@@ -13,13 +13,9 @@ built with MSVC v1916(191627045) at Wed Jul  3 14:13:39 2024 with:
   Compression support          NO
 ```
 
-Addons (such as support for MQTT, Kinect, Myo, etc.) are built as separate dll modules and dynamically loaded by the core module at startup (if configured to be loaded in the [config.json](../config.json) file). More details about how to do this will follow.
+Addon modules (such as support for MQTT, Kinect, Myo, etc.) are built as separate dll modules and dynamically loaded by the core module at startup (if configured to be loaded in the [config.json](../config.json) file). More details about how to do this will follow.
 
 For replicating the serial communication from an ESP via USB, with the [firmware code](../firmware/) included in this package, find the USB to UART Bridge Virtual COM Port (VCP) drivers [here](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads).
-
-## General
-
-The software is not demanding in terms of hardware specification – for reference, we easily run it on an Intel NUC (NUC6i7KYB) with Intel Core i7-6770 @ 2.6GHz, 16GB RAM, and integrated graphics Intel Iris Pro Graphics 580, although weaker CPUs and less RAM may work as well.
 
 ## User guide
 
@@ -233,7 +229,7 @@ Although not a data processing demo, this example demonstrates a workaround to a
 
 # Appendix B: Interoperability
 
-Apart from the benefits of live patching and tuning, the main purpose of the modular architecture is the ability to replace source and sink device with little effort, which is facilitated by the network interfaces. sqıd is mostly relying on OSC as a networking protocol, but other formats and/or interfaces are also possible (Serial, Bluetooth, MQTT, ZeroMQ, etc.). As a result there are numerous ways of interfacing external software, potentially running on dedicated. In the following, a few examples are provided.
+Apart from the benefits of live patching and tuning, the main purpose of the modular architecture is the ability to replace source and sink device with little effort, which is facilitated by the network interfaces. sqıd is mostly relying on [OSC](https://opensoundcontrol.stanford.edu/) as a networking protocol, but other formats and/or interfaces are also possible (Serial, Bluetooth, MQTT, ZeroMQ, etc.). As a result there are numerous ways of interfacing external software, potentially running on dedicated. In the following, a few examples are provided.
 ![sample-setup](./img/example-setup.png)
 
 ## Interop w/ Unity3D via OSC protocol
@@ -269,8 +265,13 @@ Beyond the provided examples, there are numerous other options to combine sqıd 
 
 ![P3](./img/3rdparty/P3.gif)
 
-_NOTE:_ all the shown samples and implementation use the sqıd custom OSC format for a reasonably compact data transfer of moderately sized data arrays or matrices, which - under the hood - send blob data, in combination with metadata like matrix dimensions and timestamps. This is the main reason for the *plugins* and *addons* that are shown here, basically representing custom OSC parsers, which basically require the 3rd party technology to be extendible in some way. However, depending on the nature of the data, it may also be sent via standard OSC, which opens the door to interface also 3rd party software that cannot be altered or extended that easily, such as [MadMapper](https://madmapper.com/) or [Ableton Live](https://www.ableton.com/en/live/). This extends the potential further, as OSC is a protocol supported by countless applications. Incidentally, all the previously shown examples can also be operated this way. Ultimately, what is the better option is a matter of the use case scenario at hand.
+## Networking Interface and Format
+Note that all the shown examples and implementation use the sqıd custom OSC format for a reasonably compact data transfer of moderately sized data arrays or matrices (*SampleFrames*), which&mdash;under the hood&mdash;send blob data, in combination with metadata like matrix dimensions and timestamps. This is the main reason for the *plugins* and *addons* that are shown here, basically representing custom OSC parsers, which basically require the 3rd party technology to be extendible in some way. However, depending on the nature of the data, it may also be sent via standard OSC, which opens the door to interface also 3rd party software that cannot be altered or extended that easily, such as [MadMapper](https://madmapper.com/) or [Ableton Live](https://www.ableton.com/en/live/). This extends the potential further, as OSC is a protocol supported by countless applications. Incidentally, all the previously shown examples can also be operated this way. Ultimately, what is the better option is a matter of the use case scenario at hand.
 ![vvvv](./img/3rdparty/vvvv.gif)
+
+To provide OSC parsers for sqıd's own SampleFrame protocol, the format is described here: an OSC message is of arbitrary length and starts with four `int32`, which are, however, filled by unsigned integers and must be interpreted accordingly. Unfortunately, [standard OSC](https://opensoundcontrol.stanford.edu/spec-1_0.html) is somewhat limited in terms of data types as it has no concept of unsigned and 8 or 16 bit types. The four integers represent the data matrix's width (*w*), height (*h*), and depth (*d*), in this order, as well as a timestamp *ts* (milliseconds). This header is followed by a `blob`, which in OSC is a term describing a byte block of arbitrary data. The SampleFrame blob contains *n = w* × *h* × *d*  IEEE 754 32 bit single precision floats, i.e., *n* × 4 bytes. Values are in row-major order. In case of *d* > 1, values are interleaved.
+
+The format used for sending SampleFrames via ZeroMQ is similar, except width, height, and depth are represented by `uint16_t` data types and timestamp is of `uint32_t`.
 
 # Appendix C: Features
 
