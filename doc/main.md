@@ -35,7 +35,7 @@ Usage: ```sqid [-g | --gui] [-h | --help] [sceneName]```
 | ```-h, --help```  | print help (optional)                             |
 | sceneName         | name of scene, without file extension (optional, defaults to 'scene')  |
 
-Example: ```sqid -g myScene``` will run sqid with GUI, loading the scene configuration from ```myScene.json```, the UI layout from ```myScene.ui.json```, and the window position/size, as well as preferences (auto-save, view settings) from ```myScene.ini```. If the scene file does not yet exisit, it will be created. Scenes can be placed in subdirectory; in that case specify the absolute or relative path, e.g., ```myDir/myScene```. **Note that directories must exist, they will not be created!** Since all required information is contained in the respective .json, .ui.json, and .ini files, scenes can be easily copied or moved just by copying or moving these three.
+Example: ```sqid -g myScene``` will run sqıd with GUI, loading the scene configuration from ```myScene.json```, the UI layout from ```myScene.ui.json```, and the window position/size, as well as preferences (auto-save, view settings) from ```myScene.ini```. If the scene file does not yet exisit, it will be created. Scenes can be placed in subdirectory; in that case specify the absolute or relative path, e.g., ```myDir/myScene```. **Note that directories must exist, they will not be created!** Since all required information is contained in the respective .json, .ui.json, and .ini files, scenes can be easily copied or moved just by copying or moving these three.
 
 ### Auto-save
 Turn on/off the auto-save feature using the menu using 'File' > 'Auto-save scene'. With the feature turned on, changes on the scene and configuration will automatically be saved when the application is closed. **Note there is no automatic saving apart from that, e.g., during patching or configuration.**
@@ -167,9 +167,9 @@ void setup() {
 }
 ```
 
-This means that even tough we sampled six ADCs in total, we treat the data as a single 6-value array to send it via serial in a more compact way. For identification within sqid, we defined Device ID as 0 and Sensor ID also as 0.
+This means that even tough we sampled six ADCs in total, we treat the data as a single 6-value array to send it via serial in a more compact way. For identification within sqıd, we defined Device ID as 0 and Sensor ID also as 0.
 
-Note that all of these are implementation details. All the user really has to know is that there is data coming in which is associated with a certain combination of device ID and sensor ID, the rest is done within sqid.
+Note that all of these are implementation details. All the user really has to know is that there is data coming in which is associated with a certain combination of device ID and sensor ID, the rest is done within sqıd.
 
 ![com-part1](./img/tutorial/com-part1.gif)
 
@@ -197,40 +197,80 @@ We see in the autoNormalize node, that the range of [0 1] is reasonably exhauste
 
 To reduce sensor noise, we add a quick-fix using a *runningAvrg* ('math' > 'temporal' > 'runningAvrg'), which implements an exponential smoothing low-pass filter with x'=(x\*drag)+(x_p'\*(1-drag)), where x_p' is x' of the previous step. We set drag to 0.1, to not introduce too much latency.
 
-Next, we want to make our processed data useable in a Unity3D scene. We prepared a Unity3D scene that receives OSC data via UDP using the UnityOSC addon. values are mapped to the Y-scaling of cubes in the Unity scene, for a quick visualization. In sqid, we create an oscOut operator. We leave the protocol at the default of UDP, ID is set to loopback. We adapt the port to 6667 to match the socket we are using in our Unity code. Since we defined the OSC message string filter as "/unity", furthermore, we set device ID and sensor ID, which are at this point optional since they are ignored in our Unity code, and click "start" to start sending UDP datagrams. We can see in our Unity scene, that data is arriving and we are able to control Unity entities with our resistive sensors.
+Next, we want to make our processed data useable in a Unity3D scene. We prepared a Unity3D scene that receives OSC data via UDP using the UnityOSC addon. values are mapped to the Y-scaling of cubes in the Unity scene, for a quick visualization. In sqıd, we create an oscOut operator. We leave the protocol at the default of UDP, ID is set to loopback. We adapt the port to 6667 to match the socket we are using in our Unity code. Since we defined the OSC message string filter as "/unity", furthermore, we set device ID and sensor ID, which are at this point optional since they are ignored in our Unity code, and click "start" to start sending UDP datagrams. We can see in our Unity scene, that data is arriving and we are able to control Unity entities with our resistive sensors.
 
 We save the scene, which writes all settings to disc, including COM ports and minima and maxima of our calibration phase. Next time scene is run, the device on COM8 is automatically connected and OSC sending is active right away. If nothing changed on the hardware end, there are no more user interventions required. Since we use UDP for OSC, there is no requirement for Unity to be up and running, we can start it anytime we want. We can also use different endpoints if we want, either in addition or replacing our Unity demo. 
 
 # Appendix A
 
+A few basic examples are listed here, intended to give an idea of intended workflow and sqıd's versatility and utility. More examples, use case scenarios, case studies, and additional content (somewhat overlapping with the content here) can be found in the [adjunct document](./pdf/sqid-adjunct.pdf) (PDF).
+
 ## Example: TAFFI pinch detection and tracking
 ![taffi](./img/samples/blob-tracking.gif)
+This sample uses web-camera live imagery to implement a very basic gesture pinch detection (on/off) based on the [TAFFI paper](https://doi.org/10.1145/1166253.1166292) by Wilson, including x/y coordinate control for dragging.
+Using background subtraction with a static background model (captured image via `sample+hold`) in RGB-space and building the absolute difference, the hand pixels can be isolated as foreground area. Adding more ad-hoc image processing steps, including value scaling, multiplication of color channels, thresholding, and morphological opening, a distinct outline of the hand can be achieved. Connected component detection and tracking the center-of-mass can be used to generate a value representing on/off and a value pair representing x/y.
+![taffi-detail](./img/samples//TAFFI-sbs.png)
 
-## Example: Kinect hand blob tracking
-![kinect](./img/samples/kinect-tracking.gif)
+## Example: Hand Bend Direction Detection Using Myo EMG Armband
+Using the (unfortunately discontinued) [Thalmic Myo](https://wearabletech.io/myo-bracelet/) gesture armband featuring 8 EMG sensors, a straightforward classification of hand bend direction is demonstrated: from the `myo` source operator, 8-channel EMG data is received that is plotted using a `nop` node for visual inspection. Absolute values are taken of the waveforms with an `abs` operator, a slight exponential smoothing filter is applied (α=0.05) to get rid of high-frequency noise with a `runningAvrg` operator. Individual sensor value ranges are then normalized using an `autoNormalize`, which was calibrated for minima and maxima with a few seconds of random input data. The 8 channel data were then split into two 2-channel segments, using two crop operators. Channels 3 and 4 (left) as well as channels 7 and 8 (right) were isolated, and those pairs were added together with a `sum` operator. Two `threshold` (t=0.5) operators were then used for left and right, respectively. Both values were joined into a single 2-value frame with a `join` operator and the result was sent to an UDP socket for utilization using an `oscOut`.
+![myo-detail](./img/samples/myo-sbs.png)
 
 ## Example: Multimodal input of Audio + MIDI + Myo EMG armband
 ![multimodal](./img/samples/myoaudiomidi.gif)
 
 ## Example: Finger touch position tracking on (textile) touch matrix
+![TexYZ](./img/samples/TexYZ.png)
+Basic blob COM tracking for (multi-)touch tracking on a sensor matrix. The example was used for a demo of the CHI 2021 paper [TexYZ](https://doi.org/10.1145/3411764.3445479) by Aigner et al.
 ![fingertouch](./img/samples/finger-touch.gif)
 
+## Example: Kinect hand blob tracking
+Basic hand COM tracking using depth image data (here, using the now discontinued Microsoft Kinect for XBox 360).
+![kinect](./img/samples/kinect-tracking.gif)
+
 ## Example: Receiving Google Soli live radar data via OSC
+Although not a data processing demo, this example demonstrates a workaround to a common issue in handling prototype devices in UI research, which is dedicated operating system support. The API of the (now discontinued) Google ATAP [Project Soli](https://doi.org/10.1145/2897824.2925953) millimeter-wave radar sensor for gesture interaction provided compatibility with macOS and Ubuntu, but not Windows. Suppose the majority of your workflow depends on Windows (or vice versa, or some other OS), sqıd provides an easy means to transfer raw data from the Soli API (e.g., via a basic terminal application) to a different platform, where the remainder of the pipeline is located.
 ![google-soli](./img/samples/soli.png)
 
 # Appendix B
 
-## Interfacing w/ vvvv beta via custom addon and OSC
-![vvvv](./img/3rdparty/vvvv.gif)
+Apart from the benefits of live patching and tuning, the main purpose of the modular architecture is the ability to replace source and sink device with little effort, which is facilitated by the network interfaces. sqıd is mostly relying on OSC as a networking protocol, but other formats and/or interfaces are also possible (Serial, Bluetooth, MQTT, ZeroMQ, etc.). As a result there are numerous ways of interfacing external software, potentially running on dedicated. In the following, a few examples are provided.
+![sample-setup](./img/example-setup.png)
 
-## Interfacing w/ Rhino 3D, Grasshopper 3D via C# addon and OSC
-![ghAddon](./img/3rdparty/grasshopper.gif)
+## Interfacing w/ Unity3D via OSC protocol
 
-## Interfacing w/ MATLAB via .m script and ZeroMQ
+Using the widespread [Unity3D](https://unity.com/) game engine, e.g., to implement a demo application or UI mockup, is an option that provides great versatility and flexibility, not only because it is very easy to learn and use, but also because it provides great portability, as it supports a great range of target platforms, such as Windows, macOS, iOS, Android, WebGL, and even game consoles. Hence, applications for desktop, mobile, gaming, and embedded platforms can easily be interfaced. See the repository [sqid-template-Unity3D](https://github.com/eyeco/sqid-template-Unity3D) for an example of how to easily get data into Unity3D.
+![Unity3D](./img/3rdparty/Unity3D.gif)
+
+## Interfacing w/ other data processing environments
+
+In order to augment sqıd with additional data processing capabilities, one option beyond extending the codebase or programming plugins is to use existing 3rd party software that already provides the desired functionality. The [Python](https://www.python.org/) scripting language has gained popularity among the data scientists community in recent years, due to its accessibilty and extensive libraries. Evidently, also UI researchers use it frequently for tasks like data processing and pattern recognition, e.g., in the context of data filtering as well as interpretation, such as for gesture recognition. [MATLAB](https://www.mathworks.com/matlab) is another obvious candidate as it represents numerous toolboxes for diverse applications. Obviously, resulting data can be again returned to sqıd, if required, for further processing, or to forward the results to other distributed applications. This way, a bypass can be easily crated to benefit from a combination of multiple tools and their respective capabilities.
+![example-bypass](./img/example-bypass.png)
+
+### Interfacing w/ MATLAB via .m script
+
+A simple method for getting data into MATLAB via OSC is provided in the repository [sqid-template-MATLAB](https://github.com/eyeco/sqid-template-MATLAB), which uses a MEX function that can be run in MATLAB script.
+
+Furthermore, for larger data chunks that go beyond the limited datagram size, one can either use OSC via TCP, or use ZeroMQ instead.
 ![matlabAddon](./img/3rdparty/matlab.gif)
 
-## Interfacing w/ Processing via oscP5 library 
-![vvvv](./img/3rdparty/P3.gif)
+### Interfacing with Python script
+
+See the [sqid-template-Python](https://github.com/eyeco/sqid-template-Python) repository for a straightforward boilerplate script to get sqıd data into Python script via OSC. 
+![pythonAddon](./img/3rdparty/python.gif)
+
+## Interfacing w/ Rhino 3D, Grasshopper via C# addon and OSC
+
+[Rhinoceros 3D](https://www.rhino3d.com/), in combination with the visual programming addon [Grasshopper](https://www.grasshopper3d.com/), represents a powerful tool for 3D geometry that may be procedurally generated and parameter-controlled also by live data. See the [sqid-template-Grasshopper3D](https://github.com/eyeco/sqid-template-Grasshopper3D) repository for an exemplary Grasshopper3D plugin, that is receiving and parsing sqıd OSC data.
+![ghAddon](./img/3rdparty/grasshopper.gif)
+
+## Other options
+
+Beyond the provided examples, there are numerous other options to combine sqıd with software that may be useful or essential for certain scenarios. Another repository [provides boilerplate code](https://github.com/eyeco/sqid-template-Processing) for the [Processing](https://processing.org/) graphics library. Further supposable options are [vvvv](https://vvvv.org/) for procedural graphics or to operate complex multimedia installations, [Pure Data](https://puredata.info/) for interactive audio control, [ROS](https://www.ros.org/) for robotic systems, and many more. Basically, anything that can be equipped with a network socket can be a turned into a receiver or sender. 
+
+![P3](./img/3rdparty/P3.gif)
+
+_NOTE:_ all the shown samples and implementation use the sqıd custom OSC format for a reasonably compact data transfer of moderately sized data arrays or matrices, which - under the hood - send blob data, in combination with metadata like matrix dimensions and timestamps. This is the main reason for the *plugins* and *addons* that are shown here, basically representing custom OSC parsers, which basically require the 3rd party technology to be extendible in some way. However, depending on the nature of the data, it may also be sent via standard OSC, which opens the door to interface also 3rd party software that cannot be altered or extended that easily, such as [MadMapper](https://madmapper.com/) or [Ableton Live](https://www.ableton.com/en/live/). This extends the potential further, as OSC is a protocol supported by countless applications. Incidentally, all the previously shown examples can also be operated this way. Ultimately, what is the better option is a matter of the use case scenario at hand.
+![vvvv](./img/3rdparty/vvvv.gif)
 
 # Appendix C
 
