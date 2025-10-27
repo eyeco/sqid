@@ -27,7 +27,7 @@ Another frequent use case in research involves the requirement to capture data e
 
 A sample firmware implementation for Serial (RS232) and RFCOMM (aka. Bluetooth Serial) can be found in the directory [firmware](./firmware/).
 
-Reference implementations and templates for data sinks can be found in separate repositories for [Unity3D](https://github.com/eyeco/sqid-template-Unity3D), [Python](https://github.com/eyeco/sqid-template-Python), [Processing](https://github.com/eyeco/sqid-template-Processing), [MATLAB](https://github.com/eyeco/sqid-template-MATLAB), and Grasshopper3D (not yet public, contact author if you're interested).
+Reference implementations and templates for data sinks can be found in separate repositories for [Unity3D](https://github.com/eyeco/sqid-template-Unity3D), [Python](https://github.com/eyeco/sqid-template-Python), [Processing](https://github.com/eyeco/sqid-template-Processing), [MATLAB](https://github.com/eyeco/sqid-template-MATLAB), and [Grasshopper3D](https://github.com/eyeco/sqid-template-Grasshopper3D).
 
 Additional notes regarding system overview and purpose can be found on the [project site](https://www.rolandaigner.com/sub/sqid.html).
 A preliminary user documentation can be found in the [doc folder](./doc/main.md).
