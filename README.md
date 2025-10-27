@@ -13,7 +13,7 @@ The primary idea is to split the entirety of the dataflow&mdash;from source devi
 
 ![pipeline](./doc/img/main-pipeline.png)
 
-Due to a nature of the data that is commonly at hand in the targeted scenarios, the IPC is building heavily on the OSC protocol via UDP (TPC is also supported), while alternatives are also provided via optional plugins, such as MQTT and ZeroMQ (see below).
+Due to a nature of the data that is commonly at hand in the targeted scenarios, the IPC is building heavily on the [OSC protocol](https://opensoundcontrol.stanford.edu/) via UDP (TPC is also supported), while alternatives are also provided via optional plugins, such as MQTT and ZeroMQ (see below).
 
 By offloading *the entirety* of sampling, filtering, and data interpretation tasks into the processing stage enables the user to virtulize this in a central application, where design of processing graph, parameter tuning, and data relaying to/from multiple devices can be done via GUI, thus operating on live data, and visually inspecting the effect of modifications immediately. 
 
@@ -43,7 +43,7 @@ This includes not only comments and documentation in code, but also the [user do
 
 Bottom line: **use at your own discretion.** You may want to contact the author if questions arise, who will do his best to respond, depending on his momentary schedule.
 
-### Contribution
+### Contributing
 
 Due to mentioned time constraints, there are aspects in both code and project configuration that are far from optimal but weren't yet addressed. In that light, collaborators are welcome; if you find the project interesting and useful and want to help improve it, don't hesitated to get in touch with the author.
 
