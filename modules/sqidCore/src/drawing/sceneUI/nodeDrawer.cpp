@@ -13,7 +13,6 @@
 
 #ifdef __SUPPORT_GUI
 
-//#include <app.h>
 #include <fileIO/json.h>
 
 #include "guiDrawer.h"

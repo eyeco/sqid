@@ -13,14 +13,9 @@
 
 #include <config.h>
 
-//#include <cstdio>
 #include <string>
-//#include <vector>
-//#include <fstream>
 #include <algorithm>
 
-
-//#include <time.h>
 
 #ifdef _WIN32
 #include <Windows.h>

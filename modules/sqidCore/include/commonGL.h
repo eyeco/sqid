@@ -15,10 +15,6 @@
 
 #include <GL/glew.h>
 
-//#ifdef _WIN32
-//#include <gl/wglew.h>
-//#endif
-
 namespace sqid
 {
 #ifdef __SUPPORT_GUI

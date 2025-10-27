@@ -19,11 +19,8 @@
 
 namespace sqid
 {
-	//class Op;
 	class Sensor;
 	class DataSource;
-	//class SampleFrame;
-
 
 	//NOTE: as of now, feeds are only required for drawing connecting lines in UI
 	class SourceFeed
