@@ -1,0 +1,66 @@
+# TODOs
+
+- implement a more reasonable (less historically burdened) serial communication protocol
+- implement Firmata (maybe into core)
+- implement Kinect for XBox One plugin
+- implement Azure Kinect plugin
+- implement OpenNI + NITE plugin
+- implement bluetooth serial in a more solid way (and maybe put it to a plugin)
+- move core out of modules folder?
+- catch exception when parsing config.json (and/or put proper error message)
+- clean up comments/includes/etc.
+- implement BlobFrame and CompressedSampleFrame
+- extend PointCloud processing
+- fix known issues
+	- fix context menu sometimes appearing after releasing right-click when moving the canvas
+	- something seems to be wrong with UI JSON (esp. when using plugins like RealSense, the layout is messed up at startup)
+	- figure out what the problem with ImGui TreeNodes is (cannot be opened anymore after having the application running for some time)
+	- apparently, when OSC sending is enabled already at startup, a bunch of data gets buffered during GL window initialization, which quickly exceeds the OSCProxy's buffer size. Consider starting to send only when everything is initialized and running properly.
+	- fix saving to INI: multiple nodes of same type all write to same JSON node. Create each node with GUID, then save scene configuration. maybe do this along rehaul for creating wiring UI, which would need an overall scene-savefile anyways.
+- print IP adapter information at startup
+- implement trajectory tracking for BlobTracker
+- implement multi-pin input/output
+- provide plugins/addons for 3rd-party connectivity
+  - vvvv gamma
+  - TouchDesigner
+  - Pd
+- provide some demos/templates
+  - smart phone (Android/iOS)
+  - smart watch
+  - Pd
+- data visualization overhaul
+	- enable switching visualization between maps (min/max/snapshot/etc.)
+	- display history of array as 2D plot, just like e.g. spectrogram
+	- do line-visualization of 0-history as bar
+- additional sources
+	- Bluetooth LE (apparently not adequate for continuously-sending devices? have a look [here](https://docs.microsoft.com/en-us/windows/uwp/devices-sensors/bluetooth-low-energy-overview))
+	- named pipe
+	- extend generator source
+- additional processors
+	- history => 1D map
+	- 1D + history => 2D map
+- add inter-/extrapolation to temporal resampling (Op currently only duplicates last frame)
+- complementary for bluetooth sources
+	- signal strength (not guaranteed this is supported at all -- look into Windows 10 support of RSSI (resource signal strength indicator))
+	- figure out if class 1, 2, or 3 (bandwidth/signal strength?)
+- optimizations
+	- profile and avoid unnecessary frame copies at in/out pins, some parts of the code are quite inefficient
+	- only push to output pins that are actually connected
+- provide possibilities to (and options of how to) sync multiple inputs
+- configuration parameters of processing nodes in configuration JSON file
+- retain Op properties that are ignored during loading from JSON file (e.g., as a result of differently configured builds or not loaded plugins, in which case the settings are not again written when saving and therefore lost)
+- use SampleFrame's timing data for time corrected processing
+- move to int64 timestamps for µs units
+- add some safety-checks for GUIDs in opFactory (throw if empty GUIDs are provided or GUIDs are already used by other Ops)
+- implement sinks for Serial and Bluetooth (RFCOMM)
+- expose available (named!) serial and Bluetooth devices in GUI and make selectable
+- file playback
+	- consider adding timeline slider (or some other possibility to jump on timeline)
+	- time scaler (for timelapse/slow-motion)
+- gesture recognition
+	- implement 1D/2D swipe detection processor
+	- implement 1D/2D blob-tracking processor
+	- include Nick Gillian's [GRT](http://www.nickgillian.com/wiki/pmwiki.php/GRT/GestureRecognitionToolkit) for ML powered recognition
+	- implement Wobbrock's [$1 unistroke recognizer](http://depts.washington.edu/madlab/proj/dollar/index.html)
+	- implement [$Q](https://dl.acm.org/citation.cfm?id=3229465) for stroke recognition (also have a look at [$P](https://dl.acm.org/citation.cfm?id=2388732), [1¢](https://dl.acm.org/citation.cfm?id=2331074), and the whole [$ family](http://depts.washington.edu/acelab/proj/dollar/impact.html))
+- some data sinks and sources (e.g., CAN, MQTT) are implemented quite unfavorably, since one Op is usually associated with a specific port/device/... have to find a way to send multiple messages to same target as well as receiving different messages from same source and filter/relay within processing graph

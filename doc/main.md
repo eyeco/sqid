@@ -1,6 +1,6 @@
 # User Documentation
 
-## Supported features
+## General
 
 Some features are selectively built into the main module, according to pre-processor switches. Refer to the console output to learn about included features e.g.
 ```
@@ -13,13 +13,9 @@ built with MSVC v1916(191627045) at Wed Jul  3 14:13:39 2024 with:
   Compression support          NO
 ```
 
-Addons (such as support for MQTT, Kinect, Myo, etc.) are built as separate dll modules and dynamically loaded by the core module at startup (if configured to be loaded in the [config.json](../config.json) file). More details about how to do this will follow.
+Addon modules (such as support for MQTT, Kinect, Myo, etc.) are built as separate dll modules and dynamically loaded by the core module at startup (if configured to be loaded in the [config.json](../config.json) file). More details about how to do this will follow.
 
 For replicating the serial communication from an ESP via USB, with the [firmware code](../firmware/) included in this package, find the USB to UART Bridge Virtual COM Port (VCP) drivers [here](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads).
-
-## General
-
-The software is not demanding in terms of hardware specification – for reference, we easily run it on an Intel NUC (NUC6i7KYB) with Intel Core i7-6770 @ 2.6GHz, 16GB RAM, and integrated graphics Intel Iris Pro Graphics 580, although weaker CPUs and less RAM may work as well.
 
 ## User guide
 
@@ -201,64 +197,64 @@ Next, we want to make our processed data useable in a Unity3D scene. We prepared
 
 We save the scene, which writes all settings to disc, including COM ports and minima and maxima of our calibration phase. Next time scene is run, the device on COM8 is automatically connected and OSC sending is active right away. If nothing changed on the hardware end, there are no more user interventions required. Since we use UDP for OSC, there is no requirement for Unity to be up and running, we can start it anytime we want. We can also use different endpoints if we want, either in addition or replacing our Unity demo. 
 
-# Appendix A
+# Appendix A: Examples
 
 A few basic examples are listed here, intended to give an idea of intended workflow and sqıd's versatility and utility. More examples, use case scenarios, case studies, and additional content (somewhat overlapping with the content here) can be found in the [adjunct document](./pdf/sqid-adjunct.pdf) (PDF).
 
-## Example: TAFFI pinch detection and tracking
+## TAFFI pinch detection and tracking
 ![taffi](./img/samples/blob-tracking.gif)
 This sample uses web-camera live imagery to implement a very basic gesture pinch detection (on/off) based on the [TAFFI paper](https://doi.org/10.1145/1166253.1166292) by Wilson, including x/y coordinate control for dragging.
 Using background subtraction with a static background model (captured image via `sample+hold`) in RGB-space and building the absolute difference, the hand pixels can be isolated as foreground area. Adding more ad-hoc image processing steps, including value scaling, multiplication of color channels, thresholding, and morphological opening, a distinct outline of the hand can be achieved. Connected component detection and tracking the center-of-mass can be used to generate a value representing on/off and a value pair representing x/y.
 ![taffi-detail](./img/samples//TAFFI-sbs.png)
 
-## Example: Hand Bend Direction Detection Using Myo EMG Armband
+## Hand Bend Direction Detection Using Myo EMG Armband
 Using the (unfortunately discontinued) [Thalmic Myo](https://wearabletech.io/myo-bracelet/) gesture armband featuring 8 EMG sensors, a straightforward classification of hand bend direction is demonstrated: from the `myo` source operator, 8-channel EMG data is received that is plotted using a `nop` node for visual inspection. Absolute values are taken of the waveforms with an `abs` operator, a slight exponential smoothing filter is applied (α=0.05) to get rid of high-frequency noise with a `runningAvrg` operator. Individual sensor value ranges are then normalized using an `autoNormalize`, which was calibrated for minima and maxima with a few seconds of random input data. The 8 channel data were then split into two 2-channel segments, using two crop operators. Channels 3 and 4 (left) as well as channels 7 and 8 (right) were isolated, and those pairs were added together with a `sum` operator. Two `threshold` (t=0.5) operators were then used for left and right, respectively. Both values were joined into a single 2-value frame with a `join` operator and the result was sent to an UDP socket for utilization using an `oscOut`.
 ![myo-detail](./img/samples/myo-sbs.png)
 
-## Example: Multimodal input of Audio + MIDI + Myo EMG armband
+## Multimodal input of Audio + MIDI + Myo EMG armband
 ![multimodal](./img/samples/myoaudiomidi.gif)
 
-## Example: Finger touch position tracking on (textile) touch matrix
+## Finger touch position tracking on (textile) touch matrix
 ![TexYZ](./img/samples/TexYZ.png)
 Basic blob COM tracking for (multi-)touch tracking on a sensor matrix. The example was used for a demo of the CHI 2021 paper [TexYZ](https://doi.org/10.1145/3411764.3445479) by Aigner et al.
 ![fingertouch](./img/samples/finger-touch.gif)
 
-## Example: Kinect hand blob tracking
+## Kinect hand blob tracking
 Basic hand COM tracking using depth image data (here, using the now discontinued Microsoft Kinect for XBox 360).
 ![kinect](./img/samples/kinect-tracking.gif)
 
-## Example: Receiving Google Soli live radar data via OSC
+## Receiving Google Soli live radar data via OSC
 Although not a data processing demo, this example demonstrates a workaround to a common issue in handling prototype devices in UI research, which is dedicated operating system support. The API of the (now discontinued) Google ATAP [Project Soli](https://doi.org/10.1145/2897824.2925953) millimeter-wave radar sensor for gesture interaction provided compatibility with macOS and Ubuntu, but not Windows. Suppose the majority of your workflow depends on Windows (or vice versa, or some other OS), sqıd provides an easy means to transfer raw data from the Soli API (e.g., via a basic terminal application) to a different platform, where the remainder of the pipeline is located.
 ![google-soli](./img/samples/soli.png)
 
-# Appendix B
+# Appendix B: Interoperability
 
-Apart from the benefits of live patching and tuning, the main purpose of the modular architecture is the ability to replace source and sink device with little effort, which is facilitated by the network interfaces. sqıd is mostly relying on OSC as a networking protocol, but other formats and/or interfaces are also possible (Serial, Bluetooth, MQTT, ZeroMQ, etc.). As a result there are numerous ways of interfacing external software, potentially running on dedicated. In the following, a few examples are provided.
+Apart from the benefits of live patching and tuning, the main purpose of the modular architecture is the ability to replace source and sink device with little effort, which is facilitated by the network interfaces. sqıd is mostly relying on [OSC](https://opensoundcontrol.stanford.edu/) as a networking protocol, but other formats and/or interfaces are also possible (Serial, Bluetooth, MQTT, ZeroMQ, etc.). As a result there are numerous ways of interfacing external software, potentially running on dedicated. In the following, a few examples are provided.
 ![sample-setup](./img/example-setup.png)
 
-## Interfacing w/ Unity3D via OSC protocol
+## Interop w/ Unity3D via OSC protocol
 
 Using the widespread [Unity3D](https://unity.com/) game engine, e.g., to implement a demo application or UI mockup, is an option that provides great versatility and flexibility, not only because it is very easy to learn and use, but also because it provides great portability, as it supports a great range of target platforms, such as Windows, macOS, iOS, Android, WebGL, and even game consoles. Hence, applications for desktop, mobile, gaming, and embedded platforms can easily be interfaced. See the repository [sqid-template-Unity3D](https://github.com/eyeco/sqid-template-Unity3D) for an example of how to easily get data into Unity3D.
 ![Unity3D](./img/3rdparty/Unity3D.gif)
 
-## Interfacing w/ other data processing environments
+## Interop w/ other data processing environments
 
 In order to augment sqıd with additional data processing capabilities, one option beyond extending the codebase or programming plugins is to use existing 3rd party software that already provides the desired functionality. The [Python](https://www.python.org/) scripting language has gained popularity among the data scientists community in recent years, due to its accessibilty and extensive libraries. Evidently, also UI researchers use it frequently for tasks like data processing and pattern recognition, e.g., in the context of data filtering as well as interpretation, such as for gesture recognition. [MATLAB](https://www.mathworks.com/matlab) is another obvious candidate as it represents numerous toolboxes for diverse applications. Obviously, resulting data can be again returned to sqıd, if required, for further processing, or to forward the results to other distributed applications. This way, a bypass can be easily crated to benefit from a combination of multiple tools and their respective capabilities.
 ![example-bypass](./img/example-bypass.png)
 
-### Interfacing w/ MATLAB via .m script
+### MATLAB via .m script
 
 A simple method for getting data into MATLAB via OSC is provided in the repository [sqid-template-MATLAB](https://github.com/eyeco/sqid-template-MATLAB), which uses a MEX function that can be run in MATLAB script.
 
 Furthermore, for larger data chunks that go beyond the limited datagram size, one can either use OSC via TCP, or use ZeroMQ instead.
 ![matlabAddon](./img/3rdparty/matlab.gif)
 
-### Interfacing with Python script
+### Python script
 
 See the [sqid-template-Python](https://github.com/eyeco/sqid-template-Python) repository for a straightforward boilerplate script to get sqıd data into Python script via OSC. 
 ![pythonAddon](./img/3rdparty/python.gif)
 
-## Interfacing w/ Rhino 3D, Grasshopper via C# addon and OSC
+## Interop w/ Rhino 3D, Grasshopper via C# addon and OSC
 
 [Rhinoceros 3D](https://www.rhino3d.com/), in combination with the visual programming addon [Grasshopper](https://www.grasshopper3d.com/), represents a powerful tool for 3D geometry that may be procedurally generated and parameter-controlled also by live data. See the [sqid-template-Grasshopper3D](https://github.com/eyeco/sqid-template-Grasshopper3D) repository for an exemplary Grasshopper3D plugin, that is receiving and parsing sqıd OSC data.
 ![ghAddon](./img/3rdparty/grasshopper.gif)
@@ -269,10 +265,15 @@ Beyond the provided examples, there are numerous other options to combine sqıd 
 
 ![P3](./img/3rdparty/P3.gif)
 
-_NOTE:_ all the shown samples and implementation use the sqıd custom OSC format for a reasonably compact data transfer of moderately sized data arrays or matrices, which - under the hood - send blob data, in combination with metadata like matrix dimensions and timestamps. This is the main reason for the *plugins* and *addons* that are shown here, basically representing custom OSC parsers, which basically require the 3rd party technology to be extendible in some way. However, depending on the nature of the data, it may also be sent via standard OSC, which opens the door to interface also 3rd party software that cannot be altered or extended that easily, such as [MadMapper](https://madmapper.com/) or [Ableton Live](https://www.ableton.com/en/live/). This extends the potential further, as OSC is a protocol supported by countless applications. Incidentally, all the previously shown examples can also be operated this way. Ultimately, what is the better option is a matter of the use case scenario at hand.
+## Networking Interface and Format
+Note that all the shown examples and implementation use the sqıd custom OSC format for a reasonably compact data transfer of moderately sized data arrays or matrices (*SampleFrames*), which&mdash;under the hood&mdash;send blob data, in combination with metadata like matrix dimensions and timestamps. This is the main reason for the *plugins* and *addons* that are shown here, basically representing custom OSC parsers, which basically require the 3rd party technology to be extendible in some way. However, depending on the nature of the data, it may also be sent via standard OSC, which opens the door to interface also 3rd party software that cannot be altered or extended that easily, such as [MadMapper](https://madmapper.com/) or [Ableton Live](https://www.ableton.com/en/live/). This extends the potential further, as OSC is a protocol supported by countless applications. Incidentally, all the previously shown examples can also be operated this way. Ultimately, what is the better option is a matter of the use case scenario at hand.
 ![vvvv](./img/3rdparty/vvvv.gif)
 
-# Appendix C
+To provide OSC parsers for sqıd's own SampleFrame protocol, the format is described here: an OSC message is of arbitrary length and starts with four `int32`, which are, however, filled by unsigned integers and must be interpreted accordingly. Unfortunately, [standard OSC](https://opensoundcontrol.stanford.edu/spec-1_0.html) is somewhat limited in terms of data types as it has no concept of unsigned and 8 or 16 bit types. The four integers represent the data matrix's width (*w*), height (*h*), and depth (*d*), in this order, as well as a timestamp *ts* (milliseconds). This header is followed by a `blob`, which in OSC is a term describing a byte block of arbitrary data. The SampleFrame blob contains *n = w* × *h* × *d*  IEEE 754 32 bit single precision floats, i.e., *n* × 4 bytes. Values are in row-major order. In case of *d* > 1, values are interleaved.
+
+The format used for sending SampleFrames via ZeroMQ is similar, except width, height, and depth are represented by `uint16_t` data types and timestamp is of `uint32_t`.
+
+# Appendix C: Features
 
 ## Core
 
@@ -311,7 +312,7 @@ _NOTE:_ all the shown samples and implementation use the sqıd custom OSC format
 - OptiTrack NatNet marker and rigid body input via [OptiTrack NatNet SDK](https://optitrack.com/software/natnet-sdk/)
 
 
-# Appendix D
+# Appendix D: Operators
 
 _TODO: add detailed description of each of the ops and their parameters_
 
