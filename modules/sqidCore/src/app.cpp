@@ -200,11 +200,13 @@ namespace sqid
 						if( mods & GLFW_MOD_CONTROL )
 							quit();
 						break;
-#ifdef __QUIT_WITH_ESCAPE
 					case GLFW_KEY_ESCAPE:
+#ifdef __QUIT_WITH_ESCAPE
 						quit();
-						break;
+#else
+						_uiActive = true;
 #endif
+						break;
 					}
 				}
 			}
