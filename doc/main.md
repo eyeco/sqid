@@ -3,7 +3,7 @@
 ## General
 
 Some features are selectively built into the main module, according to pre-processor switches. Refer to the console output to learn about included features e.g.
-```
+`
 version 0.1.2
 Release build for AMD64 with C++ language standard v201704
 built with MSVC v1916(191627045) at Wed Jul  3 14:13:39 2024 with:
@@ -11,7 +11,7 @@ built with MSVC v1916(191627045) at Wed Jul  3 14:13:39 2024 with:
   Bluetooth Classic support    YES
   FFTW support                 YES
   Compression support          NO
-```
+`
 
 Addon modules (such as support for MQTT, Kinect, Myo, etc.) are built as separate dll modules and dynamically loaded by the core module at startup (if configured to be loaded in the [config.json](../config.json) file). More details about how to do this will follow.
 
@@ -21,17 +21,17 @@ For replicating the serial communication from an ESP via USB, with the [firmware
 
 ### How to run
 
-Usage: ```sqid [-g | --gui] [-h | --help] [sceneName]```
+Usage: `sqid [-g | --gui] [-h | --help] [sceneName]`
 
-**Note: Make sure the working directory is the one containing the folders ```resources``` and ```shaders```, since those will be sought at ```./```, i.e., run the program from this directory.**
+**Note: Make sure the working directory is the one containing the folders `resources` and `shaders`, since those will be sought at `./`, i.e., run the program from this directory.**
 
 | Option            | Description                                       |
 |-------------------|---------------------------------------------------|
-| ```-g, --gui```   | run with GUI (optional)                           |
-| ```-h, --help```  | print help (optional)                             |
+| `-g, --gui`   | run with GUI (optional)                           |
+| `-h, --help`  | print help (optional)                             |
 | sceneName         | name of scene, without file extension (optional, defaults to 'scene')  |
 
-Example: ```sqid -g myScene``` will run sqıd with GUI, loading the scene configuration from ```myScene.json```, the UI layout from ```myScene.ui.json```, and the window position/size, as well as preferences (auto-save, view settings) from ```myScene.ini```. If the scene file does not yet exisit, it will be created. Scenes can be placed in subdirectory; in that case specify the absolute or relative path, e.g., ```myDir/myScene```. **Note that directories must exist, they will not be created!** Since all required information is contained in the respective .json, .ui.json, and .ini files, scenes can be easily copied or moved just by copying or moving these three.
+Example: `sqid -g myScene` will run sqıd with GUI, loading the scene configuration from `myScene.json`, the UI layout from `myScene.ui.json`, and the window position/size, as well as preferences (auto-save, view settings) from `myScene.ini`. If the scene file does not yet exisit, it will be created. Scenes can be placed in subdirectory; in that case specify the absolute or relative path, e.g., `myDir/myScene`. **Note that directories must exist, they will not be created!** Since all required information is contained in the respective .json, .ui.json, and .ini files, scenes can be easily copied or moved just by copying or moving these three.
 
 ### Auto-save
 Turn on/off the auto-save feature using the menu using 'File' > 'Auto-save scene'. With the feature turned on, changes on the scene and configuration will automatically be saved when the application is closed. **Note there is no automatic saving apart from that, e.g., during patching or configuration.**
@@ -54,28 +54,32 @@ Move the canvas by dragging with the right mouse button.
 
 | key               | function                      |
 | ----------------- | ----------------------------- |
-| ```Ctrl + q```    | quit (without saving, unless autosave is on) |
-| ```Ctrl + s```    | save scene (scene file name and path as specified at startup) |
-| ```Ctrl + c```    | copy selected sub-graph to clipboard |
-| ```Ctrl + v```    | paste from clipboard          |
-| ```Space```       | show/hide scene graph (to clear view when visualizer is maximized, see below) |
-| ```F1```          | open finder                   |
-| ```Esc```         | close finder                  |
-| ```Delete```      | delete selection              |
+| `Ctrl + q`    | quit (without saving, unless autosave is on) |
+| `Ctrl + s`    | save scene (scene file name and path as specified at startup) |
+| `Ctrl + c`    | copy selected sub-graph to clipboard |
+| `Ctrl + v`    | paste from clipboard          |
+| `Space`       | show/hide scene graph (to clear view when visualizer is maximized, see below) |
+| `F1`          | open finder                   |
+| `Esc`         | close finder                  |
+| `Delete`      | delete selection              |
 
 ### Interface
 
 ![name-collapse](./img/name-and-collapse.gif)
 
-Operators consist of a name, a visualizer (live-preview of the data), input pins and/or output pins. Red color on an output pin signals activity, i.e., frames being pushed downstream. Names specify to the operator type by default, but can be overridden to custom string using the ```name``` field in the inspector. Nodes can be collapsed to save space (and performance for visualizer drawing) and restored using the ```-```/```+``` toggle button on the left edge. 
+Operators consist of a name, a visualizer (live-preview of the data), input pins and/or output pins. Red color on an output pin signals activity, i.e., frames being pushed downstream. Names specify to the operator type by default, but can be overridden to custom string using the `name` field in the inspector. Nodes can be collapsed to save space (and performance for visualizer drawing) and restored using the `-`/`+` toggle button on the left edge. 
+
+![maximize](./img/maximize.gif)
+
+Moreover, for detailed inspection of specific operator data, a visualizer can be *maximized* by clicking the triangular button on the upper right corner of an operator. This will render the respective visualizer scaled up to fill the entire background of the scene. To get an unblocked view, the UI's visibility can be toggled using the `space` key.
 
 ![tooltip](./img/tooltip.png)
 
-Hovering the mouse over an output pin displays a tool-tip overlay, giving the pin name, followed by the number of queued frames, the data type, and type-specific information. E.g., the output pin "out" of the video capture operator in the example below shows holds 1 frame of type ```sf``` (generic SampleFrame), of dimensions 640x480x3. Timestamp is 6294275, containing values of range [0 1] (min/max values in current frame).
+Hovering the mouse over an output pin displays a tool-tip overlay, giving the pin name, followed by the number of queued frames, the data type, and type-specific information. E.g., the output pin "out" of the video capture operator in the example below shows holds 1 frame of type `sf` (generic SampleFrame), of dimensions 640x480x3. Timestamp is 6294275, containing values of range [0 1] (min/max values in current frame).
 
 ![tooltip](./img/deactivate.gif)
 
-Operators can be deactivated by unchecking the ```enabled``` checkbox in the Inspector, which is visualized by darkened nodes. This entirely stops the processing and therefore the output at the pins (blue: no frames are getting pushed). Operators can also be deactivated by code, in case there is an unresolvable error in the processing step, e.g., when faulty or incompatible frames are fed as input. In this case, the error must be resolved before the operators can be enabled again. Note the following example, where frames of different sizes (4x4 vs. 5x4) are fed to multiplication and subtraction operators, causing errors in both, sending them to disabled state.
+Operators can be deactivated by unchecking the `enabled` checkbox in the Inspector, which is visualized by darkened nodes. This entirely stops the processing and therefore the output at the pins (blue: no frames are getting pushed). Operators can also be deactivated by code, in case there is an unresolvable error in the processing step, e.g., when faulty or incompatible frames are fed as input. In this case, the error must be resolved before the operators can be enabled again. Note the following example, where frames of different sizes (4x4 vs. 5x4) are fed to multiplication and subtraction operators, causing errors in both, sending them to disabled state.
 
 ![ctrl-click-valueslider](./img/ctrl-click-valueslider.gif)
 
@@ -101,15 +105,15 @@ Create operators using the context menu: right-click and select an operator type
 
 ![create-finder](./img/create-finder.gif)
 
-Create operators using the finder: hit ```F1``` and start typing the name. Select the operator type in the list that appears and hit ```Return```.
+Create operators using the finder: hit `F1` and start typing the name. Select the operator type in the list that appears and hit `Return`.
 
 ![delete](./img/delete.gif)
 
-Delete one or multiple selected operators by hitting the ```Delete``` key.
+Delete one or multiple selected operators by hitting the `Delete` key.
 
 ![copy-paste](./img/copy-paste.gif)
 
-Copy and paste one or multiple selected operators using the menu ('Edit' > 'Copy', 'Edit' > 'Paste') or the keyboard shortcuts ```Ctrl+c``` and ```Ctrl+v```. The copy process clones all operators including their configuration and the subgraph's internal patching.
+Copy and paste one or multiple selected operators using the menu ('Edit' > 'Copy', 'Edit' > 'Paste') or the keyboard shortcuts `Ctrl+c` and `Ctrl+v`. The copy process clones all operators including their configuration and the subgraph's internal patching.
 
 ### Patching
 
@@ -126,9 +130,9 @@ Connections can be cleared by left-clicking connected input pins. If an output i
 This is a walkthrough for the task of setting up a very simple input that comes from an ESP that is connected via serial port, just to get you started with the very basics. The ESP is running the firmware that is also included in this package in the folder [ESP_firmware](../firmware/).
 
 ### Step 1: set up COM input
-First, we create a "source" node, which is not an operator, but an entity that is required to retrieve arbitrary data from devices that can send arbitrary data. Since we cannot know how many sensors an MCU is sampling, and moreover, how many sub-devices it may be operating, we introduced the concept of "Device IDs" and "Sensor IDs" to distinguish. In the firmware code you can see that six ADCs are sampled (```multiSample()```) and the results are stored into a float array, which is copied into the frame stucture (via ```frame.setData()```) and then sent via serial port (```sender.send()```).
+First, we create a "source" node, which is not an operator, but an entity that is required to retrieve arbitrary data from devices that can send arbitrary data. Since we cannot know how many sensors an MCU is sampling, and moreover, how many sub-devices it may be operating, we introduced the concept of "Device IDs" and "Sensor IDs" to distinguish. In the firmware code you can see that six ADCs are sampled (`multiSample()`) and the results are stored into a float array, which is copied into the frame stucture (via `frame.setData()`) and then sent via serial port (`sender.send()`).
 
-```
+`
 const int DEVICE_ID = 0;
 const int SENSOR_ID = 0;
 
@@ -145,11 +149,11 @@ const int ANALOG_IN_COUNT = 6;
   } else {
     sender.send();
   }
-```
+`
 
-Note that the frame was earlier configured as float array and associated with the sender instance during setup (```sender.init()```):
+Note that the frame was earlier configured as float array and associated with the sender instance during setup (`sender.init()`):
 
-```
+`
 SampleFrame frame( DEVICE_ID, SENSOR_ID, SampleFrame::L_ARRAY, SampleFrame::DT_FLOAT, ANALOG_IN_COUNT );
 SenderSerial sender;
 
@@ -161,7 +165,7 @@ void setup() {
     Serial.println( "failed to init pointSender" );
   //...
 }
-```
+`
 
 This means that even tough we sampled six ADCs in total, we treat the data as a single 6-value array to send it via serial in a more compact way. For identification within sqıd, we defined Device ID as 0 and Sensor ID also as 0.
 
