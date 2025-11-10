@@ -92,7 +92,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(ProjectDir)..\..\..\..\apps\bin\$(Plat
 copy $(OutDir)$(TargetName).pdb $(ProjectDir)..\..\..\..\apps\bin\$(PlatformName)\$(Configuration)\
 ```
 
-plugins that introduce additional dependencies additionally call a batch file `copyDependencies.bat` that copies those dependencies' binaries into the sqıd output folder. A sample script can be inspected [here](./sqidAudio/build/msvc/copyDependencies.bat). By convention, this file is placed next to the module's project file and also called as post-build event, with configuration and platform name as arguments:
+Plugins that introduce additional dependencies additionally call a batch file `copyDependencies.bat` that copies those dependencies' binaries into the sqıd output folder. A sample script can be inspected [here](./sqidAudio/build/msvc/copyDependencies.bat). By convention, this file is placed next to the module's project file and also called as post-build event, with configuration and platform name as arguments:
 
 ```
 $(ProjectDir)copyDependencies $(Configuration) $(PlatformName)
