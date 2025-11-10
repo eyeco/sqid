@@ -36,10 +36,12 @@ A preliminary user documentation can be found in the [doc folder](./doc/main.md)
 
 The project is a work in progress, hence, although the main features are available and the program can be (and was in numerous cases) successfully used to support numerous scenarios, the codebase it is not complete and there are features incomplete or missing. 
 Since the project is a byproduct of a multi-year research endeavor in an HCI/IoT/UbiComp project, it was developed to serve the researchers' purpose and no further, due to time constraints.
-When stepping through the source code, you will find passages that are marked as `TODO`, futhermore, there is a section at the bottom of this document, listing features that need implementation and/or improvement.
-Unfortunately, as currently there is no funding to to do any of those, the further development is at the moment halted.
+When stepping through the source code, you will find passages that are marked as `TODO`, furthermore, there is a [list of TODOs](./TODO.md), listing known issues but also features that need implementation and/or improvement.
+Unfortunately, as currently there is no funding to do any of those, the further development is at the moment halted.
 
 This includes not only comments and documentation in code, but also the [user documentation](./doc/main.md), which is still lacking an in-depth description of available operators (inputs, outputs, as well as processing applied to the data). Yet, most of them can be considered self-explanatory, can be figured out with some trial-and-error, or by looking at the source code, if the user exhibits some basic understanding of computer programming. In the latter case, refer to the `.cpp` files in the core module's [operators](./modules/sqidCore/src/processing/ops) code base, in particular inspect the respective class' `process()` method.
+
+Be aware that sqıd is not (yet) optimized for processing large chunks of data, such as image frames. While data sources are implemented for devices such as generic cameras (core) and Kinect RGB/depth/IR frames, Leap stereo imagery, or OptiTrack cameras (external modules), the core code may (and should) be optimized by reducing the number of copies made when handing data downstream along connectors. Note that, using OpenCV in the background, image processing can ultimately be done on GPUs (providing this option was the main motivation for building on OpenCV in the first place).
 
 Bottom line: **use at your own discretion.** You may want to contact the author if questions arise, who will do his best to respond, depending on his momentary schedule.
 
@@ -49,9 +51,7 @@ Due to mentioned time constraints, there are aspects in both code and project co
 
 ## Crediting
 
-The purpose, use cases (including intended architecture thereof), and (to some degree) usage of sqıd is elaborated in an [IEEE Pervasive Computing magazine](https://www.computer.org/csdl/magazine/pc) article, entitled [A Multipurpose Virtualization Tool, Streamlining Setups for UbiComp Research]() (2025) by Aigner et al. If you use the tool for your own research, you can show gratitude by citing the article in your own publication(s).
-
-_TODO: add DOI, guidance for citation, add bibtex_
+The purpose, use cases (including intended architecture thereof), and (to some degree) usage of sqıd is elaborated in an [IEEE Pervasive Computing magazine](https://www.computer.org/csdl/magazine/pc) article, entitled [sqıd: A Multipurpose Virtualization Tool, Streamlining Setups for UbiComp Research](https://doi.org/10.1109/MPRV.2025.3627401) (2025) by Aigner et al. If you use the tool for your own research, you can show gratitude by citing the article in your own publication(s).
 
 ## Projects
 
@@ -77,15 +77,15 @@ The code base consists of several C++ projects:
 
 Basic data processing of raw sensor data (as received via OSC and numerous other sources) and sending of processed data (also via OSC) with optional graphical output.
 
-#### modules
+#### Plugins
 
 sqıd is using a plugin system to extend functionality that goes beyond standard operations, to (1) somewhat contain the core codebase and (2) keep the application footprint reasonably low, i.e., to avoid clutter with special purpose features and devices. These include input by certain human interface devices (HID) like Thalmic Labs' Myo, Microsoft's Kinect for Windows, LeapMotion's The Leap, and others. Those were moved to separate Git repositories. More common purpose ones are included in the main repository, such as [Audio](./modules/sqidAudio/), [MQTT](./modules/sqidMQTT/), [Midi](./modules/sqidMidi/), etc.
 
 Usually, the sqıd executable tries to load all plugins that are co-located with the `exe` file. You can control which ones will be loaded, by modifying the `plugins` array in the `config.json` file (see section "Run", below).
 
-Here is a complete list of sqıd plugins, some of which are public, others are not, for licensing reasons (some of which are merely not clarified; contact the author if you'd like access and he'll have a look in detail).
+Here is a complete list of sqıd plugins, both included and external:
 - [sqidAudio](./modules/sqidAudio/)
-- [sqidCAN](https://github.com/eyeco/sqidCAN) (external repository, private)
+- [sqidCAN](https://github.com/eyeco/sqidCAN) (external repository)
 - [sqidGamepad](https://github.com/eyeco/sqidGamepad) (external repository)
 - [sqidKinect](https://github.com/eyeco/sqidKinect) (external repository)
 - [sqidLeap](https://github.com/eyeco/sqidLeap) (external repository)
@@ -153,6 +153,10 @@ sqıd will currently start headless by default. Call the executable with `-g` (G
 Make sure the [resources](./resources/) folder is located in the current working directory when you run sqıd using the UI, otherwise TTF fonts and (potentially) shader files cannot be located by the application, causing it to shut down.
 
 In order to control which plugins will be loaded by the application, a file `config.json` can be used, which will also be opened in the current working directory. The contained JSON string array specifies the names (without extension) of all the plugins that should be loaded. DLLs need to be co-located with the executable file. If a plugin fails to load, make sure all of its dependencies can be found by the system (a handy tool for troubleshooting is [Dependencies](https://github.com/lucasg/Dependencies)).
+
+When running with the Visual Studio Debugger, make sure working directory and command line arguments are set up correctly in the project properties. Note that, since those are commonly not considered part of the project properties (`.vcxproj`) and they are instead stored in the user files (`.vcxproj.user`), these user files are provided in the repository for all executable projects, which is against best practices. However, the project configuration would not be complete otherwise, and cloned repositories would not work out-of-the-box without manual adaption. I.e., potential conflicts regarding these file should be ignored.
+
+For troubleshooting keep an eye on the console output window, which may hint to potential issues you're running into. 
 
 #### TODO's and known issues
 
