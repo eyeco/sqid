@@ -9,13 +9,13 @@
 *--------------------------------------------------------------------------------------------*/
 
 
-#include "sourceDrawer.h"
+#include "interfaceDrawer.h"
 
 #ifdef __SUPPORT_GUI
 
 #include <fileIO/json.h>
 
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 
 #include <commonImGui.h>
 
@@ -25,19 +25,19 @@
 
 namespace sqid
 {
-	SourceDrawer::SourceDrawer( GUI::Drawer *drawer, DataSource *source, const glm::vec2 &pos ) :
+	InterfaceDrawer::InterfaceDrawer( GUI::Drawer *drawer, DataInterface *di, const glm::vec2 &pos ) :
 		NodeDrawer( drawer ),
-		_source( source )
+		_interface( di )
 	{
 		_pos = pos;
 	}
 
-	SourceDrawer::~SourceDrawer()
+	InterfaceDrawer::~InterfaceDrawer()
 	{
-		_source = nullptr;
+		_interface = nullptr;
 	}
 
-	void SourceDrawer::build()
+	void InterfaceDrawer::build()
 	{
 		_verts.resize( 4 );
 		_verts[0] = glm::vec2( 0, 0 );
@@ -53,7 +53,7 @@ namespace sqid
 	}
 
 
-	bool SourceDrawer::draw()
+	bool InterfaceDrawer::draw()
 	{
 		if( !NodeDrawer::draw() )
 			return false;
@@ -96,38 +96,38 @@ namespace sqid
 
 		glm::vec4 textPos( _drawer->getMV() * glm::vec4( _pos.x + _drawer->getUIStyle()->NodePaddingX, _pos.y + _drawer->getUIStyle()->TextDY, 0, 1 ) );
 		_drawer->getUIStyle()->getFont().print(
-			formatInterfaceString( _source->getDeviceInterface(), _source->getDevicePort() ),
+			formatInterfaceString( _interface->getDataInterfaceType(), _interface->getDevicePort() ),
 			textPos.x, textPos.y, _drawer->getWindowSize().x, _drawer->getWindowSize().y, _drawer->getMV()[2][2], _drawer->getUIStyle()->TextColor );
 
 		return true;
 	}
 
-	bool SourceDrawer::drawUI()
+	bool InterfaceDrawer::drawUI()
 	{
 		bool ret = NodeDrawer::drawUI();
 
 		//push ID so equally-named elements don't override cross-node when switching between nodes of same type
-		ImGui::PushID( guidToString( _source->getObjectID() ).c_str() );
+		ImGui::PushID( guidToString( _interface->getObjectID() ).c_str() );
 
-		if( ret && _source )
-			_source->drawUI();
+		if( ret && _interface )
+			_interface->drawUI();
 
 		ImGui::PopID();
 
 		return ret;
 	}
 
-	bool SourceDrawer::saveToJSON( nlohmann::json &j ) const
+	bool InterfaceDrawer::saveToJSON( nlohmann::json &j ) const
 	{
 		bool ret = NodeDrawer::saveToJSON( j );
 
-		if( _source )
-			save( j, "objectID", _source->getObjectID() );
+		if( _interface )
+			save( j, "objectID", _interface->getObjectID() );
 
 		return ret;
 	}
 
-	bool SourceDrawer::loadFromJSON( const nlohmann::json &j )
+	bool InterfaceDrawer::loadFromJSON( const nlohmann::json &j )
 	{
 		bool ret = NodeDrawer::loadFromJSON( j );
 

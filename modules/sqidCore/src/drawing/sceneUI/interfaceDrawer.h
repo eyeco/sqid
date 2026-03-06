@@ -18,16 +18,16 @@
 
 namespace sqid
 {
-	class DataSource;
+	class DataInterface;
 
-	class SourceDrawer : public NodeDrawer
+	class InterfaceDrawer : public NodeDrawer
 	{
 	private:
-		DataSource *_source;
+		DataInterface *_interface;
 
 	public:
-		SourceDrawer( GUI::Drawer *drawer, DataSource *source, const glm::vec2 &pos );
-		virtual ~SourceDrawer();
+		InterfaceDrawer( GUI::Drawer *drawer, DataInterface *di, const glm::vec2 &pos );
+		virtual ~InterfaceDrawer();
 
 		virtual void build();
 
@@ -38,9 +38,9 @@ namespace sqid
 		virtual bool saveToJSON( nlohmann::json &j ) const;
 		virtual bool loadFromJSON( const nlohmann::json &j );
 
-		DataSource *getSource() const { return _source; }
+		DataInterface *getInterface() const { return _interface; }
 
-		virtual SourceDrawer *asSourceDrawer() { return this; }
+		virtual InterfaceDrawer *asInterfaceDrawer() { return this; }
 	};
 }
 #endif

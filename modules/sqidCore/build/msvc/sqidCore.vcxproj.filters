@@ -55,7 +55,7 @@
     <ClCompile Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.cpp">
       <Filter>src\drawing\sceneUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\drawing\sceneUI\sourceDrawer.cpp">
+    <ClCompile Include="..\..\src\drawing\sceneUI\interfaceDrawer.cpp">
       <Filter>src\drawing\sceneUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\drawing\sceneUI\guiButton.cpp">
@@ -82,9 +82,6 @@
     <ClCompile Include="..\..\src\drawing\frameDrawer.cpp">
       <Filter>src\drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\sources\dataSource.cpp">
-      <Filter>src\sources</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\processing\opFactory.cpp">
       <Filter>src\processing</Filter>
     </ClCompile>
@@ -93,21 +90,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\processing\connector.cpp">
       <Filter>src\processing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\sources\comSource.cpp">
-      <Filter>src\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\sources\oscSource.cpp">
-      <Filter>src\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\sources\btsSource.cpp">
-      <Filter>src\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\sources\internal\fwProps.cpp">
-      <Filter>src\sources\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\sources\serialMsg.cpp">
-      <Filter>src\sources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\compression\compressor.cpp">
       <Filter>src\compression</Filter>
@@ -199,6 +181,21 @@
     <ClCompile Include="..\..\src\drawing\staticShaders.cpp">
       <Filter>src\drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\interfaces\btsInterface.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\interfaces\comInterface.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\interfaces\dataInterface.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\interfaces\oscInterface.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\interfaces\serialMsg.cpp">
+      <Filter>src\interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\perlin.h">
@@ -252,7 +249,7 @@
     <ClInclude Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.h">
       <Filter>src\drawing\sceneUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\drawing\sceneUI\sourceDrawer.h">
+    <ClInclude Include="..\..\src\drawing\sceneUI\interfaceDrawer.h">
       <Filter>src\drawing\sceneUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\drawing\sceneUI\guiButton.h">
@@ -276,32 +273,11 @@
     <ClInclude Include="..\..\include\drawing\frameDrawer.h">
       <Filter>include\drawing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\sources\dataSource.h">
-      <Filter>include\sources</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\blobFrame.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\processing\connector.h">
       <Filter>include\processing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\sources\comSource.h">
-      <Filter>src\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\sources\oscSource.h">
-      <Filter>src\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\sources\btsSource.h">
-      <Filter>src\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\sources\internal\fwProps.h">
-      <Filter>src\sources\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\sources\internal\abstractWriter.h">
-      <Filter>src\sources\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\sources\serialMsg.h">
-      <Filter>src\sources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\compression\compressor.h">
       <Filter>src\compression</Filter>
@@ -414,6 +390,21 @@
     <ClInclude Include="..\..\src\drawing\staticShaders.h">
       <Filter>src\drawing</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\interfaces\dataInterface.h">
+      <Filter>include\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\interfaces\btsInterface.h">
+      <Filter>src\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\interfaces\comInterface.h">
+      <Filter>src\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\interfaces\oscInterface.h">
+      <Filter>src\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\interfaces\serialMsg.h">
+      <Filter>src\interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -443,20 +434,17 @@
     <Filter Include="src\drawing\sceneUI">
       <UniqueIdentifier>{3b30ba53-cd09-46b3-ab18-95ad96d04796}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\sources">
-      <UniqueIdentifier>{799346c3-8e4e-43bf-b71a-d026355f4016}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\sources">
-      <UniqueIdentifier>{bc50c7b7-b99f-48ee-aa6e-33d6d04a8977}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\processing\ops">
       <UniqueIdentifier>{b4c44e12-d326-4760-949b-beaa1304a973}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\sources\internal">
-      <UniqueIdentifier>{2a43f8a0-844e-499a-ad76-1cb514a76319}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\compression">
       <UniqueIdentifier>{963eb858-392e-4032-a16a-5727be28b41c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\interfaces">
+      <UniqueIdentifier>{799346c3-8e4e-43bf-b71a-d026355f4016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\interfaces">
+      <UniqueIdentifier>{bc50c7b7-b99f-48ee-aa6e-33d6d04a8977}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

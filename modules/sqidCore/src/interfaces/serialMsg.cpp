@@ -12,7 +12,7 @@
 #include "serialMsg.h"
 
 #include <config.h>
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 #include "../compression/compressor.h"
 #include "../compression/decompressor.h"
 
@@ -34,14 +34,6 @@ namespace sqid
 				return "MATRIX";
 			case MT_IMAGE:
 				return "IMAGE";
-			case MT_PROPERTY:
-				return "PROPERTY";
-			case MT_FWPROPS_DESC:
-				return "FWPROPS_DESC";
-			case MT_FWPROPS_STATUS:
-				return "FWPROPS_STATUS";
-			case MT_FWPROPS_ACK:
-				return "FWPROPS_ACK";
 			}
 
 			return "UNKNOWN";

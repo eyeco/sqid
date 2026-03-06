@@ -91,27 +91,27 @@ namespace sqid
 	SQID_API CompressionAlgorithm	SQID_API_CALL compressionAlgorithmFromString( const std::string &s );
 #endif
 
-	enum DeviceInterface : unsigned short
+	enum DataInterfaceType : unsigned short
 	{
-		DI_COM,
-		DI_RFCOMM,
-		DI_OSC,
+		DIT_COM,
+		DIT_RFCOMM,
+		DIT_OSC,
 		
-		DI_COUNT
+		DIT_COUNT
 	};
 
-	SQID_API const char* 		SQID_API_CALL interfaceToString( DeviceInterface di );
-	SQID_API DeviceInterface	SQID_API_CALL interfaceFromString( const char *s );
-	SQID_API DeviceInterface	SQID_API_CALL interfaceFromString( const std::string &s );
+	SQID_API const char* 		SQID_API_CALL interfaceToString( DataInterfaceType dit );
+	SQID_API DataInterfaceType	SQID_API_CALL interfaceFromString( const char *s );
+	SQID_API DataInterfaceType	SQID_API_CALL interfaceFromString( const std::string &s );
 
-	SQID_API std::string		SQID_API_CALL formatInterfaceString( DeviceInterface di, unsigned short port );
+	SQID_API std::string		SQID_API_CALL formatInterfaceString( DataInterfaceType dit, unsigned short port );
 
-	SQID_API std::vector<const char*>			SQID_API_CALL	createDeviceInterfaceComboItems();
-	SQID_API const std::vector<const char*>&	SQID_API_CALL	getDeviceInterfaceComboItems();
+	SQID_API std::vector<const char*>			SQID_API_CALL	createDataInterfaceComboItems();
+	SQID_API const std::vector<const char*>&	SQID_API_CALL	getDataInterfaceComboItems();
 
-	inline uint64_t makeID( DeviceInterface interface, unsigned short portNr, uint8_t deviceID, uint8_t sensorID )
+	inline uint64_t makeID( DataInterfaceType dit, unsigned short portNr, uint8_t deviceID, uint8_t sensorID )
 	{
-		return ( (uint64_t) portNr << 32 ) | ( (uint64_t) interface << 16 ) | ( ( (uint64_t) deviceID ) << 8 ) | ( (uint64_t) sensorID );
+		return ( (uint64_t) portNr << 32 ) | ( (uint64_t) dit << 16 ) | ( ( (uint64_t) deviceID ) << 8 ) | ( (uint64_t) sensorID );
 	}
 
 	enum FileFormat

@@ -22,14 +22,14 @@
 
 namespace sqid
 {
-	class SQID_API DataSource
+	class SQID_API DataInterface
 	{
 	protected:
 		GUID _objectID;
 
 	public:
-		explicit DataSource();
-		virtual ~DataSource();
+		explicit DataInterface();
+		virtual ~DataInterface();
 
 		const GUID &getObjectID() const { return _objectID; }
 
@@ -38,7 +38,7 @@ namespace sqid
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames ) = 0;
 
 		virtual unsigned short getDevicePort() const = 0;
-		virtual DeviceInterface getDeviceInterface() const = 0;
+		virtual DataInterfaceType getDataInterfaceType() const = 0;
 
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI() = 0;
@@ -47,6 +47,6 @@ namespace sqid
 		virtual bool loadFromJSON( const nlohmann::json &j );
 		virtual void saveToJSON( nlohmann::json &j ) const;
 
-		static DataSource *create( DeviceInterface di );
+		static DataInterface *create( DataInterfaceType dit );
 	};
 }

@@ -18,7 +18,7 @@ namespace sqid
 	class Sensor : public Op
 	{
 	private:
-		DeviceInterface _interface;
+		DataInterfaceType _interface;
 		unsigned short _port;
 
 		unsigned char _deviceID;
@@ -65,7 +65,7 @@ namespace sqid
 		bool isOffline();
 		void setSourceDesc( const std::string &desc ) { _sourceDesc = desc; }
 
-		DeviceInterface getInterface() const { return _interface; }
+		DataInterfaceType getInterface() const { return _interface; }
 		unsigned short getPort() const { return _port; }
 
 		bool doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc );

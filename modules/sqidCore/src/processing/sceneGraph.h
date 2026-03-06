@@ -21,7 +21,7 @@ namespace sqid
 {
 	//class Op;
 	class Sensor;
-	class DataSource;
+	class DataInterface;
 	//class SampleFrame;
 
 
@@ -29,19 +29,19 @@ namespace sqid
 	class SourceFeed
 	{
 	private:
-		const DataSource* _dataSource;
+		const DataInterface* _dataInterface;
 		const Sensor* _sensor;
 
 	public:
-		SourceFeed( const DataSource* dataSource, const Sensor* sensor ) :
-			_dataSource( dataSource ),
+		SourceFeed( const DataInterface *di, const Sensor* sensor ) :
+			_dataInterface( di ),
 			_sensor( sensor )
 		{}
 
 		~SourceFeed()
 		{}
 
-		const DataSource* getDataSource() const { return _dataSource; }
+		const DataInterface* getDataInterface() const { return _dataInterface; }
 		const Sensor* getOp() const { return _sensor; }
 	};
 
@@ -55,7 +55,7 @@ namespace sqid
 		std::map<GUID, Op*, CompareGUID> _guidMap;
 
 		std::list<Connector*> _connectors;
-		std::list<DataSource*> _sources;
+		std::list<DataInterface*> _interfaces;
 
 		//NOTE: as of now, feeds are only required for drawing connecting lines in UI
 		std::list<SourceFeed> _feeds;
@@ -67,9 +67,9 @@ namespace sqid
 		bool traverse();
 
 		bool isValid( const Op *op );
-		bool isValid( const DataSource *source );
+		bool isValid( const DataInterface *di );
 
-		void onSourceData( DeviceInterface di, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc );
+		void onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc );
 
 	public:
 		SceneGraph();
@@ -87,9 +87,6 @@ namespace sqid
 		const std::string &getSceneName() const { return _sceneName; }
 
 		//TODO: this is temporarily, until VP is finished
-		//bool addPipe( DeviceInterface di, int portNr, const std::vector<std::string> &nodeNames );
-		//bool addSource( DataSource *source );
-		//void onSensorData( DeviceInterface di, unsigned short portNr, unsigned char deviceID, unsigned char sensorID, SampleFrame *sf, const std::string &desc );
 		void update( float dt );
 		//---------------------------------------
 
@@ -98,18 +95,18 @@ namespace sqid
 		bool disconnect( InletPin *dst, bool skipReorder = false );
 		bool disconnect( Op *op, bool skipReorder = false );
 
-		DataSource *createSource( DeviceInterface di );
-		bool destroySource( const DataSource *source );
+		DataInterface *createInterface( DataInterfaceType dit );
+		bool destroyInterface( const DataInterface *di );
 
-		std::list<DataSource*> &getSources() { return _sources; }
-		const std::list<DataSource*> &getSources() const { return _sources; }
+		std::list<DataInterface*> &getInterfaces() { return _interfaces; }
+		const std::list<DataInterface*> &getInterfaces() const { return _interfaces; }
 
 		Op *instantiate( const GUID &classID );
 		bool destroy( const Op *op, bool skipReorder = false );
 		bool destroy( const GUID &objectID, bool skipReorder = false );
 
 		Op *getOp( const GUID &objectID ) const;
-		DataSource *getSource( const GUID &objectID ) const;
+		DataInterface *getInterface( const GUID &objectID ) const;
 
 		std::list<Op*> &getOps() { return _ops; }
 		const std::list<Op*> &getOps() const { return _ops; }
@@ -118,6 +115,6 @@ namespace sqid
 
 		const std::list<SourceFeed> &getFeeds() const { return _feeds; }
 
-		bool objectIDInUse( const GUID &objectID ) const { return ( getOp( objectID ) || getSource( objectID ) ); }
+		bool objectIDInUse( const GUID &objectID ) const { return ( getOp( objectID ) || getInterface( objectID ) ); }
 	};
 }

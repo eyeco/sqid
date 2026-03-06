@@ -16,7 +16,7 @@
 #include <fileIO/json.h>
 
 #include "../sceneGraph.h"
-#include "../../sources/serialMsg.h"
+#include "../../interfaces/serialMsg.h"
 
 //#include <processing/pin.h>
 

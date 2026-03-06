@@ -37,7 +37,7 @@
     <ClCompile Include="..\..\src\drawing\sceneUI\opDrawer.cpp" />
     <ClCompile Include="..\..\src\drawing\sceneUI\pinDrawer.cpp" />
     <ClCompile Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.cpp" />
-    <ClCompile Include="..\..\src\drawing\sceneUI\sourceDrawer.cpp" />
+    <ClCompile Include="..\..\src\drawing\sceneUI\interfaceDrawer.cpp" />
     <ClCompile Include="..\..\src\drawing\shader.cpp" />
     <ClCompile Include="..\..\src\drawing\staticShaders.cpp" />
     <ClCompile Include="..\..\src\drawing\vertexBuffer.cpp" />
@@ -49,6 +49,11 @@
     <ClCompile Include="..\..\src\fileIO\matWriter.cpp" />
     <ClCompile Include="..\..\src\genericFrame.cpp" />
     <ClCompile Include="..\..\src\guid.cpp" />
+    <ClCompile Include="..\..\src\interfaces\btsInterface.cpp" />
+    <ClCompile Include="..\..\src\interfaces\comInterface.cpp" />
+    <ClCompile Include="..\..\src\interfaces\dataInterface.cpp" />
+    <ClCompile Include="..\..\src\interfaces\oscInterface.cpp" />
+    <ClCompile Include="..\..\src\interfaces\serialMsg.cpp" />
     <ClCompile Include="..\..\src\perlin.cpp" />
     <ClCompile Include="..\..\src\pluginLoader.cpp" />
     <ClCompile Include="..\..\src\processing\connector.cpp" />
@@ -73,12 +78,6 @@
     <ClCompile Include="..\..\src\processing\sceneGraph.cpp" />
     <ClCompile Include="..\..\src\sampleFrame.cpp" />
     <ClCompile Include="..\..\src\serialPort.cpp" />
-    <ClCompile Include="..\..\src\sources\btsSource.cpp" />
-    <ClCompile Include="..\..\src\sources\comSource.cpp" />
-    <ClCompile Include="..\..\src\sources\dataSource.cpp" />
-    <ClCompile Include="..\..\src\sources\internal\fwProps.cpp" />
-    <ClCompile Include="..\..\src\sources\oscSource.cpp" />
-    <ClCompile Include="..\..\src\sources\serialMsg.cpp" />
     <ClCompile Include="..\..\src\trackball.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +94,7 @@
     <ClInclude Include="..\..\include\fileIO\json.h" />
     <ClInclude Include="..\..\include\genericFrame.h" />
     <ClInclude Include="..\..\include\guid.h" />
+    <ClInclude Include="..\..\include\interfaces\dataInterface.h" />
     <ClInclude Include="..\..\include\plugins.h" />
     <ClInclude Include="..\..\include\processing\connector.h" />
     <ClInclude Include="..\..\include\processing\op.h" />
@@ -102,7 +102,6 @@
     <ClInclude Include="..\..\include\processing\pin.h" />
     <ClInclude Include="..\..\include\sampleFrame.h" />
     <ClInclude Include="..\..\include\singleton.h" />
-    <ClInclude Include="..\..\include\sources\dataSource.h" />
     <ClInclude Include="..\..\include\trackball.h" />
     <ClInclude Include="..\..\src\compression\compressor.h" />
     <ClInclude Include="..\..\src\compression\decompressor.h" />
@@ -120,13 +119,17 @@
     <ClInclude Include="..\..\src\drawing\sceneUI\opDrawer.h" />
     <ClInclude Include="..\..\src\drawing\sceneUI\pinDrawer.h" />
     <ClInclude Include="..\..\src\drawing\sceneUI\sceneGraphDrawer.h" />
-    <ClInclude Include="..\..\src\drawing\sceneUI\sourceDrawer.h" />
+    <ClInclude Include="..\..\src\drawing\sceneUI\interfaceDrawer.h" />
     <ClInclude Include="..\..\src\drawing\shader.h" />
     <ClInclude Include="..\..\src\drawing\staticShaders.h" />
     <ClInclude Include="..\..\src\fileIO\binWriter.h" />
     <ClInclude Include="..\..\src\fileIO\csvWriter.h" />
     <ClInclude Include="..\..\src\fileIO\fileWriter.h" />
     <ClInclude Include="..\..\src\fileIO\matWriter.h" />
+    <ClInclude Include="..\..\src\interfaces\btsInterface.h" />
+    <ClInclude Include="..\..\src\interfaces\comInterface.h" />
+    <ClInclude Include="..\..\src\interfaces\oscInterface.h" />
+    <ClInclude Include="..\..\src\interfaces\serialMsg.h" />
     <ClInclude Include="..\..\src\perlin.h" />
     <ClInclude Include="..\..\src\pluginLoader.h" />
     <ClInclude Include="..\..\src\processing\coreOps.h" />
@@ -147,12 +150,6 @@
     <ClInclude Include="..\..\src\processing\sceneGraph.h" />
     <ClInclude Include="..\..\src\ringBuffer.h" />
     <ClInclude Include="..\..\src\serialPort.h" />
-    <ClInclude Include="..\..\src\sources\btsSource.h" />
-    <ClInclude Include="..\..\src\sources\comSource.h" />
-    <ClInclude Include="..\..\src\sources\internal\abstractWriter.h" />
-    <ClInclude Include="..\..\src\sources\internal\fwProps.h" />
-    <ClInclude Include="..\..\src\sources\oscSource.h" />
-    <ClInclude Include="..\..\src\sources\serialMsg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\config.json" />

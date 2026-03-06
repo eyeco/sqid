@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 
 namespace sqid
 {
@@ -19,10 +19,10 @@ namespace sqid
 
 	namespace Internal
 	{
-		class OSCSourceImpl;
+		class OSCInterfaceImpl;
 	}
 
-	class SQID_API OSCSource : public DataSource
+	class SQID_API OSCInterface : public DataInterface
 	{
 	private:
 		Protocol _proto;
@@ -36,7 +36,7 @@ namespace sqid
 
 		std::vector<char> _inputBufferIP;
 
-		Internal::OSCSourceImpl *_impl;
+		Internal::OSCInterfaceImpl*_impl;
 
 		bool run();
 		void close();
@@ -44,15 +44,15 @@ namespace sqid
 		void updateBuffers();
 
 	public:
-		OSCSource();
-		virtual ~OSCSource();
+		OSCInterface();
+		virtual ~OSCInterface();
 
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
 
 		virtual std::string getDesc() const;
 
 		virtual unsigned short getDevicePort() const { return _port; }
-		virtual DeviceInterface getDeviceInterface() const { return DI_OSC; }
+		virtual DataInterfaceType getDataInterfaceType() const { return DIT_OSC; }
 
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();

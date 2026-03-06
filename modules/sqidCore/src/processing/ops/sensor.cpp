@@ -26,7 +26,7 @@ namespace sqid
 
 	Sensor::Sensor( unsigned short port, float sensorTimeout, unsigned int maxBufferSize ) :
 		Op(),
-		_interface( DI_COUNT ),
+		_interface( DIT_COUNT ),
 		_port( port ),
 		_deviceID( -1 ),
 		_sensorID( -1 ),
@@ -87,9 +87,9 @@ namespace sqid
 	bool Sensor::doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc )
 	{
 		//NOTE: senderDesc is ignored for now, may be useful?
-		if( _interface == DI_COM || _interface == DI_RFCOMM )
+		if( _interface == DIT_COM || _interface == DIT_RFCOMM )
 			return ( sfc->deviceID == _deviceID && sfc->sensorID == _sensorID );
-		else if( _interface == DI_OSC )
+		else if( _interface == DIT_OSC )
 			return ( _exactOSC ? sfc->message.compare( _msgFilterOSC ) == 0 : sfc->message.compare( 0, _msgFilterOSC.size(), _msgFilterOSC ) == 0 );
 		return false;
 	}
@@ -148,7 +148,7 @@ namespace sqid
 		if( !Op::drawUI() )
 			return false;
 
-		auto items = getDeviceInterfaceComboItems();
+		auto items = getDataInterfaceComboItems();
 		items.push_back( "<none>" );
 		int index = (int) _interface;
 
@@ -161,7 +161,7 @@ namespace sqid
 				if( ImGui::Selectable( items[i], isSelected ) )
 				{
 					currentItem = items[i];
-					_interface = (DeviceInterface)i;
+					_interface = (DataInterfaceType)i;
 				}
 				if( isSelected )
 					ImGui::SetItemDefaultFocus();
@@ -174,7 +174,7 @@ namespace sqid
 		if( ImGui::InputInt( "port", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
 			_port = i;
 
-		if( _interface == DI_COM || _interface == DI_RFCOMM )
+		if( _interface == DIT_COM || _interface == DIT_RFCOMM )
 		{
 			i = _deviceID;
 			//TODO: color text red as long as input is not applied with Return (e.g., use ScopedImGuiStyleColor, see oscOut)
@@ -186,7 +186,7 @@ namespace sqid
 			if( ImGui::InputInt( "sensorID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
 				_sensorID = i % 256;
 		}
-		else if( _interface == DI_OSC )
+		else if( _interface == DIT_OSC )
 		{
 			ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _msgFilterOSC.c_str(), &_inputBufferMsg[0] ) );
 			if( ImGui::InputText( "msg filter", &_inputBufferMsg[0], _inputBufferMsg.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )

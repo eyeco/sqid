@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 
 namespace sqid
 {
@@ -19,15 +19,15 @@ namespace sqid
 
 	namespace Internal
 	{
-		class COMSourceImpl;
+		class COMInterfaceImpl;
 	}
 
-	class SQID_API COMSource : public DataSource
+	class SQID_API COMInterface : public DataInterface
 	{
 	private:
 		unsigned short _portNr;
 
-		Internal::COMSourceImpl *_impl;
+		Internal::COMInterfaceImpl *_impl;
 
 		unsigned int _baud;
 		unsigned int _queueSize;
@@ -37,23 +37,23 @@ namespace sqid
 		void close();
 
 	public:
-		COMSource();
-		virtual ~COMSource();
+		COMInterface();
+		virtual ~COMInterface();
 
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
 
 		virtual std::string getDesc() const;
 
 		virtual unsigned short getDevicePort() const { return _portNr; }
-		virtual DeviceInterface getDeviceInterface() const { return DI_COM; }
+		virtual DataInterfaceType getDataInterfaceType() const { return DIT_COM; }
 
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();
 #endif
 
-		bool write( const unsigned char *data, size_t size );
-		bool write( const std::string &str );
-		bool write( const std::vector<unsigned char> &data );
+		//bool write( const unsigned char *data, size_t size );
+		//bool write( const std::string &str );
+		//bool write( const std::vector<unsigned char> &data );
 
 		static bool init();
 		static bool isInitialized();
