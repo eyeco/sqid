@@ -12,6 +12,7 @@
 #include "serialMsg.h"
 
 #include <config.h>
+#include <sources/dataSource.h>
 #include "../compression/compressor.h"
 #include "../compression/decompressor.h"
 

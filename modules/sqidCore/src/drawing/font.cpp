@@ -205,6 +205,9 @@ namespace sqid
 
 	void Font::print( const std::string &text, GLfloat x, GLfloat y, unsigned int canvasWidth, unsigned int canvasHeight, GLfloat scale, const glm::vec4 &color )
 	{
+		if( characters.empty() || text.empty() )
+			return;
+
 		if( !program || !vertexBuffer )
 			return;
 

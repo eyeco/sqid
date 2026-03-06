@@ -16,7 +16,13 @@
 namespace sqid
 {
 #ifdef __STATIC_SHADERS
-	
+
+	//NOTE: removed call of makeHeaders.bat from Pre-Build Events since it would trigger a re-build of all 
+	// depending source files, even if nothing changed in the code. Furthermore, there apparently is no way 
+	// of calling it only if __STATIC_SHADERS is defined. therefore: call it manually when you first build
+	// the code, or whenever you update shader code (find it in sqid/resources/shaders/makeHeaders.bat). 
+
+
 	//vertex shaders
 	const char* vertSourcePassthrough =
 #include "../../../../resources/shaders/include/passthrough.vert.h"

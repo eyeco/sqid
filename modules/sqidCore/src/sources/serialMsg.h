@@ -11,13 +11,13 @@
 
 #pragma once
 
-#include <sources/dataSource.h>
-
 #include <map>
 #include <vector>
+#include <string>
 
 namespace sqid
 {
+	class SampleFrame;
 	class Decompressor;
 
 	namespace Internal
