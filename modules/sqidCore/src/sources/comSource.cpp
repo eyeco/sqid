@@ -334,6 +334,7 @@ namespace sqid
 				_currentState( PS_COUNT ),
 				_maxQueueSize( maxQueueSize ),
 				_expectedBytes( 0 ),
+				_hdrEx( { 0 } ),
 				_dataBuffer( 1024 ),
 				_isStarted( false ),
 				_keepRunning( false ),
@@ -512,6 +513,7 @@ namespace sqid
 			}
 
 			static const std::vector<std::string> &getKnownPorts() { return SerialPort::getKnownPorts(); }
+			static const std::vector<std::string> &getKnownPortsNames() { return SerialPort::getKnownPortsNames(); }
 		};
 	}
 
@@ -629,7 +631,7 @@ namespace sqid
 		}
 		else
 		{
-			auto &devices = Internal::COMSourceImpl::getKnownPorts();
+			auto &devices = Internal::COMSourceImpl::getKnownPortsNames();
 			std::vector<std::string> items;
 			for( auto &it : devices )
 				items.push_back( it );

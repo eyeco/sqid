@@ -25,7 +25,9 @@ namespace sqid
 			static bool _initialized;
 
 			static std::vector<serial::PortInfo> _knownDevices;
+
 			static std::vector<std::string> _knownPorts;
+			static std::vector<std::string> _knownPortsNames;
 
 			serial::Serial _serialPort;
 
@@ -128,8 +130,15 @@ namespace sqid
 				_knownDevices = serial::list_ports();
 
 				_knownPorts.clear();
+				_knownPortsNames.clear();
 				for( const auto& d : _knownDevices )
+				{
 					_knownPorts.push_back( d.port );
+
+					std::stringstream sstr;
+					sstr << d.port << ": " << d.description;
+					_knownPortsNames.push_back( sstr.str() );
+				}
 
 				std::cout << "found " << _knownDevices.size() << " COM device(s)" << std::endl;
 			}
@@ -148,11 +157,13 @@ namespace sqid
 
 			static const std::vector<serial::PortInfo> &getKnownDevices() { return _knownDevices; }
 			static const std::vector<std::string> &getKnownPorts() { return _knownPorts; }
+			static const std::vector<std::string> &getKnownPortsNames() { return _knownPortsNames; }
 		};
 
 		bool SerialPortImpl::_initialized = false;
 		std::vector<serial::PortInfo> SerialPortImpl::_knownDevices;
 		std::vector<std::string> SerialPortImpl::_knownPorts;
+		std::vector<std::string> SerialPortImpl::_knownPortsNames;
 	}
 
 
@@ -236,4 +247,8 @@ namespace sqid
 		return Internal::SerialPortImpl::getKnownPorts();
 	}
 
+	const std::vector<std::string>& SerialPort::getKnownPortsNames()
+	{
+		return Internal::SerialPortImpl::getKnownPortsNames();
+	}
 }
