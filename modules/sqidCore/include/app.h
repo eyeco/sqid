@@ -115,6 +115,8 @@ namespace sqid
 
 		void initImGui();
 		void initGL( int argc, char **argv );
+
+		void saveIni();
 #endif
 
 		explicit Application( const std::string &appTitle );
