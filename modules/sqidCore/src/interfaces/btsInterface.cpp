@@ -13,8 +13,6 @@
 
 #ifdef __RFCOMM_SUPPORT
 
-//#include "internal/fwProps.h"
-
 #include "serialMsg.h"
 #include "../ringBuffer.h"
 
@@ -87,8 +85,6 @@ namespace sqid
 				PS_COUNT
 			};
 
-			//FWProps *_fwProps;
-
 			bool _isSynced;
 			ProtocolState _currentState;
 			unsigned int _expectedBytes;
@@ -96,9 +92,6 @@ namespace sqid
 			unsigned int _maxMsgQueueSize;
 			std::list<ComMsg> _msgQueue;
 			std::mutex _msgMutex;
-
-			//std::map<std::string,std::string> _propMap;
-			//std::mutex _propMutex;
 
 			RingBuffer<unsigned char> _buffer;
 
@@ -307,24 +300,6 @@ namespace sqid
 												}
 												safeDeleteArray( msg.data );
 											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_DESC )
-											{
-												if( _fwProps )
-													_fwProps->onDesc( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_STATUS )
-											{
-												if( _fwProps )
-													_fwProps->onStatus( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_ACK )
-											{
-												if( _fwProps )
-													_fwProps->onAck( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
 											else*/
 											{
 												std::lock_guard<std::mutex> lock( _msgMutex );
@@ -365,11 +340,11 @@ namespace sqid
 
 		public:
 			BTSInterfaceImpl( const std::string &name, const std::string &address, unsigned int id, unsigned int maxMsgQueueSize ) :
-				//_fwProps( new FWProps( this ) ),
 				_isSynced( false ),
 				_currentState( PS_COUNT ),
-				_maxMsgQueueSize( maxMsgQueueSize ),
 				_expectedBytes( 0 ),
+				_maxMsgQueueSize( maxMsgQueueSize ),
+				_hdrEx( { 0 } ),
 				_dataBuffer( 1024 ),
 				_isStarted( false ),
 				_keepRunning( false ),
@@ -386,8 +361,6 @@ namespace sqid
 			~BTSInterfaceImpl()
 			{
 				this->close();
-
-				//safeDelete( _fwProps );
 			}
 
 			bool run()
@@ -538,8 +511,6 @@ namespace sqid
 
 				if( _bts )
 				{
-					//if( _fwProps )
-					//	_fwProps->drawUI();
 				}
 				else
 					ImGui::Text( "offline" );
@@ -702,31 +673,22 @@ namespace sqid
 		return _impl->getDesc();
 	}
 
+	bool BTSInterface::doesWant( const SampleFrameContainer* sfc ) const
+	{
+		return true;
+	}
+
 	void BTSInterface::fetchFrames( std::vector<SampleFrameContainer> &frames )
 	{
 		if( _impl )
 			_impl->fetchFrames( frames );
 	}
-	/*
-	bool BTSInterface::write( const unsigned char *data, size_t size )
+
+	bool BTSInterface::queueFrame( const SampleFrameContainer& sfc )
 	{
-		if( _impl )
-			return _impl->write( data, size );
+		std::cerr << "<error> sending frames to BTSInterface not implemented (yet)" << std::endl;
 		return false;
 	}
-
-	bool BTSInterface::write( const std::string &str )
-	{
-		//TODO: be careful here with wstring
-		if( _impl )
-			return _impl->write( (unsigned char*)str.c_str(), str.size() + 1 );
-		return false;
-	}
-
-	bool BTSInterface::write( const std::vector<unsigned char> &data )
-	{
-		return _impl->write( &data[0], data.size() );
-	}*/
 
 #ifdef __SUPPORT_GUI
 	bool BTSInterface::drawUI()

@@ -35,7 +35,12 @@ namespace sqid
 
 		virtual std::string getDesc() const = 0;
 
+		virtual bool doesWant( const SampleFrameContainer* sfc ) const = 0;
+
+		//frames are handed over, caller is in charge of deleting them!
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames ) = 0;
+		//frames are copied, caller must delete frames contained in sfc!
+		virtual bool queueFrame( const SampleFrameContainer &sfc ) = 0;
 
 		virtual unsigned short getDevicePort() const = 0;
 		virtual DataInterfaceType getDataInterfaceType() const = 0;

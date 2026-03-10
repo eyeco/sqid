@@ -11,28 +11,24 @@
 
 #include "serial.h"
 
-//#include <drawing/frameDrawer.h>
-
 #include <fileIO/json.h>
 
 #include "../sceneGraph.h"
 #include "../../interfaces/serialMsg.h"
-
-//#include <processing/pin.h>
 
 #include <commonImGui.h>
 
 #include <serial/serial.h>
 
 #include <opencv2/imgproc.hpp>
-//#include <opencv2/imgproc/types_c.h>
 
 
 namespace sqid
 {
 	namespace Serial
 	{
-		DEFINE_OP_DESC( SerialOut, "serialOut", "/devices",
+		//deprecated -> use COM/serial interface in combination with Sink op
+		DEFINE_OP_DESC( SerialOut, "serialOut", "/deprecated/devices",
 			"4EBAA930-4589-4E61-BB95-06A60BC05268" );
 
 		SerialOut::SerialOut() :
@@ -85,34 +81,34 @@ namespace sqid
 						
 
 						bool err = false;
-						Internal::MsgType type = Internal::typeFromFrame( sf );
+						MsgType type = typeFromFrame( sf );
 
 						//TODO: implement compression
 						//TODO: implement quantization and normalization to, e.g., 10-bit or 12-bit int values
-						Internal::MsgFlags flags = (Internal::MsgFlags)( Internal::MF_NORMALIZED | Internal::MF_DATATYPE_FLOAT | Internal::MF_ENC_UNCOMPRESSED );
+						MsgFlags flags = (MsgFlags)( MF_NORMALIZED | MF_DATATYPE_FLOAT | MF_ENC_UNCOMPRESSED );
 						size_t hdrSize = 0;
 						size_t elements = sf->width() * sf->height() * sf->depth();
 						size_t payloadSize = elements * sizeof( float );
 						switch( type )
 						{
-						case Internal::MT_VALUE:
+						case MT_VALUE:
 						{
-							hdrSize = sizeof( Internal::DataHdrSingleValue );
+							hdrSize = sizeof( DataHdrSingleValue );
 							break;
 						}
-						case Internal::MT_ARRAY:
+						case MT_ARRAY:
 						{
-							hdrSize = sizeof( Internal::DataHdrArray );
+							hdrSize = sizeof( DataHdrArray );
 							break;
 						}
-						case Internal::MT_MATRIX:
+						case MT_MATRIX:
 						{
-							hdrSize = sizeof( Internal::DataHdrMatrix );
+							hdrSize = sizeof( DataHdrMatrix );
 							break;
 						}
-						case Internal::MT_IMAGE:
+						case MT_IMAGE:
 						{
-							hdrSize = sizeof( Internal::DataHdrImage );
+							hdrSize = sizeof( DataHdrImage );
 							break;
 						}
 						default:
@@ -131,30 +127,30 @@ namespace sqid
 						std::vector<uint8_t> data( hdrSize + payloadSize );
 						switch( type )
 						{
-						case Internal::MT_VALUE:
+						case MT_VALUE:
 						{
-							Internal::DataHdrSingleValue *dh = reinterpret_cast<Internal::DataHdrSingleValue*>( &data[0] );
+							DataHdrSingleValue *dh = reinterpret_cast<DataHdrSingleValue*>( &data[0] );
 							dh->flags = flags;
 							break;
 						}
-						case Internal::MT_ARRAY:
+						case MT_ARRAY:
 						{
-							Internal::DataHdrArray *dh = reinterpret_cast<Internal::DataHdrArray*>( &data[0] );
+							DataHdrArray *dh = reinterpret_cast<DataHdrArray*>( &data[0] );
 							dh->flags = flags;
 							dh->size = elements;
 							break;
 						}
-						case Internal::MT_MATRIX:
+						case MT_MATRIX:
 						{
-							Internal::DataHdrMatrix *dh = reinterpret_cast<Internal::DataHdrMatrix*>( &data[0] );
+							DataHdrMatrix *dh = reinterpret_cast<DataHdrMatrix*>( &data[0] );
 							dh->flags = flags;
 							dh->width = sf->width();
 							dh->height = sf->height();
 							break;
 						}
-						case Internal::MT_IMAGE:
+						case MT_IMAGE:
 						{
-							Internal::DataHdrImage* dh = reinterpret_cast<Internal::DataHdrImage*>( &data[0] );
+							DataHdrImage* dh = reinterpret_cast<DataHdrImage*>( &data[0] );
 							dh->flags = flags;
 							dh->width = sf->width();
 							dh->height = sf->height();
@@ -170,10 +166,10 @@ namespace sqid
 
 						memcpy( &data[hdrSize], sf->values(), payloadSize );
 
-						Internal::ComMsg msg;
+						ComMsg msg;
 						msg.hdr.hdr =
 						{
-							Internal::ProtocolVersion::PV_2,
+							ProtocolVersion::PV_2,
 							type,
 							_deviceID,
 							_sensorID,
@@ -185,9 +181,9 @@ namespace sqid
 
 						if( !err )
 						{
-							if( _port.write( (uint8_t*) Internal::syncBytes, Internal::SYNC_BYTES ) != Internal::SYNC_BYTES )
+							if( _port.write( (uint8_t*) syncBytes, SYNC_BYTES ) != SYNC_BYTES )
 								err = true;
-							if( _port.write( (uint8_t*) &msg.hdr, sizeof( Internal::ComMsgHdrEx ) ) != sizeof( Internal::ComMsgHdrEx ) )
+							if( _port.write( (uint8_t*) &msg.hdr, sizeof( ComMsgHdrEx ) ) != sizeof( ComMsgHdrEx ) )
 								err = true;
 							if( _port.write( (uint8_t*) msg.data, hdrSize + payloadSize ) != hdrSize + payloadSize )
 								err = true;

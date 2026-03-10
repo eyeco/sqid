@@ -17,6 +17,7 @@
 
 #include <fileIO/json.h>
 
+#include "../../processing/ops/sink.h"
 #include "../../processing/ops/sensor.h"
 #include <interfaces/dataInterface.h>
 
@@ -631,18 +632,18 @@ namespace sqid
 							id->updateCompatibility( _sticky );
 				}
 
-				if( _sg->getFeeds().size() )
+				if( _sg->getSourceFeeds().size() )
 				{
 					glLineWidth( getUIStyle()->ConnectorLineWidth );
 
-					std::vector<glm::vec2> lineVerts( _sg->getFeeds().size() * 2 );
-					std::vector<glm::vec3> lineCols( _sg->getFeeds().size() * 2 );
+					std::vector<glm::vec2> lineVerts( _sg->getSourceFeeds().size() * 2 );
+					std::vector<glm::vec3> lineCols( _sg->getSourceFeeds().size() * 2 );
 
-					std::vector<glm::vec2> triVerts( _sg->getFeeds().size() * 3 );
-					std::vector<glm::vec3> triCols( _sg->getFeeds().size() * 3 );
+					std::vector<glm::vec2> triVerts( _sg->getSourceFeeds().size() * 3 );
+					std::vector<glm::vec3> triCols( _sg->getSourceFeeds().size() * 3 );
 
 					int cntr = 0;
-					for( auto &it : _sg->getFeeds() )
+					for( auto &it : _sg->getSourceFeeds() )
 					{
 						const InterfaceDrawer *src = getInterfaceDrawer( it.getDataInterface()->getObjectID() );
 						const OpDrawer *dst = getOpDrawer( it.getOp()->getObjectID() );
@@ -664,8 +665,8 @@ namespace sqid
 						lineVerts[cntr * 2 + 0] = srcPos;
 						lineVerts[cntr * 2 + 1] = dstPos;
 
-						lineCols[cntr * 2 + 0] = getUIStyle()->FeedLineColor;
-						lineCols[cntr * 2 + 1] = getUIStyle()->FeedLineColor;
+						lineCols[cntr * 2 + 0] = getUIStyle()->SourceFeedLineColor;
+						lineCols[cntr * 2 + 1] = getUIStyle()->SourceFeedLineColor;
 
 						glm::vec2 fwd( dstPos - srcPos );
 						float l = glm::length( fwd );
@@ -679,9 +680,75 @@ namespace sqid
 						triVerts[cntr * 3 + 1] = center - ( fwd * 0.5f + side ) * size;
 						triVerts[cntr * 3 + 2] = center - ( fwd * 0.5f - side ) * size;
 
-						triCols[cntr * 3 + 0] = getUIStyle()->FeedLineColor;
-						triCols[cntr * 3 + 1] = getUIStyle()->FeedLineColor;
-						triCols[cntr * 3 + 2] = getUIStyle()->FeedLineColor;
+						triCols[cntr * 3 + 0] = getUIStyle()->SourceFeedLineColor;
+						triCols[cntr * 3 + 1] = getUIStyle()->SourceFeedLineColor;
+						triCols[cntr * 3 + 2] = getUIStyle()->SourceFeedLineColor;
+
+						cntr++;
+					}
+
+					glVertexPointer( 2, GL_FLOAT, 0, &lineVerts[0] );
+					glColorPointer( 3, GL_FLOAT, 0, &lineCols[0] );
+
+					glDrawArrays( GL_LINES, 0, lineVerts.size() );
+
+					glVertexPointer( 2, GL_FLOAT, 0, &triVerts[0] );
+					glColorPointer( 3, GL_FLOAT, 0, &triCols[0] );
+
+					glDrawArrays( GL_TRIANGLES, 0, triVerts.size() );
+				}
+
+				if( _sg->getSinkFeeds().size() )
+				{
+					glLineWidth( getUIStyle()->ConnectorLineWidth );
+
+					std::vector<glm::vec2> lineVerts( _sg->getSinkFeeds().size() * 2 );
+					std::vector<glm::vec3> lineCols( _sg->getSinkFeeds().size() * 2 );
+
+					std::vector<glm::vec2> triVerts( _sg->getSinkFeeds().size() * 3 );
+					std::vector<glm::vec3> triCols( _sg->getSinkFeeds().size() * 3 );
+
+					int cntr = 0;
+					for( auto& it : _sg->getSinkFeeds() )
+					{
+						const OpDrawer* src = getOpDrawer( it.getOp()->getObjectID() );
+						const InterfaceDrawer* dst = getInterfaceDrawer( it.getDataInterface()->getObjectID() );
+
+						if( !src )
+						{
+							std::cerr << "OpDrawer not found" << std::endl;
+							continue;
+						}
+						if( !dst )
+						{
+							std::cerr << "InterfaceDrawer not found" << std::endl;
+							continue;
+						}
+
+						glm::vec2 srcPos( src->getPos() + src->getSize() * 0.5f );
+						glm::vec2 dstPos( dst->getPos() + dst->getSize() * 0.5f );
+
+						lineVerts[cntr * 2 + 0] = srcPos;
+						lineVerts[cntr * 2 + 1] = dstPos;
+
+						lineCols[cntr * 2 + 0] = getUIStyle()->SinkFeedLineColor;
+						lineCols[cntr * 2 + 1] = getUIStyle()->SinkFeedLineColor;
+
+						glm::vec2 fwd( dstPos - srcPos );
+						float l = glm::length( fwd );
+						if( l > std::numeric_limits<float>::epsilon() )
+							fwd *= 1.0f / l;
+						float t = getAppTime() * 0.5f;
+						glm::vec2 side( -fwd.y, fwd.x );
+						glm::vec2 center( ( srcPos + dstPos ) * 0.5f + fwd * ( t - (int) t - 0.5f ) * l * 0.9f );
+						float size = 10;
+						triVerts[cntr * 3 + 0] = center + fwd * size;
+						triVerts[cntr * 3 + 1] = center - ( fwd * 0.5f + side ) * size;
+						triVerts[cntr * 3 + 2] = center - ( fwd * 0.5f - side ) * size;
+
+						triCols[cntr * 3 + 0] = getUIStyle()->SinkFeedLineColor;
+						triCols[cntr * 3 + 1] = getUIStyle()->SinkFeedLineColor;
+						triCols[cntr * 3 + 2] = getUIStyle()->SinkFeedLineColor;
 
 						cntr++;
 					}

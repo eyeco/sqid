@@ -27,6 +27,33 @@ namespace sqid
         uint8_t *getData() const { return _data; }
         bool setData( const uint8_t *values );
 
+        template<typename T>
+        bool set( T t, size_t pos )
+        {
+            if( !_data || pos >= _elements )
+                return false;
+
+            uint8_t *ptr = _data + ( pos * _elemSize );
+            switch( _type )
+            {
+            case DT_BYTE:
+                *(reinterpret_cast<uint8_t*>( ptr )) = t;
+                break;
+            case DT_USHORT:
+                *(reinterpret_cast<uint16_t*>( ptr )) = t;
+                break;
+            case DT_ULONG:
+                *(reinterpret_cast<uint32_t*>( ptr )) = t;
+                break;
+            case DT_FLOAT:
+                *(reinterpret_cast<float*>( ptr )) = t;
+                break;
+            default:
+                return false;
+            }
+
+            return true;
+        }
 
     private:
         unsigned char _deviceID;
@@ -45,6 +72,37 @@ namespace sqid
 
         uint8_t *_data;
     };
+
+    template<typename T>
+    inline SampleFrame *toFrame( DataType type, unsigned int width, unsigned int height, unsigned int depth, const T *values, bool normalize, T maxValue, bool clamp = false )
+    {
+        if( !values )
+            return nullptr;
+
+        SampleFrame *frame = new SampleFrame( type, width, height, depth );
+
+        int size = width * height * depth;
+
+        if( normalize )
+        {
+            float s = 1.0f / maxValue;
+            if( clamp )
+            {
+                for( int i = 0; i < size; i++ )
+                    frame->set<T>( sqid::clamp<float>( values[i] * s, 0.0f, 1.0f ), i );
+            }
+            else
+            {
+                for( int i = 0; i < size; i++ )
+                    frame->set<T>( values[i] * s, i );
+            }
+        }
+        else
+            for( int i = 0; i < size; i++ )
+                frame->set<T>( values[i], i );
+
+        return frame;
+    }
 }
 
 #endif

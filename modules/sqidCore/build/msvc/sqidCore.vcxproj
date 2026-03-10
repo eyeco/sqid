@@ -70,6 +70,7 @@
     <ClCompile Include="..\..\src\processing\ops\pointClouds.cpp" />
     <ClCompile Include="..\..\src\processing\ops\sensor.cpp" />
     <ClCompile Include="..\..\src\processing\ops\serial.cpp" />
+    <ClCompile Include="..\..\src\processing\ops\sink.cpp" />
     <ClCompile Include="..\..\src\processing\ops\statistics.cpp" />
     <ClCompile Include="..\..\src\processing\ops\temporal.cpp" />
     <ClCompile Include="..\..\src\processing\ops\tracking.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="..\..\src\processing\ops\pointClouds.h" />
     <ClInclude Include="..\..\src\processing\ops\sensor.h" />
     <ClInclude Include="..\..\src\processing\ops\serial.h" />
+    <ClInclude Include="..\..\src\processing\ops\sink.h" />
     <ClInclude Include="..\..\src\processing\ops\statistics.h" />
     <ClInclude Include="..\..\src\processing\ops\temporal.h" />
     <ClInclude Include="..\..\src\processing\ops\tracking.h" />

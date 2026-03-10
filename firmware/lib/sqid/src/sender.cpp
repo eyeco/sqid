@@ -10,25 +10,6 @@
 
 namespace sqid
 {
-    size_t getElementSize( MsgFlags flags )
-    {
-        switch( MF_DATATYPE( flags ) )
-        {
-          case MF_DATATYPE_BYTE:
-              return sizeof( uint8_t );
-          case MF_DATATYPE_INT16:
-              return sizeof( uint16_t );
-          case MF_DATATYPE_INT32:
-              return sizeof( uint32_t );
-          case MF_DATATYPE_FLOAT:
-              return sizeof( float );
-          default:
-              break;
-        }
-        
-        return 0;
-    }
-
     SenderSerial::SenderSerial() :
         Sender(),
         _flags( MF_NONE ),
@@ -191,15 +172,15 @@ namespace sqid
         if(messageType == MsgType::MT_VALUE)
         {
             //calculate required data array size for a single frame value and set it 
-            size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrValue);
+            size_t dataBytesMax = _payloadBytesMax + sizeof(DataHdrSingleValue);
             _comMsg.data = new unsigned char[dataBytesMax];
 
             //create value header to set attributes
-            DataHdrValue *dataHdrPtr = (DataHdrValue*) _comMsg.data;
+            DataHdrSingleValue *dataHdrPtr = (DataHdrSingleValue*) _comMsg.data;
             dataHdrPtr->flags = _flags;
 
             //store header size for later use (data object pointer offset)
-            _headerBytes = sizeof(DataHdrValue);
+            _headerBytes = sizeof(DataHdrSingleValue);
         }
         else if(messageType == MsgType::MT_ARRAY)
         {
@@ -310,7 +291,7 @@ namespace sqid
         {
         case MT_VALUE:
         {
-            DataHdrValue *hdr = (DataHdrValue*)_comMsg.data;
+            DataHdrSingleValue *hdr = (DataHdrSingleValue*)_comMsg.data;
             hdr->flags = (MsgFlags)( ( (int)hdr->flags & ~MF_ENC_MASK ) | (int)enc );
             break;
         }
@@ -358,51 +339,6 @@ namespace sqid
         return true;
     }
 
-    bool SenderSerial::sendFWPackage( MsgType type, const char *data, size_t len )
-    {
-        if( !data )
-           return false;
-
-        ComMsg paramMsg;
-        paramMsg.hdr.hdr.ver = _comMsg.hdr.hdr.ver;
-        paramMsg.hdr.hdr.type = type;
-        paramMsg.hdr.hdr.deviceID = _comMsg.hdr.hdr.deviceID;
-        paramMsg.hdr.hdr.sensorID = _comMsg.hdr.hdr.sensorID;
-        paramMsg.hdr.hdr.timeStamp = millis();
-        paramMsg.hdr.hdr.dataBytes = len;
-
-        paramMsg.hdr.chk = makeChkSum( &paramMsg.hdr.hdr );
-
-        paramMsg.data = (uint8_t*)data;
-
-        //send sync bytes
-        write( (uint8_t*)syncBytes, SYNC_BYTES );
-
-        //send header
-        write( (uint8_t*)&( paramMsg.hdr ), (int) sizeof( ComMsgHdrEx ) );
-
-        //send data
-        write( (uint8_t*)paramMsg.data, paramMsg.hdr.hdr.dataBytes);
-
-        return true;
-    }
-
-    bool SenderSerial::sendFWDesc( const char *desc )
-    {
-        if( !desc )
-            return false;
-
-        return sendFWPackage( MT_FWPROPS_DESC, desc, strlen( desc ) );
-    }
-
-    bool SenderSerial::sendFWStatus( const char *status )
-    {
-        if( !status )
-            return false;
-
-        return sendFWPackage( MT_FWPROPS_STATUS, status, strlen( status ) );
-    }
-
     bool SenderSerial::write( const uint8_t *buffer, size_t size )
     {
         return ( TransportSerial::singleton().write( buffer, size ) == size );
@@ -417,15 +353,6 @@ namespace sqid
     {
         return TransportSerial::singleton().readBytes( data, bytes );
     }
-
-    bool SenderSerial::sendFWAck( const char *status )
-    {
-         if( !status )
-            return false;
-
-        return sendFWPackage( MT_FWPROPS_ACK, status, strlen( status ) );
-    }
-
 
 
 #ifdef SUPPORT_BLUETOOTH_SERIAL

@@ -39,7 +39,8 @@ namespace sqid
 		const glm::vec3 RubberColor;
 		const float RubberLineWidth;
 
-		const glm::vec3 FeedLineColor;
+		const glm::vec3 SourceFeedLineColor;
+		const glm::vec3 SinkFeedLineColor;
 		const glm::vec3 ConnectorLineColor;
 
 		const int NodePaddingX;

@@ -47,7 +47,10 @@ namespace sqid
 		OSCInterface();
 		virtual ~OSCInterface();
 
+		virtual bool doesWant( const SampleFrameContainer *sfc ) const;
+
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
+		virtual bool queueFrame( const SampleFrameContainer& sfc );
 
 		virtual std::string getDesc() const;
 

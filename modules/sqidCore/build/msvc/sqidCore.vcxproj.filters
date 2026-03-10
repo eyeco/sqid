@@ -196,6 +196,9 @@
     <ClCompile Include="..\..\src\interfaces\serialMsg.cpp">
       <Filter>src\interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\processing\ops\sink.cpp">
+      <Filter>src\processing\ops</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\perlin.h">
@@ -404,6 +407,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\interfaces\serialMsg.h">
       <Filter>src\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\processing\ops\sink.h">
+      <Filter>src\processing\ops</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,7 @@
 #include <interfaces/dataInterface.h>
 #include <sampleFrame.h>
 
+#include "ops/sink.h"
 #include "ops/sensor.h"
 #include <processing/opFactory.h>
 
@@ -167,7 +168,8 @@ namespace sqid
 		}
 		_interfaces.clear();
 
-		_feeds.clear();
+		_sourceFeeds.clear();
+		_sinkFeeds.clear();
 
 		for( auto &it : _connectors )
 			safeDelete( it );
@@ -182,8 +184,6 @@ namespace sqid
 
 	void SceneGraph::close()
 	{
-		if( App().getAutoSave() )
-			save( _sceneName );
 		clear();
 	}
 
@@ -431,9 +431,8 @@ namespace sqid
 		return true;
 	}
 
-	void SceneGraph::onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc )
+	void SceneGraph::onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer* sfc, const std::string &desc )
 	{
-		bool inserted = false;
 		Sensor *sensor = nullptr;
 		for( auto &it : _ops )
 		{
@@ -443,17 +442,31 @@ namespace sqid
 				//TODO: actually, the source may receive multiple frames until a graph traverse is done, however we cannot always traverse the graph once a source
 				// was updated, as there may be multiple sources and we have to wait for all. a solution would be to buffer frames at Source's inlet buffer and at 
 				// outlet pins and process multiple during each traverse, however, this may cause timing issues. we would actually have to consider frame timestamps 
-				// and sync Ops accordingly. summarizing, this all gets quite complicted, quickly. for the time being, we don't deal with this and assume fast-
+				// and sync Ops accordingly. this all gets quite complicted, quickly. for the time being, we don't deal with this and assume fast-
 				// enough processing, which obviously may drop frames.
 				//TODO: for dropped frames, implement a warning in sources so the user is at least aware of the fact. also check for mem-leaks caused by frames not 
 				// collected for processing.
 				sensor->setSourceDesc( desc );
 
 				//TODO: merge this somehow in a reasonable way
-				if( sensor->feed( sfc->frame ) )
-					inserted = true;
-				else
+				if( !sensor->feed( sfc->frame ) )
 					std::cerr << "<error> failed to insert frame to sensor" << std::endl;
+			}
+		}
+	}
+
+	void SceneGraph::onSinkData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer* sfc )
+	{
+		Sensor* sensor = nullptr;
+		for( auto& it : _interfaces )
+		{
+			if( it->getDataInterfaceType() == dit && it->getDevicePort() == portNr && it->doesWant( sfc ) )
+			{
+				//TODO: for dropped frames, implement a warning in sources so the user is at least aware of the fact. also check for mem-leaks caused by frames not 
+				// collected for processing.
+
+				if( !it->queueFrame( *sfc ) )
+					std::cerr << "<error> failed to insert frame from sink" << std::endl;
 			}
 		}
 	}
@@ -462,8 +475,7 @@ namespace sqid
 	{
 		for( auto &it : _ordered )
 			if( !it->update() )
-			{
-			}
+			{}
 
 		return true;
 	}
@@ -536,15 +548,22 @@ namespace sqid
 	void SceneGraph::update( float dt )
 	{
 		//NOTE: as of now, feeds are only required for drawing connecting lines in UI
-		_feeds.clear();
-		const Sensor *sensor = nullptr;
+		//TODO: use them to have sources/sinks directly interact with interfaces (and do not rebuild them every frame, fcs!)
+		_sourceFeeds.clear();
+		_sinkFeeds.clear();
 		for( auto &it : _ops )
 		{
-			sensor = dynamic_cast<const Sensor*>( it );
+			const Sensor *sensor = dynamic_cast<const Sensor*>( it );
+			const Sink *sink = dynamic_cast<const Sink*>( it );
 
-			for( auto &i : _interfaces )
-				if( sensor && sensor->getInterface() == i->getDataInterfaceType() && sensor->getPort() == i->getDevicePort() )
-					_feeds.push_back( SourceFeed( i, sensor ) );
+			if( sensor )
+				for( auto &i : _interfaces )
+					if( sensor->getInterface() == i->getDataInterfaceType() && sensor->getPort() == i->getDevicePort() )
+						_sourceFeeds.push_back( SourceFeed( i, sensor ) );
+			if( sink )
+				for( auto &i : _interfaces )
+					if( sink->getInterface() == i->getDataInterfaceType() && sink->getPort() == i->getDevicePort() )
+						_sinkFeeds.push_back( SinkFeed( i, sink ) );
 		}
 
 		for( auto &i : _interfaces )
@@ -554,10 +573,10 @@ namespace sqid
 
 			if( frames.size() )
 			{
-				for( auto &sfp : frames )
+				for( auto &sfc : frames )
 				{
-					onSourceData( i->getDataInterfaceType(), i->getDevicePort(), &sfp, i->getDesc() );
-					safeDelete( sfp.frame );
+					onSourceData( i->getDataInterfaceType(), i->getDevicePort(), &sfc, i->getDesc() );
+					safeDelete( sfc.frame );
 				}
 				frames.clear();
 			}
@@ -565,24 +584,36 @@ namespace sqid
 
 		for( auto &it : _ops )
 		{
-			Sensor *s = dynamic_cast<Sensor*>( it );
-			if( s )
-				s->updateStats( dt );
+			Sensor *sensor = dynamic_cast<Sensor*>( it );
+			if( sensor )
+				sensor->updateStats( dt );
+
+			Sink* sink = dynamic_cast<Sink*>( it );
+			if( sink )
+				sink->updateStats( dt );
 		}
 
-		/*
-		Sensor *sensor = nullptr;
-		for( auto &it : _ops )
+		traverse();
+
+		for( auto& it : _ops )
 		{
-			sensor = dynamic_cast<Sensor*>( it );
-			if( sensor )
+			Sink *sink = dynamic_cast<Sink*>( it );
+			if( sink )
 			{
-				if( sensor->update() )
-					Internal::traverse( sensor );
+				std::vector<SampleFrameContainer> frames;
+				sink->fetchFrames( frames );
+
+				if( frames.size() )
+				{
+					for( auto& sfc : frames )
+					{
+						onSinkData( sink->getInterface(), sink->getPort(), &sfc );
+						safeDelete( sfc.frame );
+					}
+					frames.clear();
+				}
 			}
 		}
-		*/
-		traverse();
 	}
 
 #ifdef __SUPPORT_GUI

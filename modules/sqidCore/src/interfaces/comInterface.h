@@ -22,9 +22,27 @@ namespace sqid
 		class COMInterfaceImpl;
 	}
 
+	enum IOMode : unsigned char
+	{
+		IOM_NONE			= 0x00,
+		IOM_INPUT			= 0x01,
+		IOM_OUTPUT			= 0x02,
+		IOM_INPUT_OUTPUT	= IOM_INPUT | IOM_OUTPUT
+	};
+
 	class SQID_API COMInterface : public DataInterface
 	{
 	private:
+		IOMode _ioMode;
+
+		unsigned char _deviceID;
+		unsigned char _sensorID;
+
+		bool _clamp;
+		bool _normalize;
+
+		int _dataType;
+
 		unsigned short _portNr;
 
 		Internal::COMInterfaceImpl *_impl;
@@ -40,7 +58,10 @@ namespace sqid
 		COMInterface();
 		virtual ~COMInterface();
 
+		virtual bool doesWant( const SampleFrameContainer *sfc ) const;
+
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
+		virtual bool queueFrame( const SampleFrameContainer& sfc );
 
 		virtual std::string getDesc() const;
 
@@ -50,10 +71,6 @@ namespace sqid
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();
 #endif
-
-		//bool write( const unsigned char *data, size_t size );
-		//bool write( const std::string &str );
-		//bool write( const std::vector<unsigned char> &data );
 
 		static bool init();
 		static bool isInitialized();

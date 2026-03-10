@@ -9,29 +9,31 @@
 *--------------------------------------------------------------------------------------------*/
 
 
-#include "sensor.h"
+#include "sink.h"
+
+#include "../sceneGraph.h"
 
 #include <app.h>
 #include <fileIO/json.h>
 
 #include <commonImGui.h>
 
+#include "../../interfaces/serialMsg.h"
+
 namespace sqid
 {
-	DEFINE_OP_DESC( Sensor, "sensor", "/devices",
-		"40DE5B8D-4FCF-4A69-A65C-EBCC94D86034" );
+	DEFINE_OP_DESC( Sink, "sink", "/devices",
+		"F5057C23-768F-49B3-B9D5-12CC7DC6D3F2" );
 
 
-	Sensor::Sensor( unsigned short port, float sensorTimeout, unsigned int maxBufferSize ) :
+	Sink::Sink( unsigned short port, unsigned int maxBufferSize ) :
 		Op(),
 		_interface( DIT_COUNT ),
 		_port( port ),
 		_deviceID( -1 ),
 		_sensorID( -1 ),
-		_msgFilterOSC( "/" ),
-		_exactOSC( false ),
+		_msgOSC( "/" ),
 		_inputBufferMsg( 128 ),
-		_sensorTimeout( sensorTimeout ),
 		_lastUpdateTime( 0 ),
 		_sampleRate( 0.0f ),
 		_sampleCntr( 0 ),
@@ -43,59 +45,21 @@ namespace sqid
 		updateMsgFilter();
 	}
 
-	Sensor::~Sensor()
+	Sink::~Sink()
 	{
-		for( auto &it : _bufferedFrames )
+		for( auto& it : _bufferedFrames )
 			safeDelete( it );
 		_bufferedFrames.clear();
 	}
 
-	void Sensor::createPins()
+	void Sink::createPins()
 	{
-		addOutlet( new OutletPin( new DataContainer<SampleFrame>(), "out", this ) );
+		addInlet( new InletPin( new DataContainer<SampleFrame>(), "in", this ) );
 	}
 
-	bool Sensor::process()
+	void Sink::queue( const SampleFrame* sf )
 	{
-		if( _bufferedFrames.size() )
-		{
-			for( auto &it : _bufferedFrames )
-			{
-				//draw only last one
-				if( it == _bufferedFrames.back() )
-					drawFrame( it );
-
-				pushOutput( "out", it );
-
-				safeDelete( it );
-			}
-			_bufferedFrames.clear();
-		}
-
-		return false;
-	}
-
-	void Sensor::updateMsgFilter()
-	{
-		strncpy( &_inputBufferMsg[0], _msgFilterOSC.c_str(), _inputBufferMsg.size() );
-	}
-
-	bool Sensor::doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc )
-	{
-		//NOTE: senderDesc is ignored for now, may be useful?
-		if( _interface == DIT_COM || _interface == DIT_RFCOMM )
-			return ( sfc->deviceID == _deviceID && sfc->sensorID == _sensorID );
-		else if( _interface == DIT_OSC )
-			return ( _exactOSC ? sfc->message.compare( _msgFilterOSC ) == 0 : sfc->message.compare( 0, _msgFilterOSC.size(), _msgFilterOSC ) == 0 );
-		return false;
-	}
-
-	bool Sensor::feed( const SampleFrame *sf )
-	{
-		if( !sf )
-			return false;
-
-		_sampleCntr++;
+		_sampleRate++;
 		_dataCntr += sf->size() * sizeof( float );
 
 		_lastUpdateTime = getAppTime();
@@ -103,22 +67,69 @@ namespace sqid
 		_bufferedFrames.push_back( new SampleFrame( *sf ) );
 		while( _bufferedFrames.size() > _maxBufferSize )
 		{
-			std::cout << "<warning> buffer size exceeded, dropping frames (sensor)" << std::endl;
+			std::cout << "<warning> buffer size exceeded, dropping frames (sink)" << std::endl;
 
-			SampleFrame *temp = _bufferedFrames.front();
+			SampleFrame* temp = _bufferedFrames.front();
 			safeDelete( temp );
 
 			_bufferedFrames.pop_front();
 		}
-
-		return true;
 	}
 
-	void Sensor::updateStats( float dt )
+	bool Sink::fetchFrames( std::vector<SampleFrameContainer>& frames )
+	{
+		if( frames.size() )
+			std::cerr << "expecting empty vector here... class user is responsible for deletion of frames, make sure you're not leaking memory!" << std::endl;
+
+		if( _bufferedFrames.size() )
+		{
+			for( auto& it : _bufferedFrames )
+			{
+				if( _interface == DIT_COM || _interface == DIT_RFCOMM )
+					frames.push_back( SampleFrameContainer( _deviceID, _sensorID, it ) );
+				//else if( _interface == DIT_OSC )
+				//	frames.push_back( SampleFrameContainer( _msgOSC, it ) );
+				else
+				{
+					std::cerr << "<error> invalid data interface type" << std::endl;
+					safeDelete( it );
+				}
+			}
+
+			_bufferedFrames.clear();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool Sink::process()
+	{
+		SampleFrame* sf = fetchInput<SampleFrame>( "in" );
+		if( sf )
+		{
+			queue( sf );
+
+			drawFrame( sf );
+
+			safeDelete( sf );
+		}
+
+		return inputPending( "in" );
+	}
+
+	void Sink::updateMsgFilter()
+	{
+		strncpy( &_inputBufferMsg[0], _msgOSC.c_str(), _inputBufferMsg.size() );
+	}
+
+	void Sink::updateStats( float dt )
 	{
 		_statsTimeAccu += dt;
 		if( _statsTimeAccu > 1.0f )
 		{
+			_sampleRate = _sampleRate / _statsTimeAccu;
 			_sampleRate = _sampleCntr / _statsTimeAccu;
 			_dataRate = _dataCntr / _statsTimeAccu;
 
@@ -129,15 +140,8 @@ namespace sqid
 		}
 	}
 
-	bool Sensor::isOffline()
-	{
-		if( _sensorTimeout < 0 )
-			return false;
-		return ( getAppTime() - _lastUpdateTime ) > _sensorTimeout;
-	}
-
 #ifdef __SUPPORT_GUI
-	bool Sensor::drawUI()
+	bool Sink::drawUI()
 	{
 		if( !Op::drawUI() )
 			return false;
@@ -155,12 +159,18 @@ namespace sqid
 				if( ImGui::Selectable( items[i], isSelected ) )
 				{
 					currentItem = items[i];
-					_interface = (DataInterfaceType)i;
+					_interface = (DataInterfaceType) i;
 				}
 				if( isSelected )
 					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
+		}
+
+		if( _interface == DIT_OSC )
+		{
+			std::cerr << "<warning> OSC not supported yet, use oscOut Operator instead" << std::endl;
+			_interface = DIT_COUNT;
 		}
 
 		int i = _port;
@@ -182,22 +192,22 @@ namespace sqid
 		}
 		else if( _interface == DIT_OSC )
 		{
-			ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _msgFilterOSC.c_str(), &_inputBufferMsg[0] ) );
+			ScopedImGuiStyleColor redText( ImGuiCol_Text, ImVec4( 1, 0, 0, 1 ), strcmp( _msgOSC.c_str(), &_inputBufferMsg[0] ) );
 			if( ImGui::InputText( "msg filter", &_inputBufferMsg[0], _inputBufferMsg.size(), ImGuiInputTextFlags_EnterReturnsTrue ) )
-				_msgFilterOSC = std::string( &_inputBufferMsg[0] );
-			ImGui::Checkbox( "exact match", &_exactOSC );
+				_msgOSC = std::string( &_inputBufferMsg[0] );
+			//ImGui::Checkbox( "exact match", &_msgOSC );
 		}
 
 		ImGui::Text( "%.02f sps", _sampleRate );
 		ImGui::Text( "%.02f kbps", ( _dataRate << 3 ) / 1024.0f );
-		if( _sourceDesc.size() )
-			ImGui::Text( _sourceDesc.c_str() );
+		//if( _sinkDesc.size() )
+		//	ImGui::Text( _sinkDesc.c_str() );
 
 		return true;
 	}
 #endif
 
-	bool Sensor::loadFromJSON( const nlohmann::json &j )
+	bool Sink::loadFromJSON( const nlohmann::json& j )
 	{
 		bool ret = Op::loadFromJSON( j );
 
@@ -209,15 +219,15 @@ namespace sqid
 		load<unsigned char>( j, "deviceID", _deviceID );
 		load<unsigned char>( j, "sensorID", _sensorID );
 
-		load<std::string>( j, "msgFilter", _msgFilterOSC );
-		load<bool>( j, "exact", _exactOSC );
+		load<std::string>( j, "msg", _msgOSC );
+		//load<bool>( j, "exact", _exactOSC );
 
 		updateMsgFilter();
 
 		return ret;
 	}
 
-	bool Sensor::saveToJSON( nlohmann::json &j ) const
+	bool Sink::saveToJSON( nlohmann::json& j ) const
 	{
 		bool ret = Op::saveToJSON( j );
 
@@ -227,8 +237,8 @@ namespace sqid
 		save( j, "deviceID", (int) _deviceID );
 		save( j, "sensorID", (int) _sensorID );
 
-		save( j, "msgFilter", _msgFilterOSC );
-		save( j, "exact", _exactOSC );
+		save( j, "msg", _msgOSC );
+		//save( j, "exact", _exactOSC );
 
 		return ret;
 	}

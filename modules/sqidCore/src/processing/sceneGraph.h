@@ -20,6 +20,7 @@
 namespace sqid
 {
 	//class Op;
+	class Sink;
 	class Sensor;
 	class DataInterface;
 	//class SampleFrame;
@@ -38,11 +39,25 @@ namespace sqid
 			_sensor( sensor )
 		{}
 
-		~SourceFeed()
+		const DataInterface* getDataInterface() const { return _dataInterface; }
+		const Sensor* getOp() const { return _sensor; }
+	};
+
+	//NOTE: as of now, feeds are only required for drawing connecting lines in UI
+	class SinkFeed
+	{
+	private:
+		const DataInterface* _dataInterface;
+		const Sink* _sink;
+
+	public:
+		SinkFeed( const DataInterface *di, const Sink *sink ) :
+			_dataInterface( di ),
+			_sink( sink )
 		{}
 
 		const DataInterface* getDataInterface() const { return _dataInterface; }
-		const Sensor* getOp() const { return _sensor; }
+		const Sink* getOp() const { return _sink; }
 	};
 
 	//TODO: reduce number of copies of a sampleframe, when handed from one node to the other
@@ -58,7 +73,10 @@ namespace sqid
 		std::list<DataInterface*> _interfaces;
 
 		//NOTE: as of now, feeds are only required for drawing connecting lines in UI
-		std::list<SourceFeed> _feeds;
+		//TODO: use them to have sources/sinks directly interact with interfaces
+		std::list<SourceFeed> _sourceFeeds;
+		std::list<SinkFeed> _sinkFeeds;
+
 		std::list<Op*> _ordered;
 
 		void clear();
@@ -70,6 +88,7 @@ namespace sqid
 		bool isValid( const DataInterface *di );
 
 		void onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc );
+		void onSinkData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer *sfc );
 
 	public:
 		SceneGraph();
@@ -113,7 +132,8 @@ namespace sqid
 
 		const std::list<Connector*> &getConnectors() const { return _connectors; }
 
-		const std::list<SourceFeed> &getFeeds() const { return _feeds; }
+		const std::list<SourceFeed> &getSourceFeeds() const { return _sourceFeeds; }
+		const std::list<SinkFeed> &getSinkFeeds() const { return _sinkFeeds; }
 
 		bool objectIDInUse( const GUID &objectID ) const { return ( getOp( objectID ) || getInterface( objectID ) ); }
 	};

@@ -15,7 +15,7 @@
 
 namespace sqid
 {
-	class Sensor : public Op
+	class Sink : public Op
 	{
 	private:
 		DataInterfaceType _interface;
@@ -24,12 +24,10 @@ namespace sqid
 		unsigned char _deviceID;
 		unsigned char _sensorID;
 
-		std::string _msgFilterOSC;
-		bool _exactOSC;
-		
+		std::string _msgOSC;
+
 		std::vector<char> _inputBufferMsg;
 
-		float _sensorTimeout;
 		double _lastUpdateTime;
 
 		float _sampleRate;
@@ -40,47 +38,36 @@ namespace sqid
 
 		float _statsTimeAccu;
 
-		std::string _sourceDesc;
-
 		unsigned int _maxBufferSize;
 		std::list<SampleFrame*> _bufferedFrames;
 
 		void updateMsgFilter();
 
+		void queue( const SampleFrame *sf );
+
 	protected:
 		virtual bool process();
 
 	public:
-		explicit Sensor( unsigned short port = 0, float sensorTimeout = 15.0f, unsigned int maxBufferSize = 128 );
-		virtual ~Sensor();
+		explicit Sink( unsigned short port = 0, unsigned int maxBufferSize = 128 );
+		virtual ~Sink();
 
-		//void display( int position, int count );
 		virtual void createPins();
 
 		void updateStats( float dt );
+		bool fetchFrames( std::vector<SampleFrameContainer>& frames );
 
-		bool isOffline();
-		void setSourceDesc( const std::string &desc ) { _sourceDesc = desc; }
+		//void setSinkDesc( const std::string& desc ) { _sinkDesc = desc; }
 
 		DataInterfaceType getInterface() const { return _interface; }
 		unsigned short getPort() const { return _port; }
-
-		bool doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc );
-		//unsigned char getSensorID() const { return _sensorID; }
-		//unsigned char getDeviceID() const { return _deviceID; }
-
-		float getInputRate() const { return _inputRate; }
-		float getSampleRate() const { return _sampleRate; }
-		uint64_t getDataRate() const { return _dataRate; }
-
-		bool feed( const SampleFrame *sf );
 
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();
 #endif
 
-		virtual bool loadFromJSON( const nlohmann::json &j );
-		virtual bool saveToJSON( nlohmann::json &j ) const;
+		virtual bool loadFromJSON( const nlohmann::json& j );
+		virtual bool saveToJSON( nlohmann::json& j ) const;
 
 		DECLARE_OP_DESC;
 	};

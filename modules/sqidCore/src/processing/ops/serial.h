@@ -19,6 +19,7 @@ namespace sqid
 {
 	namespace Serial
 	{
+		//deprecated -> use COM/serial interface in combination with Sink op
 		class SerialOut : public Op
 		{
 		private:

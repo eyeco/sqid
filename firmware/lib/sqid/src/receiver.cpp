@@ -16,7 +16,13 @@ namespace sqid
     {}
 
     ReceiverSerial::~ReceiverSerial()
-    {}
+    {
+        while( _msgQueue.size() > _maxQueueSize )
+        {
+            safeDeleteArray( _msgQueue.front().data );
+            _msgQueue.pop_front();
+        }
+    }
 
     bool ReceiverSerial::update()
     {

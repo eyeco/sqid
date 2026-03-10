@@ -415,9 +415,22 @@ namespace sqid
 		_connected = false;
 	}
 
+	bool OSCInterface::doesWant( const SampleFrameContainer *sfc ) const
+	{
+		//return ( _exactOSC ? sfc->message.compare( _msgFilterOSC ) == 0 : sfc->message.compare( 0, _msgFilterOSC.size(), _msgFilterOSC ) == 0 );
+		//not implemented for now, better to use oscOut operator
+		return false;
+	}
+
 	void OSCInterface::fetchFrames( std::vector<SampleFrameContainer> &frames )
 	{
 		_impl->fetchFrames( frames );
+	}
+
+	bool OSCInterface::queueFrame( const SampleFrameContainer& sfc )
+	{
+		std::cerr << "<error> sending frames to OSCInterface not implemented (yet) -- use oscOut operator" << std::endl;
+		return false;
 	}
 
 	std::string OSCInterface::getDesc() const

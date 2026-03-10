@@ -29,11 +29,7 @@ namespace sqid
         MT_MATRIX,
         MT_IMAGE,
 
-        MT_PROPERTY,
-
-        MT_FWPROPS_DESC,
-        MT_FWPROPS_STATUS,
-        MT_FWPROPS_ACK,
+        // MT_PROPERTY,
 
         MT_COUNT
     };
@@ -97,7 +93,7 @@ namespace sqid
         uint8_t *data;
     };
 
-    struct DataHdrValue
+    struct DataHdrSingleValue
     {
         MsgFlags flags;
     };
@@ -142,5 +138,10 @@ namespace sqid
     {
         return ( hdrEx->chk == makeChkSum( &hdrEx->hdr ) );
     }
+
+    size_t getElementSize( MsgFlags flags );
+
+    const char *dataTypeToString( MsgFlags flags );
+    const char *encodingToString( MsgFlags flags );
 }
 #endif

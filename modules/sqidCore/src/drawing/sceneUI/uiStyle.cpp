@@ -36,7 +36,8 @@ namespace sqid
 		RubberColor( fromHex( 0xffff00 ) ),
 		RubberLineWidth( 3.0f ),
 
-		FeedLineColor( fromHex( 0x9d1931 ) ),
+		SourceFeedLineColor( fromHex( 0x9d1931 ) ),
+		SinkFeedLineColor( fromHex( 0xe3d400 ) ),
 		ConnectorLineColor( fromHex( 0x3d85e0 ) ),
 
 		NodePaddingX( 15 ),

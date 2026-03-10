@@ -21,6 +21,7 @@
 #include "ops/tracking.h"
 #include "ops/util.h"
 #include "ops/ocv.h"
+#include "ops/sink.h"
 #include "ops/sensor.h"
 #include "ops/serial.h"
 #include "ops/file.h"
@@ -150,6 +151,9 @@ namespace sqid
 
 		//sensor
 		REGISTER_OP_TYPE( Sensor );
+
+		//sink
+		REGISTER_OP_TYPE( Sink );
 
 		//serial
 		REGISTER_OP_TYPE( Serial::SerialOut );

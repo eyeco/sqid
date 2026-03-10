@@ -45,8 +45,12 @@ namespace sqid
 		bool run( const std::string &name, const std::string &address );
 		void close();
 
+		virtual bool doesWant( const SampleFrameContainer *sfc ) const;
+
 		virtual std::string getDesc() const;
+
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
+		virtual bool queueFrame( const SampleFrameContainer& sfc );
 
 		virtual unsigned short getDevicePort() const { return _id; }
 		virtual DataInterfaceType getDataInterfaceType() const { return DIT_RFCOMM; }
@@ -57,10 +61,6 @@ namespace sqid
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();
 #endif
-		/*
-		bool write( const unsigned char *data, size_t size );
-		bool write( const std::string &str );
-		bool write( const std::vector<unsigned char> &data );*/
 
 		static bool init();
 		static bool isInitialized();
