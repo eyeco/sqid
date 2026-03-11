@@ -93,7 +93,7 @@ namespace sqid
 
 				if( !_port.open( _portName, _baudRate ) )
 				{
-					std::cerr << "failed to connect com source" << std::endl;
+					std::cerr << "failed to connect com interface" << std::endl;
 
 					this->closeCOM();
 					return false;
@@ -216,7 +216,7 @@ namespace sqid
 
 										if( _hdrEx.hdr.ver != PV_2 )
 										{
-											std::cerr << "<error> serial protocol " << _hdrEx.hdr.ver << " not supported (requiring PV" << PV_2 << "), stopping reading from source..." << std::endl;
+											std::cerr << "<error> serial protocol " << _hdrEx.hdr.ver << " not supported (requiring PV" << PV_2 << "), stopping reading from interface..." << std::endl;
 											
 											_tryReconnect = false;
 											_keepRunning = false;
@@ -818,7 +818,7 @@ namespace sqid
 		}
 		catch( std::exception &e )
 		{
-			std::cerr << "<error> loading COM source props failed: " << e.what() << std::endl;
+			std::cerr << "<error> loading COM interface props failed: " << e.what() << std::endl;
 			return false;
 		}
 

@@ -57,8 +57,8 @@ namespace sqid
 
 		PinPadding( 30 ),
 
-		SourceNodeWidth( NodeMinWidth ),
-		SourceNodeHeight( NodeMinHeight ),
+		InterfaceNodeWidth( NodeMinWidth ),
+		InterfaceNodeHeight( NodeMinHeight ),
 
 		TextDY( NodePaddingY * 1.5f ),
 		TextSize( 12 ),

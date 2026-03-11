@@ -29,8 +29,8 @@ namespace sqid
 		GUI::Draggable()
 	{
 		_size = glm::vec2(
-			_drawer->getUIStyle()->SourceNodeWidth,
-			_drawer->getUIStyle()->SourceNodeHeight );
+			_drawer->getUIStyle()->InterfaceNodeWidth,
+			_drawer->getUIStyle()->InterfaceNodeHeight );
 	}
 
 	NodeDrawer::~NodeDrawer()

@@ -71,7 +71,7 @@ namespace sqid
 			ServiceClass serviceClass;
 		};
 
-		//TODO: remove duplicate code (this class is quite similar to COMSourceImpl) by moving all 
+		//TODO: remove duplicate code (this class is quite similar to COMInterfaceImpl) by moving all 
 		// the protocol-specific stuff (parsing, etc.) to a shared class
 		class BTSInterfaceImpl// : public IAbstractWriter
 		{

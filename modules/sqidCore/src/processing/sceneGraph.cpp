@@ -188,13 +188,7 @@ namespace sqid
 	}
 
 	void SceneGraph::run()
-	{
-		//for( auto &it : _sources )
-		//{
-		//	if( !it->run() )
-		//		std::cerr << "<error> unable to start source " << it->getDesc() << std::endl;
-		//}
-	}
+	{}
 
 	bool SceneGraph::load( const std::string &scene )
 	{

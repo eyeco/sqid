@@ -60,8 +60,8 @@ namespace sqid
 
 		const int PinPadding;
 
-		const int SourceNodeWidth;
-		const int SourceNodeHeight;
+		const int InterfaceNodeWidth;
+		const int InterfaceNodeHeight;
 
 		const int TextDY;
 		const int TextSize;
