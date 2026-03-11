@@ -98,7 +98,7 @@ Dependencies:
 	- enable switching visualization between maps (min/max/snapshot/etc.)
 	- display history of array as 2D plot, just like e.g. spectrogram
 	- do line-visualization of 0-history as bar
-- additional sources
+- additional interfaces
 	- Bluetooth LE (apparently not adequate for continuously-sending devices? have a look [here](https://docs.microsoft.com/en-us/windows/uwp/devices-sensors/bluetooth-low-energy-overview))
 	- named pipe
 	- finish generator source
@@ -110,7 +110,7 @@ Dependencies:
 	- temporal resampling
 - add inter-/extrapolation to temporal resampling (Op currently only duplicates last frame)
 - finish up saving/loading to/from INI file
-- complementary for bluetooth sources
+- complementary for bluetooth interfaces
 	- signal strength (not guaranteed this is supported at all -- look into Windows 10 support of RSSI (resource signal strength indicator))
 	- figure out if class 1, 2, or 3 (bandwidth/signal strength?)
 - optimizatons
@@ -140,7 +140,7 @@ Dependencies:
 - move task-/project-specialized Ops somewhere else (e.g., providing plugin system may help a lot), e.g.:
 	- MaxPooling
 	- SensorSyncMerge
-- some data sinks and sources (e.g., CAN, MQTT) are implmented quite badly, since one Op is usually associated with a specific port/device/... have to find a way to send multiple messages to same target as well as receiving different messages from same source and filter/relay within processing graph
+- some data sinks and sources (e.g., CAN, MQTT) are implemented quite badly, since one Op is usually associated with a specific port/device/... have to find a way to send multiple messages to same target as well as receiving different messages from same source and filter/relay within processing graph
 
 ### oscConsole
 

@@ -22,7 +22,7 @@
 #include "ops/util.h"
 #include "ops/ocv.h"
 #include "ops/sink.h"
-#include "ops/sensor.h"
+#include "ops/source.h"
 #include "ops/serial.h"
 #include "ops/file.h"
 #include "ops/osc.h"
@@ -149,8 +149,8 @@ namespace sqid
 		//REGISTER_OP_TYPE( Imaging::CameraIntrinsics );
 		//REGISTER_OP_TYPE( Imaging::CameraExtrinsics );
 
-		//sensor
-		REGISTER_OP_TYPE( Sensor );
+		//source
+		REGISTER_OP_TYPE( Source );
 
 		//sink
 		REGISTER_OP_TYPE( Sink );

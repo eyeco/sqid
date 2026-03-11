@@ -18,7 +18,7 @@
 #include <fileIO/json.h>
 
 #include "../../processing/ops/sink.h"
-#include "../../processing/ops/sensor.h"
+#include "../../processing/ops/source.h"
 #include <interfaces/dataInterface.h>
 
 #include <processing/pin.h>
@@ -1856,6 +1856,8 @@ namespace sqid
 		}
 
 		json interfaces = root["interfaces"];
+		if( interfaces.is_null() )
+			interfaces = root["sources"];	//for legacy scene support
 		if( !interfaces.is_null() )
 		{
 			for( auto it = interfaces.begin(); it != interfaces.end(); ++it )

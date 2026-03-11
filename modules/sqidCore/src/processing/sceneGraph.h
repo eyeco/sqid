@@ -21,7 +21,7 @@ namespace sqid
 {
 	//class Op;
 	class Sink;
-	class Sensor;
+	class Source;
 	class DataInterface;
 	//class SampleFrame;
 
@@ -31,16 +31,16 @@ namespace sqid
 	{
 	private:
 		const DataInterface* _dataInterface;
-		const Sensor* _sensor;
+		const Source* _source;
 
 	public:
-		SourceFeed( const DataInterface *di, const Sensor* sensor ) :
+		SourceFeed( const DataInterface *di, const Source* source ) :
 			_dataInterface( di ),
-			_sensor( sensor )
+			_source( source )
 		{}
 
 		const DataInterface* getDataInterface() const { return _dataInterface; }
-		const Sensor* getOp() const { return _sensor; }
+		const Source* getOp() const { return _source; }
 	};
 
 	//NOTE: as of now, feeds are only required for drawing connecting lines in UI

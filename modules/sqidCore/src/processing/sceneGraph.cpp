@@ -21,7 +21,7 @@
 #include <sampleFrame.h>
 
 #include "ops/sink.h"
-#include "ops/sensor.h"
+#include "ops/source.h"
 #include <processing/opFactory.h>
 
 #include <fstream>
@@ -301,6 +301,8 @@ namespace sqid
 		reorder();
 
 		json interfaces = root["interfaces"];
+		if( interfaces.is_null() )
+			interfaces = root["sources"];	//for legacy scene support
 		if( !interfaces.is_null() )
 		{
 			for( auto it = interfaces.begin(); it != interfaces.end(); ++it )
@@ -427,11 +429,10 @@ namespace sqid
 
 	void SceneGraph::onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer* sfc, const std::string &desc )
 	{
-		Sensor *sensor = nullptr;
 		for( auto &it : _ops )
 		{
-			sensor = dynamic_cast<Sensor*>( it );
-			if( sensor && sensor->getInterface() == dit && sensor->getPort() == portNr && sensor->doesWant( sfc, desc ) )
+			Source *source = dynamic_cast<Source*>( it );
+			if( source && source->getInterface() == dit && source->getPort() == portNr && source->doesWant( sfc, desc ) )
 			{
 				//TODO: actually, the source may receive multiple frames until a graph traverse is done, however we cannot always traverse the graph once a source
 				// was updated, as there may be multiple sources and we have to wait for all. a solution would be to buffer frames at Source's inlet buffer and at 
@@ -440,18 +441,17 @@ namespace sqid
 				// enough processing, which obviously may drop frames.
 				//TODO: for dropped frames, implement a warning in sources so the user is at least aware of the fact. also check for mem-leaks caused by frames not 
 				// collected for processing.
-				sensor->setSourceDesc( desc );
+				source->setSourceDesc( desc );
 
 				//TODO: merge this somehow in a reasonable way
-				if( !sensor->feed( sfc->frame ) )
-					std::cerr << "<error> failed to insert frame to sensor" << std::endl;
+				if( !source->feed( sfc->frame ) )
+					std::cerr << "<error> failed to insert frame to source" << std::endl;
 			}
 		}
 	}
 
 	void SceneGraph::onSinkData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer* sfc )
 	{
-		Sensor* sensor = nullptr;
 		for( auto& it : _interfaces )
 		{
 			if( it->getDataInterfaceType() == dit && it->getDevicePort() == portNr && it->doesWant( sfc ) )
@@ -547,13 +547,13 @@ namespace sqid
 		_sinkFeeds.clear();
 		for( auto &it : _ops )
 		{
-			const Sensor *sensor = dynamic_cast<const Sensor*>( it );
+			const Source *source = dynamic_cast<const Source*>( it );
 			const Sink *sink = dynamic_cast<const Sink*>( it );
 
-			if( sensor )
+			if( source )
 				for( auto &i : _interfaces )
-					if( sensor->getInterface() == i->getDataInterfaceType() && sensor->getPort() == i->getDevicePort() )
-						_sourceFeeds.push_back( SourceFeed( i, sensor ) );
+					if( source->getInterface() == i->getDataInterfaceType() && source->getPort() == i->getDevicePort() )
+						_sourceFeeds.push_back( SourceFeed( i, source ) );
 			if( sink )
 				for( auto &i : _interfaces )
 					if( sink->getInterface() == i->getDataInterfaceType() && sink->getPort() == i->getDevicePort() )
@@ -578,9 +578,9 @@ namespace sqid
 
 		for( auto &it : _ops )
 		{
-			Sensor *sensor = dynamic_cast<Sensor*>( it );
-			if( sensor )
-				sensor->updateStats( dt );
+			Source *source = dynamic_cast<Source*>( it );
+			if( source )
+				source->updateStats( dt );
 
 			Sink* sink = dynamic_cast<Sink*>( it );
 			if( sink )

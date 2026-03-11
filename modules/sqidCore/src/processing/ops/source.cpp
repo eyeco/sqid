@@ -9,7 +9,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 
-#include "sensor.h"
+#include "source.h"
 
 #include <app.h>
 #include <fileIO/json.h>
@@ -18,11 +18,11 @@
 
 namespace sqid
 {
-	DEFINE_OP_DESC( Sensor, "sensor", "/devices",
+	DEFINE_OP_DESC( Source, "source", "/devices",
 		"40DE5B8D-4FCF-4A69-A65C-EBCC94D86034" );
 
 
-	Sensor::Sensor( unsigned short port, float sensorTimeout, unsigned int maxBufferSize ) :
+	Source::Source( unsigned short port, float timeout, unsigned int maxBufferSize ) :
 		Op(),
 		_interface( DIT_COUNT ),
 		_port( port ),
@@ -31,7 +31,7 @@ namespace sqid
 		_msgFilterOSC( "/" ),
 		_exactOSC( false ),
 		_inputBufferMsg( 128 ),
-		_sensorTimeout( sensorTimeout ),
+		_timeout( timeout ),
 		_lastUpdateTime( 0 ),
 		_sampleRate( 0.0f ),
 		_sampleCntr( 0 ),
@@ -43,19 +43,19 @@ namespace sqid
 		updateMsgFilter();
 	}
 
-	Sensor::~Sensor()
+	Source::~Source()
 	{
 		for( auto &it : _bufferedFrames )
 			safeDelete( it );
 		_bufferedFrames.clear();
 	}
 
-	void Sensor::createPins()
+	void Source::createPins()
 	{
 		addOutlet( new OutletPin( new DataContainer<SampleFrame>(), "out", this ) );
 	}
 
-	bool Sensor::process()
+	bool Source::process()
 	{
 		if( _bufferedFrames.size() )
 		{
@@ -75,12 +75,12 @@ namespace sqid
 		return false;
 	}
 
-	void Sensor::updateMsgFilter()
+	void Source::updateMsgFilter()
 	{
 		strncpy( &_inputBufferMsg[0], _msgFilterOSC.c_str(), _inputBufferMsg.size() );
 	}
 
-	bool Sensor::doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc )
+	bool Source::doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc )
 	{
 		//NOTE: senderDesc is ignored for now, may be useful?
 		if( _interface == DIT_COM || _interface == DIT_RFCOMM )
@@ -90,7 +90,7 @@ namespace sqid
 		return false;
 	}
 
-	bool Sensor::feed( const SampleFrame *sf )
+	bool Source::feed( const SampleFrame *sf )
 	{
 		if( !sf )
 			return false;
@@ -103,7 +103,7 @@ namespace sqid
 		_bufferedFrames.push_back( new SampleFrame( *sf ) );
 		while( _bufferedFrames.size() > _maxBufferSize )
 		{
-			std::cout << "<warning> buffer size exceeded, dropping frames (sensor)" << std::endl;
+			std::cout << "<warning> buffer size exceeded, dropping frames (source)" << std::endl;
 
 			SampleFrame *temp = _bufferedFrames.front();
 			safeDelete( temp );
@@ -114,7 +114,7 @@ namespace sqid
 		return true;
 	}
 
-	void Sensor::updateStats( float dt )
+	void Source::updateStats( float dt )
 	{
 		_statsTimeAccu += dt;
 		if( _statsTimeAccu > 1.0f )
@@ -129,15 +129,15 @@ namespace sqid
 		}
 	}
 
-	bool Sensor::isOffline()
+	bool Source::isOffline()
 	{
-		if( _sensorTimeout < 0 )
+		if( _timeout < 0 )
 			return false;
-		return ( getAppTime() - _lastUpdateTime ) > _sensorTimeout;
+		return ( getAppTime() - _lastUpdateTime ) > _timeout;
 	}
 
 #ifdef __SUPPORT_GUI
-	bool Sensor::drawUI()
+	bool Source::drawUI()
 	{
 		if( !Op::drawUI() )
 			return false;
@@ -197,7 +197,7 @@ namespace sqid
 	}
 #endif
 
-	bool Sensor::loadFromJSON( const nlohmann::json &j )
+	bool Source::loadFromJSON( const nlohmann::json &j )
 	{
 		bool ret = Op::loadFromJSON( j );
 
@@ -217,7 +217,7 @@ namespace sqid
 		return ret;
 	}
 
-	bool Sensor::saveToJSON( nlohmann::json &j ) const
+	bool Source::saveToJSON( nlohmann::json &j ) const
 	{
 		bool ret = Op::saveToJSON( j );
 

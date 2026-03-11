@@ -52,7 +52,7 @@ namespace sqid
 	//TODO: reimplement BTS sending (via node)
 	class SQID_API Op
 	{
-		friend class Sensor;
+		//friend class Source;
 
 	private:
 		GUID _objectID;
