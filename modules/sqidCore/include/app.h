@@ -105,7 +105,7 @@ namespace sqid
 		void updateWindowTitle();
 
 		void load();
-		void save();
+		void save( bool saveScene = true );
 
 		void idle();
 		void display();

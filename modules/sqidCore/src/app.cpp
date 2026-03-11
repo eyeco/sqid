@@ -839,7 +839,7 @@ namespace sqid
 
 	Application::~Application()
 	{
-		save();
+		save( _autoSave );
 
 #ifdef __SUPPORT_GUI
 		if( _useGui )
@@ -1211,14 +1211,14 @@ namespace sqid
 		}
 	}
 
-	void Application::save()
+	void Application::save( bool saveScene )
 	{
 #ifdef __SUPPORT_GUI
 		if( _useGui )
 			saveIni();
 #endif
 
-		if( _autoSave )
+		if( saveScene )
 		{
 			if( _sg )
 			{
