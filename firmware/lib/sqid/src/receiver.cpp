@@ -3,8 +3,6 @@
 #include "common.h"
 #include "transport.h"
 
-#include <iostream>
-
 namespace sqid
 {
     ReceiverSerial::ReceiverSerial( size_t maxQueueSize ) :
@@ -26,6 +24,8 @@ namespace sqid
 
     bool ReceiverSerial::update()
     {
+        //TODO: clarify: is is possible to detect a disconnect? in thise case we have
+        // to reset receiver if state is not PS_SYNCING!!
         size_t size = TransportSerial::singleton().available();
 
         if(!size)
@@ -58,7 +58,7 @@ namespace sqid
                         if( !_isSynced )
                         {
                             _isSynced = true;
-                            std::cout << "synced serial port" << std::endl;
+                            //std::cout << "synced serial port" << std::endl;
                         }
 
                         _currentState = PS_HEADER;
@@ -79,7 +79,7 @@ namespace sqid
 
                     if( !checkHdr( &_hdrEx ) )
                     {
-                        std::cerr << "<error> checksum of header corrupt -- maybe out of sync, trying to resync..." << std::endl;
+                        //std::cerr << "<error> checksum of header corrupt -- maybe out of sync, trying to resync..." << std::endl;
                         //NOTE: ALSO CHECK YOUR STRUCT DATA PACKING ALIGNMENT AT RECEIVER AND SENDER SIDE IN THIS CASE!!
 
                         _isSynced = false;
@@ -112,7 +112,7 @@ namespace sqid
                     //TODO: check data integrity
                     if( !valid )
                     {
-                        std::cerr << "<error> payload data seems to be corrupt -- maybe out of sync, trying to resync..." << std::endl;
+                        //std::cerr << "<error> payload data seems to be corrupt -- maybe out of sync, trying to resync..." << std::endl;
                         _isSynced = false;
                         _currentState = PS_SYNCING;
                         _expectedBytes = SYNC_BYTES;
