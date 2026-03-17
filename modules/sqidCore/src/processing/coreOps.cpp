@@ -112,6 +112,7 @@ namespace sqid
 		//temporal
 		REGISTER_OP_TYPE( Temporal::RunningAverage );
 		REGISTER_OP_TYPE( Temporal::Integral );
+		REGISTER_OP_TYPE( Temporal::PID );
 		REGISTER_OP_TYPE( Temporal::Drag );
 		REGISTER_OP_TYPE( Temporal::BoxFilter );
 		REGISTER_OP_TYPE( Temporal::Median );

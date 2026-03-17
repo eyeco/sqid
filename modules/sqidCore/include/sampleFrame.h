@@ -113,6 +113,7 @@ namespace sqid
 		SampleFrame *logAnd( const SampleFrame *f );
 		SampleFrame *logOr( const SampleFrame *f );
 		SampleFrame *logXOr( const SampleFrame *f );
+		SampleFrame *logNot();
 
 		SampleFrame *inRange( float minValue, float maxValue );
 

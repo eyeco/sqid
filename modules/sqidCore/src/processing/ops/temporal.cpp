@@ -30,6 +30,8 @@ namespace sqid
 			"AC3532DA-C2EF-4D2D-B1F4-F413C9FA43EC" );
 		DEFINE_OP_DESC( Integral, "integral", "/math/temporal",
 			"238F1226-473D-4B4F-B6A0-77FD56E68ACB" );
+		DEFINE_OP_DESC( PID, "PID", "/math/temporal",
+			"9B0C9707-2EB0-4551-99D8-9863E1580F06" );
 		DEFINE_OP_DESC( Drag, "drag", "/math/temporal",
 			"DCB23B86-8234-42C3-B7D7-06919AE420D2" );
 		DEFINE_OP_DESC( BoxFilter, "box", "/math/temporal",
@@ -200,6 +202,292 @@ namespace sqid
 
 		bool Integral::clear()
 		{
+			safeDelete( _integral );
+
+			return true;
+		}
+
+
+
+
+
+		PID::PID() :
+			Op(),
+			_useSystemTime( false ),
+			_maxDeltaTime( false ),
+			_maxDeltaTimeMS( 1.0f ),
+			_dtRem( 0.0f ),
+			_kp( 0.0f ), _ki( 0.0f ), _kd( 0.0f ),
+			_deadzone( true ),
+			_deadzoneThresh( 0.001f ),
+			_deadzoneDamping( 0.15f ),
+			_antiWindup( false ),
+			_integralCapValue( 1.0f ),
+			_prevValue( nullptr ),
+			_prevTarget( nullptr ),
+			_prevError( nullptr ),
+			_integral( nullptr )
+		{}
+
+		PID::~PID()
+		{
+			clear();
+		}
+
+		void PID::createPins()
+		{
+			addInlet( new InletPin( new DataContainer<SampleFrame>(), "value", this ) );
+			addInlet( new InletPin( new DataContainer<SampleFrame>(), "target", this ) );
+
+			addOutlet( new OutletPin( new DataContainer<SampleFrame>(), "out", this ) );
+		}
+
+#ifdef __SUPPORT_GUI
+		bool PID::drawUI()
+		{
+			if( !Op::drawUI() )
+				return false;
+
+			ImGui::SliderFloat( "kp", &_kp, 0, 1 );
+			ImGui::SliderFloat( "ki", &_ki, 0, 1 );
+			ImGui::SliderFloat( "kd", &_kd, 0, 1 );
+
+			ImGui::Checkbox( "deadzone", &_deadzone );
+			if( _deadzone )
+			{
+				if( ImGui::InputFloat( "deadzone thresh", &_deadzoneThresh ) )
+					_deadzoneThresh = max( _deadzoneThresh, 0.0f );
+				if( ImGui::InputFloat( "deadzone damping", &_deadzoneDamping ) )
+					_deadzoneDamping = clamp( _deadzoneDamping, 0.0f, 1.0f );
+			}
+
+			ImGui::Checkbox( "anti-windup", &_antiWindup );
+			if( _antiWindup )
+				ImGui::InputFloat( "integral cap", &_integralCapValue );
+
+			ImGui::Checkbox( "sys time", &_useSystemTime );
+
+			ImGui::Checkbox( "max dt steps", &_maxDeltaTime );
+			if( _maxDeltaTime )
+			{
+				float dt = _maxDeltaTimeMS;
+				if( ImGui::InputFloat( "max step [ms]", &dt ) )
+				{
+					_dtRem = 0.0f;
+					_maxDeltaTimeMS = max( dt, 0.001f );	// failsafe check
+				}
+			}
+
+			if( ImGui::Button( "reset" ) )
+				clear();
+
+			return true;
+		}
+#endif
+
+		SampleFrame *PID::update( const SampleFrame *value, const SampleFrame *target, float dt )
+		{
+			SampleFrame *error = new SampleFrame( *target );
+			error->sub( value );
+
+			SampleFrame* ret = new SampleFrame( value->width(), value->height(), value->timeStamp(), value->depth() );
+
+			ret->add( error, _kp );
+
+			if( !_integral )
+				_integral = new SampleFrame( value->width(), value->height(), value->timeStamp(), value->depth() );
+			_integral->add( error, dt );
+
+			if( _antiWindup )
+				_integral->clamp( -_integralCapValue, _integralCapValue );
+
+			if( _deadzone )
+			{
+				//if abs(error) is below threshold, decay integral sum by damping factor
+				SampleFrame* mask = new SampleFrame( *error );
+				mask->inRange( -_deadzoneThresh, _deadzoneThresh );
+				_integral->add( mask, _deadzoneDamping );
+				safeDelete( mask );
+			}
+
+			ret->add( _integral, _ki );
+
+			if( _prevError )
+			{
+				SampleFrame* derivative = new SampleFrame( *error );
+				derivative->sub( _prevError );
+				derivative->div( dt );
+
+				ret->add( derivative, _kd );
+			}
+
+			safeDelete( _prevError );
+			_prevError = error;
+
+			return ret;
+		}
+
+		bool PID::process()
+		{
+			SampleFrame *v = fetchInput<SampleFrame>( "value" );
+			SampleFrame *t = fetchInput<SampleFrame>( "target" );
+			//NOTE: currently assuming that value and target are in sync (e.g. from same source)
+			// and have same timestamp and arrive at same frequency.
+			//TODO: sync value and target based on their timestamp if out of sync
+
+			//can't compute error term if I only get updated target -> so, only updating when value changed
+			if( v )
+			{
+				SampleFrame *refT = t ? t : _prevTarget;
+
+				if( refT )
+				{
+					if( !dimensionsCompatible( v, refT ) )
+					{
+						safeDelete( v );
+						safeDelete( t );
+						throw std::runtime_error( "inputs differ in size" );
+					}
+					if( _prevError && !dimensionsCompatible( _prevError, v ) )
+					{
+						safeDelete( v );
+						safeDelete( t );
+						
+						throw std::runtime_error( "input size changed" );
+					}
+					if( _integral && !dimensionsCompatible( _integral, v ) )
+					{
+						safeDelete( v );
+						safeDelete( t );
+						
+						throw std::runtime_error( "input size changed" );
+					}
+
+					if( _prevValue )
+					{
+						if( v->timeStamp() < _prevValue->timeStamp() )
+						{
+							safeDelete( t );
+							safeDelete( v );
+
+							throw std::runtime_error( "input out of order" );
+						}
+
+						if( v->timeStamp() == _prevValue->timeStamp() )
+						{
+							std::cerr << "<warning> received value with same timestamp as previous value - skipping update" << std::endl;
+						}
+						else
+						{
+							if( _integral && !dimensionsCompatible( _integral, refT ) )
+							{
+								safeDelete( t );
+								safeDelete( v );
+
+								throw std::runtime_error( "input size changed" );
+							}
+
+							//TODO: implement stepwise and systime
+							float dt = ( v->timeStamp() - _prevValue->timeStamp() ) * 0.001f;
+
+							SampleFrame *ret = nullptr;
+							
+							if( _maxDeltaTime )
+							{
+								//TODO: implement
+								std::cerr << "<error> stepwise update not yet implemented" << std::endl;
+								/*
+								_dtRem += dt;
+								while( _dtRem > 0.0f )
+								{
+									dt = min( _maxDeltaTimeMS * 0.001f, _maxDeltaTimeMS );
+									ret = update( in, refT, dt );
+
+									_dtRem -= dt;
+								}
+								*/
+							}
+							else
+								ret = update( v, refT, dt );
+
+							drawFrame( ret );
+							pushOutput( "out", ret );
+
+							safeDelete( ret );
+						}
+					}
+				}
+			}
+
+			if( v )
+			{
+				safeDelete( _prevValue );
+				_prevValue = v;
+			}
+
+			if( t )
+			{
+				safeDelete( _prevTarget );
+				_prevTarget = t;
+			}
+
+			return inputPending( "value" ) || inputPending( "target" );
+		}
+
+		bool PID::loadFromJSON( const nlohmann::json& j )
+		{
+			bool ret = Op::loadFromJSON( j );
+
+			load<bool>( j, "useSystemTime", _useSystemTime );
+
+			load<bool>( j, "maxDeltaTime", _maxDeltaTime );
+			load<float>( j, "maxDeltaTimeMS", _maxDeltaTimeMS );
+
+			load<bool>( j, "deadzone", _deadzone );
+			load<float>( j, "deadzoneThresh", _deadzoneThresh );
+			load<float>( j, "deadzoneDamping", _deadzoneDamping );
+
+			load<bool>( j, "antiwindup", _antiWindup );
+			load<float>( j, "integralCapValue", _integralCapValue );
+
+			load<float>( j, "kp", _kp );
+			load<float>( j, "ki", _ki );
+			load<float>( j, "kd", _kd );
+
+			return ret;
+		}
+
+		bool PID::saveToJSON( nlohmann::json& j ) const
+		{
+			bool ret = Op::saveToJSON( j );
+
+			save( j, "useSystemTime", _useSystemTime );
+
+			save( j, "maxDeltaTime", _maxDeltaTime );
+			save( j, "maxDeltaTimeMS", _maxDeltaTimeMS );
+
+			save( j, "deadzone", _deadzone );
+			save( j, "deadzoneThresh", _deadzoneThresh );
+			save( j, "deadzoneDamping", _deadzoneDamping );
+
+			save( j, "antiwindup", _antiWindup );
+			save( j, "integralCapValue", _integralCapValue );
+
+			save( j, "kp", _kp );
+			save( j, "ki", _ki );
+			save( j, "kd", _kd );
+
+			return ret;
+		}
+
+		bool PID::clear()
+		{
+			_dtRem = 0.0f;
+
+			safeDelete( _prevValue );
+			safeDelete( _prevTarget );
+
+			safeDelete( _prevError );
 			safeDelete( _integral );
 
 			return true;

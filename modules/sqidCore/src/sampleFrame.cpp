@@ -501,6 +501,16 @@ namespace sqid
 		return this;
 	}
 
+	SampleFrame* SampleFrame::logNot()
+	{
+		float *ptr = (float*) _m.data;
+		const float *end = ptr + size();
+		for( ptr; ptr < end; ptr++ )
+			*ptr = std::abs( *ptr ) > std::numeric_limits<float>::epsilon() ? 0.0f : 1.0f;
+
+		return this;
+	}
+
 	SampleFrame *SampleFrame::inRange( float minValue, float maxValue )
 	{
 		float *ptr = (float*) _m.data;

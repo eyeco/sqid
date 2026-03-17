@@ -67,6 +67,56 @@ namespace sqid
 			DECLARE_OP_DESC;
 		};
 
+		class PID : public Op
+		{
+		private:
+
+			bool _useSystemTime;
+
+			bool _maxDeltaTime;
+			float _maxDeltaTimeMS;
+			float _dtRem;
+
+			float _kp;
+			float _ki;
+			float _kd;
+
+			bool _deadzone;
+			float _deadzoneThresh;
+			float _deadzoneDamping;
+
+			bool _antiWindup;
+			float _integralCapValue;
+
+			SampleFrame* _prevValue;
+			SampleFrame* _prevTarget;
+
+			SampleFrame* _prevError;
+			SampleFrame* _integral;
+
+			SampleFrame *update( const SampleFrame *value, const SampleFrame *target, float dt );
+
+		protected:
+			virtual bool process();
+
+		public:
+			PID();
+			virtual ~PID();
+
+			virtual void createPins();
+
+			bool clear();
+
+#ifdef __SUPPORT_GUI
+			virtual bool drawUI();
+#endif
+
+			virtual bool loadFromJSON( const nlohmann::json& j );
+			virtual bool saveToJSON( nlohmann::json& j ) const;
+
+			DECLARE_OP_DESC;
+		};
+
 		class Drag : public Op
 		{
 		private:
