@@ -1,0 +1,1 @@
+- operators merging multiple input frames are now choosing most-recent timestamp from those inputs for the output frame

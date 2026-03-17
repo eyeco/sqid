@@ -403,16 +403,20 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						a->add( b );
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
+						ret->add( b );
 					}
-					ret = a;
+					else
+						ret = a;
 				}
 				else
 					ret = b;
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
+
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -458,9 +462,11 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						a->sub( b );
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
+						ret->sub( b );
 					}
-					ret = a;
+					else
+						ret = a;
 				}
 				else
 				{
@@ -469,8 +475,10 @@ namespace sqid
 				}
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
+
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -516,11 +524,14 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						a->mul( b );
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
+						ret->mul( b );
 					}
 					else
+					{
 						a->set( 0.0f );
-					ret = a;
+						ret = a;
+					}
 				}
 				else
 				{
@@ -529,8 +540,10 @@ namespace sqid
 				}
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
+
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -726,7 +739,11 @@ namespace sqid
 					throw std::runtime_error( "inputs differ in size" );
 				}
 
-				SampleFrame *ret = new SampleFrame( a->width(), a->height(), a->timeStamp(), a->depth() );
+				uint32_t ts = max( a ? a->timeStamp() : 0, b ? b->timeStamp() : 0 );
+
+				SampleFrame *ret = ( a ?
+					new SampleFrame( a->width(), a->height(), ts, a->depth() ) :
+					new SampleFrame( b->width(), b->height(), ts, b->depth() ) );
 
 				if( a )
 					ret->add( a, 1 - _t );
@@ -822,7 +839,9 @@ namespace sqid
 
 				if( t )
 				{
-					SampleFrame *ret = new SampleFrame( t->width(), t->height(), t->timeStamp(), t->depth() );
+					uint32_t ts = max( t->timeStamp(), max( a ? a->timeStamp() : 0, b ? b->timeStamp() : 0 ) );
+
+					SampleFrame *ret = new SampleFrame( t->width(), t->height(), ts, t->depth() );
 
 					if( _clamp )
 						t->clamp01();
@@ -1045,18 +1064,20 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						in->exp( base );
+						ret = new SampleFrame( in->mat(), max( in->timeStamp(), base->timeStamp() ) );
+						ret->exp( base );
 					}
-					ret = in;
+					else
+						ret = in;
+
+					drawFrame( ret );
+					pushOutput( "out", ret );
+
+					if( ret != in )
+						safeDelete( ret );
 				}
 				else
 					ret = nullptr;
-
-				if( ret )
-				{
-					drawFrame( ret );
-					pushOutput( "out", ret );
-				}
 
 				safeDelete( in );
 				safeDelete( base );
@@ -2038,17 +2059,20 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						cv::min( a->mat(), b->mat(), a->mat() );
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
+						cv::min( a->mat(), b->mat(), ret->mat() );
 					}
-					ret = a;
+					else
+						ret = a;
 				}
 				else
 					ret = b;
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
 
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -2152,17 +2176,20 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						cv::max( a->mat(), b->mat(), a->mat() );
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
+						cv::max( a->mat(), b->mat(), ret->mat() );
 					}
-					ret = a;
+					else
+						ret = a;
 				}
 				else
 					ret = b;
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
 
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -2281,16 +2308,21 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						cv::min( cv::max( in->mat(), mn->mat() ), mx->mat(), in->mat() );
+						ret = new SampleFrame( in->mat(), max( in->timeStamp(), max( mn->timeStamp(), mx->timeStamp() ) ) );
+						cv::max( in->mat(), mn->mat(), in->mat() );
+						cv::min( in->mat(), mx->mat(), ret->mat() );
 					}
-					ret = in;
+					else
+						ret = in;
 				}
 				else
 					ret = in;
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
+
+				if( ret != in )
+					safeDelete( in );
 
 				safeDelete( in );
 				safeDelete( mn );
@@ -2511,7 +2543,7 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						ret = a;
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
 						ret->logAnd( b );
 					}
 					else
@@ -2527,9 +2559,10 @@ namespace sqid
 				}
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
 
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -2576,7 +2609,7 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						ret = a;
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
 						ret->logOr( b );
 					}
 					else
@@ -2586,9 +2619,10 @@ namespace sqid
 					ret = b;
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
 
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}
@@ -2634,7 +2668,7 @@ namespace sqid
 							throw std::runtime_error( "inputs differ in size" );
 						}
 
-						ret = a;
+						ret = new SampleFrame( a->mat(), max( a->timeStamp(), b->timeStamp() ) );
 						ret->logXOr( b );
 					}
 					else
@@ -2644,9 +2678,10 @@ namespace sqid
 					ret = b;
 
 				drawFrame( ret );
-
 				pushOutput( "out", ret );
 
+				if( ret != a && ret != b )
+					safeDelete( ret );
 				safeDelete( a );
 				safeDelete( b );
 			}

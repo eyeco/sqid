@@ -698,7 +698,7 @@ namespace sqid
 					w = sf[i]->width();
 					h = sf[i]->height();
 
-					ts = sf[i]->timeStamp();
+					ts = max( sf[i]->timeStamp(), ts );
 
 					size = i + 1;
 				}
@@ -1148,7 +1148,7 @@ namespace sqid
 				unsigned int width = 0;
 				unsigned int height = 0;
 				unsigned int depth = ( a ? a->depth() : b->depth() );
-				uint32_t ts = ( a ? a->timeStamp() : b->timeStamp() );
+				uint32_t ts = max( a ? a->timeStamp() : 0, b ? b->timeStamp() : 0 );
 
 				if( _ver )
 				{
