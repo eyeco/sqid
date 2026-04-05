@@ -225,9 +225,9 @@ namespace sqid
 			case ASF_32BIT: // 32-bit signed integer.
 				return std::numeric_limits<int>::max();
 			case ASF_FLOAT: // Normalized between plus/minus 1.0.
-				return 1.0f;
+				return 1;
 			case ASF_DOUBLE: // Normalized between plus/minus 1.0.
-				return 1.0;
+				return 1;
 			}
 
 			throw std::runtime_error( "invalid device format" );
@@ -327,7 +327,8 @@ namespace sqid
 					success = source->onData<short>( (const short*) inputBuffer, bufferFrames, streamTime );
 					break;
 				case ASF_24BIT: // 24-bit signed integer.
-					throw std::runtime_error( "audio format signed int 24 not implemented" );
+					std::cerr << "audio format signed int 24 not implemented" << std::endl;
+					success = 0;
 					break;
 				case ASF_32BIT: // 32-bit signed integer.
 					success = source->onData<int>( (const int*) inputBuffer, bufferFrames, streamTime );
@@ -339,7 +340,8 @@ namespace sqid
 					success = source->onData<double>( (const double*) inputBuffer, bufferFrames, streamTime );
 					break;
 				default:
-					throw std::runtime_error( "invalid device format" );
+					std::cerr << "invalid device format" << std::endl;
+					success = 0;
 				}
 
 				return ( success ? 0 : 1 );

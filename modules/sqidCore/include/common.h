@@ -261,7 +261,7 @@ namespace sqid
 		float ret = 0.0f;
 		for( int i = 0; i < cnt; i++ )
 		{
-			val = *a - *b;
+			val = *( a++ ) - *( b++ );
 			ret += val * val;
 		}
 		return ret;
@@ -277,7 +277,7 @@ namespace sqid
 	{
 		float ret = 0.0f;
 		for( int i = 0; i < cnt; i++ )
-			ret += std::abs( *a - *b );
+			ret += std::abs( *( a++ ) - *( b++ ) );
 		return ret;
 	}
 
@@ -285,7 +285,7 @@ namespace sqid
 	{
 		float ret = 0.0f;
 		for( int i = 0; i < cnt; i++ )
-			ret = std::max( ret, std::abs( *a - *b ) );
+			ret = std::max( ret, std::abs( *( a++ ) - *( b++ ) ) );
 		return ret;
 	}
 	//------------------------
@@ -721,6 +721,8 @@ namespace sqid
 		k = std::min( k, cmy.x );
 		k = std::min( k, cmy.y );
 		k = std::min( k, cmy.z );
+		if( k >= 1.0f ) //prevent divide-by-zero
+			return glm::vec4( 0, 0, 0, 1 );
 		glm::vec4 cmyk;
 		cmyk.xyz = cmy - glm::vec3( k / ( 1.0f - k ) );
 		cmyk.w = k;

@@ -178,7 +178,7 @@ namespace sqid
 		void writeToClipboard( const std::string &str );
 		std::string readFromClipboard();
 
-		bool getMousePressed( unsigned int i ) const { return ( i < _mousePressed.size() ? false : _mousePressed[i] ); }
+		bool getMousePressed( unsigned int i ) const { return ( i < _mousePressed.size() ? _mousePressed[i] : false ); }
 #else
 		//bool getAutoSave() const { return false; }
 		//void setAutoSave( bool autoSave ) {}

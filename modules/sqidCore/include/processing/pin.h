@@ -220,7 +220,7 @@ namespace sqid
 				return false;
 
 			if( !isOpEnabled() )
-				false;
+				return false;
 
 			DataContainer<T> *dc = dynamic_cast<DataContainer<T>*>( _cont );
 			if( !dc )
