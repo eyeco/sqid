@@ -56,9 +56,6 @@ namespace sqid
         }
 
     private:
-        unsigned char _deviceID;
-        unsigned char _sensorID;
-
         Layout _layout;
         DataType _type;
 
