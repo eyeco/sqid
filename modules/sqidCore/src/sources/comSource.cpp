@@ -513,7 +513,7 @@ namespace sqid
 			}
 
 			static const std::vector<std::string> &getKnownPorts() { return SerialPort::getKnownPorts(); }
-			static const std::vector<std::string> &getKnownPortsNames() { return SerialPort::getKnownPortsNames(); }
+			static const std::vector<std::string> &getKnownPortsNames() { return SerialPort::getKnownPortNames(); }
 		};
 	}
 

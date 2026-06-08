@@ -46,5 +46,6 @@ namespace sqid
 		static void rescan();
 		static void enumerate();
 		static const std::vector<std::string> &getKnownPorts();
+		static const std::vector<std::string> &getKnownPortNames();
 	};
 }
