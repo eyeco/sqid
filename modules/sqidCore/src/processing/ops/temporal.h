@@ -42,6 +42,23 @@ namespace sqid
 			DECLARE_OP_DESC;
 		};
 
+		class Slope : public Op
+		{
+		private:
+			SampleFrame* _lastValue;
+
+		protected:
+			virtual bool process();
+
+		public:
+			Slope();
+			virtual ~Slope();
+
+			bool clear();
+
+			DECLARE_OP_DESC;
+		};
+
 		class Integral : public Op
 		{
 		private:

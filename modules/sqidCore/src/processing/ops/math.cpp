@@ -63,8 +63,6 @@ namespace sqid
 			"27B68E1B-3B0C-4A6E-B8FE-045B280617EC" );
 		DEFINE_OP_DESC( Invert, "invert", "/math",
 			"432A3429-A321-4F68-88A0-A193EB489C94" );
-		DEFINE_OP_DESC( Slope, "slope", "/math",
-			"EA1FC780-B2A9-4BEE-8575-AE5A33EDDFC0" );
 		DEFINE_OP_DESC( Threshold, "threshold", "/math",
 			"F50BAE17-5C98-446E-A957-C79D7C75BF1C" );
 		DEFINE_OP_DESC( Remap, "remap", "/math/transform",
@@ -1450,69 +1448,6 @@ namespace sqid
 
 			return ret;
 		}
-
-
-
-
-
-		Slope::Slope() :
-			Op(),
-			_lastValue( nullptr )
-		{}
-
-		Slope::~Slope()
-		{
-			this->clear();
-		}
-
-		bool Slope::process()
-		{
-			SampleFrame *sf = fetchInput<SampleFrame>( "in" );
-
-			if( sf )
-			{
-				SampleFrame *ret = nullptr;
-
-				if( _lastValue )
-				{
-					float dt = sf->timeStamp() - _lastValue->timeStamp();
-					if( dt > 0.00001f )
-					{
-						ret = new SampleFrame( *sf );
-						ret->sub( _lastValue )->mul( 1.0f / ( ( sf->timeStamp() - _lastValue->timeStamp() ) * 0.001f ) );
-
-						safeDelete( _lastValue );
-						_lastValue = sf;
-					}
-				}
-				else
-				{
-					ret = new SampleFrame( sf->width(), sf->height(), sf->timeStamp(), sf->depth() );
-					_lastValue = sf;
-				}
-
-				if( ret )
-				{
-					drawFrame( ret );
-
-					pushOutput( "out", ret );
-					safeDelete( ret );
-				}
-			}
-
-			return inputPending( "in" );
-		}
-
-		bool Slope::clear()
-		{
-			safeDelete( _lastValue );
-
-			return true;
-		}
-
-
-
-
 
 
 

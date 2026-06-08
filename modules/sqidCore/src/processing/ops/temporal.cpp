@@ -28,6 +28,8 @@ namespace sqid
 	{
 		DEFINE_OP_DESC( RunningAverage, "runningAvrg", "/math/temporal",
 			"AC3532DA-C2EF-4D2D-B1F4-F413C9FA43EC" );
+		DEFINE_OP_DESC( Slope, "slope", "/math/temporal",
+			"EA1FC780-B2A9-4BEE-8575-AE5A33EDDFC0" );
 		DEFINE_OP_DESC( Integral, "integral", "/math/temporal",
 			"238F1226-473D-4B4F-B6A0-77FD56E68ACB" );
 		DEFINE_OP_DESC( PID, "PID", "/math/temporal",
@@ -130,6 +132,69 @@ namespace sqid
 
 			return ret;
 		}
+
+
+
+
+
+
+		Slope::Slope() :
+			Op(),
+			_lastValue( nullptr )
+		{}
+
+		Slope::~Slope()
+		{
+			this->clear();
+		}
+
+		bool Slope::process()
+		{
+			SampleFrame* sf = fetchInput<SampleFrame>( "in" );
+
+			if( sf )
+			{
+				SampleFrame* ret = nullptr;
+
+				if( _lastValue )
+				{
+					float dt = sf->timeStamp() - _lastValue->timeStamp();
+					if( dt > 0.00001f )
+					{
+						ret = new SampleFrame( *sf );
+						ret->sub( _lastValue )->mul( 1.0f / ( ( sf->timeStamp() - _lastValue->timeStamp() ) * 0.001f ) );
+
+						safeDelete( _lastValue );
+						_lastValue = sf;
+					}
+				}
+				else
+				{
+					ret = new SampleFrame( sf->width(), sf->height(), sf->timeStamp(), sf->depth() );
+					_lastValue = sf;
+				}
+
+				if( ret )
+				{
+					drawFrame( ret );
+
+					pushOutput( "out", ret );
+					safeDelete( ret );
+				}
+			}
+
+			return inputPending( "in" );
+		}
+
+		bool Slope::clear()
+		{
+			safeDelete( _lastValue );
+
+			return true;
+		}
+
+
+
 
 
 
