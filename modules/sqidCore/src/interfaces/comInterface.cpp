@@ -649,7 +649,9 @@ namespace sqid
 				| ( _normalize ? MF_NONE : MF_NORMALIZED )
 				| _dataType
 				| MF_ENC_UNCOMPRESSED );
-			return _impl->write( sfc.frame, _deviceID, _sensorID, flags, _clamp );
+			if( _impl->write( sfc.frame, sfc.deviceID, sfc.sensorID, flags, _clamp ) )
+				return true;
+			std::cerr << "<error> failed to insert frame from sink" << std::endl;
 		}
 		return false;
 	}

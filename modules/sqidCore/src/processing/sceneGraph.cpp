@@ -459,8 +459,7 @@ namespace sqid
 				//TODO: for dropped frames, implement a warning in sources so the user is at least aware of the fact. also check for mem-leaks caused by frames not 
 				// collected for processing.
 
-				if( !it->queueFrame( *sfc ) )
-					std::cerr << "<error> failed to insert frame from sink" << std::endl;
+				it->queueFrame( *sfc );
 			}
 		}
 	}
