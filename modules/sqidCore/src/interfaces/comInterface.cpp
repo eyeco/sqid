@@ -515,8 +515,8 @@ namespace sqid
 						{
 							for( auto& it : _activeSenders )
 							{
-								char deviceID = ( it >> 8 ) & 0xff;
-								char sensorID = ( it ) & 0xff;
+								uint16_t deviceID = ( it >> 8 ) & 0xff;
+								uint16_t sensorID = ( it ) & 0xff;
 
 								ImGui::Text( "  dID: %d, sID: %d", deviceID, sensorID );
 							}
