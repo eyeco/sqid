@@ -25,11 +25,6 @@ namespace sqid
 
         virtual int available() { return 0; }
         virtual int readBytes( uint8_t *data, size_t bytes ) { return 0; }
-
-        //NOTE: FW stuff is sID/dID specific, due to protocol specification -- merge Sender and FWProps somehow
-        virtual bool sendFWDesc( const char *desc ) { return false; }
-        virtual bool sendFWStatus( const char *status ) { return false; }
-        virtual bool sendFWAck( const char *propName ) { return false; }
     };
 
     class SenderSerial : public Sender
@@ -44,11 +39,6 @@ namespace sqid
 
         virtual int available();
         virtual int readBytes( uint8_t *data, size_t bytes );
-
-        //NOTE: FW stuff is sID/dID specific, due to protocol specification -- merge Sender and FWProps somehow
-        virtual bool sendFWDesc( const char *desc );
-        virtual bool sendFWStatus( const char *status );
-        virtual bool sendFWAck( const char *propName );
 
         //static void onSetup();
         //static void writeSerial( const uint8_t *buffer, size_t size );
@@ -68,8 +58,6 @@ namespace sqid
 
         const SampleFrame *_frame;
         Compressor *_compressor;
-
-        bool sendFWPackage( MsgType type, const char *data, size_t len );
     };
 
 #ifdef SUPPORT_BLUETOOTH_SERIAL
@@ -103,12 +91,6 @@ namespace sqid
         //TODO: implement two-way OSC communication
         virtual int available() { return 0; }
         virtual int readBytes( uint8_t *data, size_t bytes ) { return 0; }
-
-        //TODO: implement FW stuff for OSC
-        //NOTE: FW stuff is sID/dID specific, due to protocol specification -- merge Sender and FWProps somehow
-        virtual bool sendFWDesc( const char *desc ) { return false; }
-        virtual bool sendFWStatus( const char *status ) { return false; }
-        virtual bool sendFWAck( const char *propName ) { return false; }
         */
 
     private:

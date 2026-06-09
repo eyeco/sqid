@@ -25,7 +25,7 @@ namespace sqid
 	class SceneGraphDrawer;
 
 	class OpDrawer;
-	class SourceDrawer;
+	class InterfaceDrawer;
 
 	class NodeDrawer : 
 		public GUI::Element,
@@ -52,7 +52,7 @@ namespace sqid
 		virtual bool loadFromJSON( const nlohmann::json &j );
 
 		virtual OpDrawer *asOpDrawer()		{ return nullptr; }
-		virtual SourceDrawer *asSourceDrawer()	{ return nullptr; }
+		virtual InterfaceDrawer *asInterfaceDrawer()	{ return nullptr; }
 
 		virtual bool childHit( const glm::vec2 &mousePos ) { return false; }
 	};

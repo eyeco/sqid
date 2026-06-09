@@ -185,16 +185,7 @@ namespace sqid
 					{
 					case GLFW_KEY_S:
 						if( mods & GLFW_MOD_CONTROL )
-						{
 							save();
-							if( !_sg->save( _sceneName ) )
-								std::cerr << "saving scene to \"" << _sceneName << "\" failed" << std::endl;
-							if( _sgd )
-							{
-								if( !_sgd->save( _sceneName ) )
-									std::cerr << "saving scene UI to \"" << _sceneName << "\" failed" << std::endl;
-							}
-						}
 						break;
 					case GLFW_KEY_Q:
 						if( mods & GLFW_MOD_CONTROL )
@@ -518,16 +509,7 @@ namespace sqid
 					}
 
 					if( ImGui::MenuItem( "Save", "Ctrl+S" ) )
-					{
 						App().save();
-						if( !_sg->save( _sceneName ) )
-							std::cerr << "saving scene to \"" << _sceneName << "\" failed" << std::endl;
-						if( _sgd )
-						{
-							if( !_sgd->save( _sceneName ) )
-								std::cerr << "saving scene UI to \"" << _sceneName << "\" failed" << std::endl;
-						}
-					}
 
 					//TODO:
 					if( ImGui::MenuItem( "Save As..", nullptr, false, false ) )
@@ -857,6 +839,8 @@ namespace sqid
 
 	Application::~Application()
 	{
+		save( _autoSave );
+
 #ifdef __SUPPORT_GUI
 		if( _useGui )
 		{
@@ -869,8 +853,6 @@ namespace sqid
 				ImGui_ImplGlfw_Shutdown();
 				ImGui::DestroyContext();
 			}
-
-			save();
 		}
 
 		if( _glWindow )
@@ -1229,7 +1211,31 @@ namespace sqid
 		}
 	}
 
-	void Application::save()
+	void Application::save( bool saveScene )
+	{
+#ifdef __SUPPORT_GUI
+		if( _useGui )
+			saveIni();
+#endif
+
+		if( saveScene )
+		{
+			if( _sg )
+			{
+				if( !_sg->save( _sceneName ) )
+					std::cerr << "saving scene to \"" << _sceneName << "\" failed" << std::endl;
+			}
+#ifdef __SUPPORT_GUI
+			if( _sgd )
+			{
+				if( !_sgd->save( _sceneName ) )
+					std::cerr << "saving scene UI to \"" << _sceneName << "\" failed" << std::endl;
+			}
+#endif
+		}
+	}
+
+	void Application::saveIni()
 	{
 		if( _ini )
 		{

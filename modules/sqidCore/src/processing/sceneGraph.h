@@ -20,8 +20,9 @@
 namespace sqid
 {
 	//class Op;
-	class Sensor;
-	class DataSource;
+	class Sink;
+	class Source;
+	class DataInterface;
 	//class SampleFrame;
 
 
@@ -29,20 +30,34 @@ namespace sqid
 	class SourceFeed
 	{
 	private:
-		const DataSource* _dataSource;
-		const Sensor* _sensor;
+		const DataInterface* _dataInterface;
+		const Source* _source;
 
 	public:
-		SourceFeed( const DataSource* dataSource, const Sensor* sensor ) :
-			_dataSource( dataSource ),
-			_sensor( sensor )
+		SourceFeed( const DataInterface *di, const Source* source ) :
+			_dataInterface( di ),
+			_source( source )
 		{}
 
-		~SourceFeed()
+		const DataInterface* getDataInterface() const { return _dataInterface; }
+		const Source* getOp() const { return _source; }
+	};
+
+	//NOTE: as of now, feeds are only required for drawing connecting lines in UI
+	class SinkFeed
+	{
+	private:
+		const DataInterface* _dataInterface;
+		const Sink* _sink;
+
+	public:
+		SinkFeed( const DataInterface *di, const Sink *sink ) :
+			_dataInterface( di ),
+			_sink( sink )
 		{}
 
-		const DataSource* getDataSource() const { return _dataSource; }
-		const Sensor* getOp() const { return _sensor; }
+		const DataInterface* getDataInterface() const { return _dataInterface; }
+		const Sink* getOp() const { return _sink; }
 	};
 
 	//TODO: reduce number of copies of a sampleframe, when handed from one node to the other
@@ -55,10 +70,13 @@ namespace sqid
 		std::map<GUID, Op*, CompareGUID> _guidMap;
 
 		std::list<Connector*> _connectors;
-		std::list<DataSource*> _sources;
+		std::list<DataInterface*> _interfaces;
 
 		//NOTE: as of now, feeds are only required for drawing connecting lines in UI
-		std::list<SourceFeed> _feeds;
+		//TODO: use them to have sources/sinks directly interact with interfaces
+		std::list<SourceFeed> _sourceFeeds;
+		std::list<SinkFeed> _sinkFeeds;
+
 		std::list<Op*> _ordered;
 
 		void clear();
@@ -67,9 +85,10 @@ namespace sqid
 		bool traverse();
 
 		bool isValid( const Op *op );
-		bool isValid( const DataSource *source );
+		bool isValid( const DataInterface *di );
 
-		void onSourceData( DeviceInterface di, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc );
+		void onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc );
+		void onSinkData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer *sfc );
 
 	public:
 		SceneGraph();
@@ -87,9 +106,6 @@ namespace sqid
 		const std::string &getSceneName() const { return _sceneName; }
 
 		//TODO: this is temporarily, until VP is finished
-		//bool addPipe( DeviceInterface di, int portNr, const std::vector<std::string> &nodeNames );
-		//bool addSource( DataSource *source );
-		//void onSensorData( DeviceInterface di, unsigned short portNr, unsigned char deviceID, unsigned char sensorID, SampleFrame *sf, const std::string &desc );
 		void update( float dt );
 		//---------------------------------------
 
@@ -98,26 +114,27 @@ namespace sqid
 		bool disconnect( InletPin *dst, bool skipReorder = false );
 		bool disconnect( Op *op, bool skipReorder = false );
 
-		DataSource *createSource( DeviceInterface di );
-		bool destroySource( const DataSource *source );
+		DataInterface *createInterface( DataInterfaceType dit );
+		bool destroyInterface( const DataInterface *di );
 
-		std::list<DataSource*> &getSources() { return _sources; }
-		const std::list<DataSource*> &getSources() const { return _sources; }
+		std::list<DataInterface*> &getInterfaces() { return _interfaces; }
+		const std::list<DataInterface*> &getInterfaces() const { return _interfaces; }
 
 		Op *instantiate( const GUID &classID );
 		bool destroy( const Op *op, bool skipReorder = false );
 		bool destroy( const GUID &objectID, bool skipReorder = false );
 
 		Op *getOp( const GUID &objectID ) const;
-		DataSource *getSource( const GUID &objectID ) const;
+		DataInterface *getInterface( const GUID &objectID ) const;
 
 		std::list<Op*> &getOps() { return _ops; }
 		const std::list<Op*> &getOps() const { return _ops; }
 
 		const std::list<Connector*> &getConnectors() const { return _connectors; }
 
-		const std::list<SourceFeed> &getFeeds() const { return _feeds; }
+		const std::list<SourceFeed> &getSourceFeeds() const { return _sourceFeeds; }
+		const std::list<SinkFeed> &getSinkFeeds() const { return _sinkFeeds; }
 
-		bool objectIDInUse( const GUID &objectID ) const { return ( getOp( objectID ) || getSource( objectID ) ); }
+		bool objectIDInUse( const GUID &objectID ) const { return ( getOp( objectID ) || getInterface( objectID ) ); }
 	};
 }

@@ -67,7 +67,7 @@ Move the canvas by dragging with the right mouse button.
 | ```Esc```         | close finder                  |
 | ```Delete```      | delete selection              |
 
-### Interface
+### User Interface
 
 ![name-collapse](./img/name-and-collapse.gif)
 
@@ -129,8 +129,10 @@ Connections can be cleared by left-clicking connected input pins. If an output i
 
 This is a walkthrough for the task of setting up a very simple input that comes from an ESP that is connected via serial port, just to get you started with the very basics. The ESP is running the firmware that is also included in this package in the folder [ESP_firmware](../firmware/).
 
+_Note that during a recent code refactoring step, there was a change in terminology made: previous **sources** are now called **interfaces**, since they will (and partly already do) support writing/sending data, instead for just reading from an interface, such as COM and BTS. Sending is supported using the new `Sink` operator. Consequently, what previously was termed a `sensor` operator is now called `Source` operator, which is more generic and therefore more adequate anyway._
+
 ### Step 1: set up COM input
-First, we create a "source" node, which is not an operator, but an entity that is required to retrieve arbitrary data from devices that can send arbitrary data. Since we cannot know how many sensors an MCU is sampling, and moreover, how many sub-devices it may be operating, we introduced the concept of "Device IDs" and "Sensor IDs" to distinguish. In the firmware code you can see that six ADCs are sampled (```multiSample()```) and the results are stored into a float array, which is copied into the frame stucture (via ```frame.setData()```) and then sent via serial port (```sender.send()```).
+First, we create an "interface" (previously called "source") node, which is not an operator, but an entity that is required to retrieve arbitrary data from devices that can send arbitrary data. Since we cannot know how many sensors an MCU is sampling, and moreover, how many sub-devices it may be operating, we introduced the concept of "Device IDs" and "Sensor IDs" to distinguish. In the firmware code you can see that six ADCs are sampled (```multiSample()```) and the results are stored into a float array, which is copied into the frame stucture (via ```frame.setData()```) and then sent via serial port (```sender.send()```).
 
 ```
 const int DEVICE_ID = 0;
@@ -169,23 +171,23 @@ void setup() {
 
 This means that even tough we sampled six ADCs in total, we treat the data as a single 6-value array to send it via serial in a more compact way. For identification within sqid, we defined Device ID as 0 and Sensor ID also as 0.
 
-Note that all of these are implementation details. All the user really has to know is that there is data coming in which is associated with a certain combination of device ID and sensor ID, the rest is done within sqid.
+Note that all of these are implementation details. All the user really has to know is that there is data coming in which is associated with a certain combination of Device ID and Sensor ID, the rest is done within sqid.
 
 ![com-part1](./img/tutorial/com-part1.gif)
 
-We create a source node for serial ('sources' > 'COM' in the context menu, alternatively open the finder with F1 and type "com" to bring it up). We select it, and configure using the inspector: we select the COM port from the dropdown list (since we just plugged the MCU, it does not yet show up, so we refresh the list by hitting "rescan"). We may modify baud rate and number of maximum queued packages, then press "open". We can see in the inspector that data is coming in ("started" and "synced") and that there are packages coming from one senders. By expanding the group, we can see device IDs (dID) and sensor IDs (sID) of queued frames. 
+We create an interface (previously called _source_) node for serial using `interfaces > COM` in the context menu (previously `source > COM`). Alternatively open the finder with F1 and type "com" to bring it up. We select it, and configure using the inspector: we select the COM port from the dropdown list (since we just plugged the MCU, it does not yet show up, so we refresh the list by hitting "rescan"). We may modify baud rate and number of maximum queued packages, then press "open". We can see in the inspector that data is coming in ("started" and "synced") and that there are packages coming from one senders. By expanding the group, we can see Device IDs (dID) and Sensor IDs (sID) of queued frames. 
 
-Next, we create an operator of the generic type *sensor*, which is used to selectively grab frames from sources. In the inspector, we associate it with input type 'COM', set it to receive from port 8, and specify device ID and sensor ID of the frame we're interested in (i.e., 0 for both). We can see in the node visualizer that data is coming in, as it changes from black to a heatmap visualization. 
+Next, we create an operator of the generic type *source* (previously called *sensor*), which is used to selectively grab frames from the interfaces. In the inspector, we associate it with input type `COM`, set it to receive from port 8, and specify Device ID and Sensor ID of the frame we're interested in (i.e., 0 for both). We can see in the node visualizer that data is coming in, as it changes from black to a heatmap visualization. 
 
 ![com-part2](./img/tutorial/com-part2.gif)
 
-Since in this example we attached four sensors, but the firmware is sampling six ADCs, the last two floats of the array are not in use and stay at 0. Hence, we are only interested int the sub-array of elements [0...3] and want to operate with a 4x1 frame from here on. We create a *crop* operator ('util' > 'crop') and set 'right' to 0.75, to crop to the leftmost 75% (technically 2/3 would be correct, but the width is floored to the 4 anyways). When we hover the mouse cursor over the output pin, we can see that the output is of size '4x1'.
+Since in this example we attached four sensors, but the firmware is sampling six ADCs, the last two floats of the array are not in use and stay at 0. Hence, we are only interested int the sub-array of elements [0...3] and want to operate with a 4x1 frame from here on. We create a *crop* operator (`util > crop`) and set 'right' to 0.75, to crop to the leftmost 75% (technically 2/3 would be correct, but the width is floored to the 4 anyways). When we hover the mouse cursor over the output pin, we can see that the output is of size '4x1'.
 
-We want a signal that is 0 when there is no activity, and reaches up to 1 for full saturation. Since we used resistive sensors in a voltage divider, the voltage drops when they are actuated, so signal is actually upside-down: high voltage at inactivity, low voltage when they're actuated. The most simple way to fix this is to create an *invert* operator ('math' > 'invert'), which transform each frame element by x'=(1-x). For better clarity, we switch the visualizers to temporal line drawing ('line (t)') to get a temporal tend of the signal.
+We want a signal that is 0 when there is no activity, and reaches up to 1 for full saturation. Since we used resistive sensors in a voltage divider, the voltage drops when they are actuated, so signal is actually upside-down: high voltage at inactivity, low voltage when they're actuated. The most simple way to fix this is to create an *invert* operator (`math > invert`), which transform each frame element by x'=(1-x). For better clarity, we switch the visualizers to temporal line drawing ('line (t)') to get a temporal tend of the signal.
 
 ![com-part3](./img/tutorial/com-part3.gif)
 
-By inspecting the min/max markers in the visualizer, we see the inverted signal values are ~0.21 at rest and ~0.87 at saturation; also, the array sensors' min and max values differ slightly. For a quick'n'dirty calibration want to map them to ranges of about [0 1]. The *autoNormalize* operator ('math' > 'transform' > 'autoNormalize') is meant to facilitate this. To better utilize the line visualizer's displayed range, we offset drawing by -1 and scale by 2, thus setting the drawing range from the default [-1 1] to [0 1].
+By inspecting the min/max markers in the visualizer, we see the inverted signal values are ~0.21 at rest and ~0.87 at saturation; also, the array sensors' min and max values differ slightly. For a quick'n'dirty calibration want to map them to ranges of about [0 1]. The *autoNormalize* operator (`math > transform > autoNormalize`) is meant to facilitate this. To better utilize the line visualizer's displayed range, we offset drawing by -1 and scale by 2, thus setting the drawing range from the default [-1 1] to [0 1].
 
 ![com-part4](./img/tutorial/com-part4.gif)
 
@@ -195,9 +197,9 @@ We see in the autoNormalize node, that the range of [0 1] is reasonably exhauste
 
 ![com-part5](./img/tutorial/com-part5.gif)
 
-To reduce sensor noise, we add a quick-fix using a *runningAvrg* ('math' > 'temporal' > 'runningAvrg'), which implements an exponential smoothing low-pass filter with x'=(x\*drag)+(x_p'\*(1-drag)), where x_p' is x' of the previous step. We set drag to 0.1, to not introduce too much latency.
+To reduce sensor noise, we add a quick-fix using a *runningAvrg* (`math > temporal > runningAvrg`), which implements an exponential smoothing low-pass filter with x'=(x\*drag)+(x_p'\*(1-drag)), where x_p' is x' of the previous step. We set drag to 0.1, to not introduce too much latency.
 
-Next, we want to make our processed data useable in a Unity3D scene. We prepared a Unity3D scene that receives OSC data via UDP using the UnityOSC addon. values are mapped to the Y-scaling of cubes in the Unity scene, for a quick visualization. In sqid, we create an oscOut operator. We leave the protocol at the default of UDP, ID is set to loopback. We adapt the port to 6667 to match the socket we are using in our Unity code. Since we defined the OSC message string filter as "/unity", furthermore, we set device ID and sensor ID, which are at this point optional since they are ignored in our Unity code, and click "start" to start sending UDP datagrams. We can see in our Unity scene, that data is arriving and we are able to control Unity entities with our resistive sensors.
+Next, we want to make our processed data useable in a Unity3D scene. We prepared a Unity3D scene that receives OSC data via UDP using the UnityOSC addon. values are mapped to the Y-scaling of cubes in the Unity scene, for a quick visualization. In sqid, we create an oscOut operator. We leave the protocol at the default of UDP, ID is set to loopback. We adapt the port to 6667 to match the socket we are using in our Unity code. Since we defined the OSC message string filter as "/unity", furthermore, we set Device ID and Sensor ID, which are at this point optional since they are ignored in our Unity code, and click "start" to start sending UDP datagrams. We can see in our Unity scene, that data is arriving and we are able to control Unity entities with our resistive sensors.
 
 We save the scene, which writes all settings to disc, including COM ports and minima and maxima of our calibration phase. Next time scene is run, the device on COM8 is automatically connected and OSC sending is active right away. If nothing changed on the hardware end, there are no more user interventions required. Since we use UDP for OSC, there is no requirement for Unity to be up and running, we can start it anytime we want. We can also use different endpoints if we want, either in addition or replacing our Unity demo. 
 
@@ -275,9 +277,9 @@ We save the scene, which writes all settings to disc, including COM ports and mi
 
 _TODO: add detailed description of each of the ops and their parameters_
 
-## List of sources (core)
+## List of interfaces (core)
 
-- sources
+- interfaces
 	- COM
 	- RFCOMM
 	- OSC
@@ -290,7 +292,8 @@ _TODO: add detailed description of each of the ops and their parameters_
 	- toGrayscale
 - devices
 	- capture
-	- sensor
+	- source
+	- sink
 	- serialOut
 - fileIO
 	- fileIn

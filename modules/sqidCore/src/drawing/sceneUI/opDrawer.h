@@ -23,9 +23,9 @@
 namespace sqid
 {
 	class Op;
-	class DataSource;
 	class FrameDrawer;
 	class SampleFrame;
+	class DataInterface;
 
 	class OpDrawer : public NodeDrawer
 	{

@@ -5,8 +5,8 @@
     Version: 1.0
  */
 
-#ifndef _SQID_COM_MSG_PARSER
-#define _SQID_COM_MSG_PARSER
+#ifndef _SQID_RECEIVER
+#define _SQID_RECEIVER
 
 #include "common.h"
 

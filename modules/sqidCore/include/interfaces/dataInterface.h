@@ -22,23 +22,28 @@
 
 namespace sqid
 {
-	class SQID_API DataSource
+	class SQID_API DataInterface
 	{
 	protected:
 		GUID _objectID;
 
 	public:
-		explicit DataSource();
-		virtual ~DataSource();
+		explicit DataInterface();
+		virtual ~DataInterface();
 
 		const GUID &getObjectID() const { return _objectID; }
 
 		virtual std::string getDesc() const = 0;
 
+		virtual bool doesWant( const SampleFrameContainer* sfc ) const = 0;
+
+		//frames are handed over, caller is in charge of deleting them!
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames ) = 0;
+		//frames are copied, caller must delete frames contained in sfc!
+		virtual bool queueFrame( const SampleFrameContainer &sfc ) = 0;
 
 		virtual unsigned short getDevicePort() const = 0;
-		virtual DeviceInterface getDeviceInterface() const = 0;
+		virtual DataInterfaceType getDataInterfaceType() const = 0;
 
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI() = 0;
@@ -47,6 +52,6 @@ namespace sqid
 		virtual bool loadFromJSON( const nlohmann::json &j );
 		virtual void saveToJSON( nlohmann::json &j ) const;
 
-		static DataSource *create( DeviceInterface di );
+		static DataInterface *create( DataInterfaceType dit );
 	};
 }

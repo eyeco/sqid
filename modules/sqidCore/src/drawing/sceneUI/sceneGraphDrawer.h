@@ -22,13 +22,13 @@
 namespace sqid
 {
 	class Op;
-	class DataSource;
 	class SceneGraph;
+	class DataInterface;
 
 	class FrameBuffer;
 	class NodeDrawer;
 	class OpDrawer;
-	class SourceDrawer;
+	class InterfaceDrawer;
 
 	class SQID_API SceneGraphDrawer : public GUI::Drawer
 	{
@@ -74,10 +74,10 @@ namespace sqid
 		std::map<GUID, NodeDrawer*, CompareGUID> _drawers;
 
 		const OpDrawer *getOpDrawer( const GUID &objectID ) const;
-		const SourceDrawer *getSourceDrawer( const GUID &objectID ) const;
+		const InterfaceDrawer *getInterfaceDrawer( const GUID &objectID ) const;
 
 		OpDrawer *createOpDrawer( Op *op, const glm::vec2 &pos );
-		SourceDrawer *createSourceDrawer( DataSource *source, const glm::vec2 &pos );
+		InterfaceDrawer *createInterfaceDrawer( DataInterface *di, const glm::vec2 &pos );
 
 		void select( NodeDrawer *nd, bool additive = false );
 		void select( std::list<NodeDrawer*> &nds, bool additive = false );
@@ -123,7 +123,7 @@ namespace sqid
 		bool save( const std::string &scene );
 
 		OpDrawer *instantiateOp( const GUID &classID, const glm::vec2 &atScreenPos );
-		SourceDrawer *instantiateSource( DeviceInterface di, const glm::vec2 &atScreenPos );
+		InterfaceDrawer *instantiateInterface( DataInterfaceType dit, const glm::vec2 &atScreenPos );
 
 		void setMaximized( OpDrawer *drawer );
 		OpDrawer *getMaximized() const { return _maximizedDrawer; }

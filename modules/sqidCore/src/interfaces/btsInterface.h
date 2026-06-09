@@ -14,16 +14,16 @@
 #include <config.h>
 
 #ifdef __RFCOMM_SUPPORT
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 
 namespace sqid
 {
 	namespace Internal
 	{
-		class BTSSourceImpl;
+		class BTSInterfaceImpl;
 	}
 
-	class SQID_API BTSSource : public DataSource
+	class SQID_API BTSInterface : public DataInterface
 	{
 	private:
 		static unsigned int idCntr;
@@ -36,20 +36,24 @@ namespace sqid
 
 		unsigned int _dropdownSelected;
 
-		Internal::BTSSourceImpl *_impl;
+		Internal::BTSInterfaceImpl *_impl;
 
 	public:
-		BTSSource();
-		virtual ~BTSSource();
+		BTSInterface();
+		virtual ~BTSInterface();
 
 		bool run( const std::string &name, const std::string &address );
 		void close();
 
+		virtual bool doesWant( const SampleFrameContainer *sfc ) const;
+
 		virtual std::string getDesc() const;
+
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
+		virtual bool queueFrame( const SampleFrameContainer& sfc );
 
 		virtual unsigned short getDevicePort() const { return _id; }
-		virtual DeviceInterface getDeviceInterface() const { return DI_RFCOMM; }
+		virtual DataInterfaceType getDataInterfaceType() const { return DIT_RFCOMM; }
 
 		const std::string &getName() const { return _name; }
 		const std::string &getAddress() const { return _address; }
@@ -57,10 +61,6 @@ namespace sqid
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();
 #endif
-
-		bool write( const unsigned char *data, size_t size );
-		bool write( const std::string &str );
-		bool write( const std::vector<unsigned char> &data );
 
 		static bool init();
 		static bool isInitialized();

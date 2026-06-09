@@ -17,8 +17,9 @@
 
 #include <fileIO/json.h>
 
-#include "../../processing/ops/sensor.h"
-#include <sources/dataSource.h>
+#include "../../processing/ops/sink.h"
+#include "../../processing/ops/source.h"
+#include <interfaces/dataInterface.h>
 
 #include <processing/pin.h>
 #include <processing/connector.h>
@@ -28,7 +29,7 @@
 #include <drawing/frameBuffer.h>
 #include <drawing/frameDrawer.h>
 #include "opDrawer.h"
-#include "sourceDrawer.h"
+#include "interfaceDrawer.h"
 #include "uiStyle.h"
 
 #include <GLFW/glfw3.h>
@@ -76,17 +77,17 @@ namespace sqid
 			return lev_dist[min_size];
 		}
 
-		const std::map<DeviceInterface, const char*> createInterfaceMap()
+		const std::map<DataInterfaceType, const char*> createInterfaceMap()
 		{
-			std::map<DeviceInterface, const char*> im;
-			for( int i = 0; i < DI_COUNT; i++ )
-				im.insert( std::make_pair( (DeviceInterface) i, interfaceToString( (DeviceInterface) i ) ) );
+			std::map<DataInterfaceType, const char*> im;
+			for( int i = 0; i < DIT_COUNT; i++ )
+				im.insert( std::make_pair( (DataInterfaceType) i, interfaceToString( (DataInterfaceType) i ) ) );
 			return im;
 		}
 
-		const std::map<DeviceInterface, const char*> &getInterfaceMap()
+		const std::map<DataInterfaceType, const char*> &getInterfaceMap()
 		{
-			static std::map<DeviceInterface, const char*> im = createInterfaceMap();
+			static std::map<DataInterfaceType, const char*> im = createInterfaceMap();
 			return im;
 		}
 
@@ -101,7 +102,7 @@ namespace sqid
 			GUID guid;
 
 			bool isOp;
-			DeviceInterface deviceInterface;
+			DataInterfaceType dataInterface;
 
 			Node( const std::string &n, const std::string &p, const std::string &d, const GUID &g ) :
 				name( n ),
@@ -109,14 +110,14 @@ namespace sqid
 				desc( d ),
 				guid( g ),
 				isOp( true ),
-				deviceInterface( DI_COUNT )
+				dataInterface( DIT_COUNT )
 			{}
 
-			Node( const std::string &n, DeviceInterface di ) :
+			Node( const std::string &n, DataInterfaceType dit ) :
 				name( n ),
-				desc( "(source)" ),
+				desc( "(interface)" ),
 				isOp( false ),
-				deviceInterface( di )
+				dataInterface( dit )
 			{}
 		};
 
@@ -261,8 +262,8 @@ namespace sqid
 		{
 			std::list<Node> nodes;
 
-			for( int i = 0; i < DI_COUNT; i++ )
-				nodes.push_back( Node( interfaceToString( (DeviceInterface) i ), (DeviceInterface) i ) );
+			for( int i = 0; i < DIT_COUNT; i++ )
+				nodes.push_back( Node( interfaceToString( (DataInterfaceType) i ), (DataInterfaceType) i ) );
 
 			for( auto &it : opFactory().getSupported() )
 				nodes.push_back( Node( it.name(), it.path(), "", it.guid() ) );
@@ -378,8 +379,8 @@ namespace sqid
 		for( auto &it : _sg->getOps() )
 			createOpDrawer( it, glm::vec2( 300, 150 + cntr++ * 200 ) );
 
-		for( auto &it : _sg->getSources() )
-			createSourceDrawer( it, glm::vec2( 300, 150 + cntr++ * 200 ) );
+		for( auto &it : _sg->getInterfaces() )
+			createInterfaceDrawer( it, glm::vec2( 300, 150 + cntr++ * 200 ) );
 
 		load( _sg->getSceneName() );
 		resortZ();
@@ -414,24 +415,24 @@ namespace sqid
 		return nd;
 	}
 
-	SourceDrawer *SceneGraphDrawer::createSourceDrawer( DataSource *source, const glm::vec2 &pos )
+	InterfaceDrawer *SceneGraphDrawer::createInterfaceDrawer( DataInterface *di, const glm::vec2 &pos )
 	{
-		SourceDrawer *sd = new SourceDrawer( this, source, pos );
-		if( !_drawers.insert( std::make_pair( source->getObjectID(), sd ) ).second )
+		InterfaceDrawer *id = new InterfaceDrawer( this, di, pos );
+		if( !_drawers.insert( std::make_pair( di->getObjectID(), id ) ).second )
 		{
-			std::cerr << "<error> drawer for source with ID " << guidToString( source->getObjectID() ) << " already present!" << std::endl;
-			safeDelete( sd );
-			sd = nullptr;
+			std::cerr << "<error> drawer for interface with ID " << guidToString( di->getObjectID() ) << " already present!" << std::endl;
+			safeDelete( id );
+			id = nullptr;
 		}
 		else
 		{
-			sd->build();
-			moveToFront( sd );
+			id->build();
+			moveToFront( id );
 
 			resortZ();
 		}
 
-		return sd;
+		return id;
 	}
 
 	void SceneGraphDrawer::select( NodeDrawer *nd, bool additive )
@@ -559,12 +560,12 @@ namespace sqid
 		return it->second->asOpDrawer();
 	}
 
-	const SourceDrawer *SceneGraphDrawer::getSourceDrawer( const GUID &objectID ) const
+	const InterfaceDrawer *SceneGraphDrawer::getInterfaceDrawer( const GUID &objectID ) const
 	{
 		auto it = _drawers.find( objectID );
 		if( it == _drawers.end() )
 			return nullptr;
-		return it->second->asSourceDrawer();
+		return it->second->asInterfaceDrawer();
 	}
 
 	void SceneGraphDrawer::preDraw()
@@ -631,25 +632,25 @@ namespace sqid
 							id->updateCompatibility( _sticky );
 				}
 
-				if( _sg->getFeeds().size() )
+				if( _sg->getSourceFeeds().size() )
 				{
 					glLineWidth( getUIStyle()->ConnectorLineWidth );
 
-					std::vector<glm::vec2> lineVerts( _sg->getFeeds().size() * 2 );
-					std::vector<glm::vec3> lineCols( _sg->getFeeds().size() * 2 );
+					std::vector<glm::vec2> lineVerts( _sg->getSourceFeeds().size() * 2 );
+					std::vector<glm::vec3> lineCols( _sg->getSourceFeeds().size() * 2 );
 
-					std::vector<glm::vec2> triVerts( _sg->getFeeds().size() * 3 );
-					std::vector<glm::vec3> triCols( _sg->getFeeds().size() * 3 );
+					std::vector<glm::vec2> triVerts( _sg->getSourceFeeds().size() * 3 );
+					std::vector<glm::vec3> triCols( _sg->getSourceFeeds().size() * 3 );
 
 					int cntr = 0;
-					for( auto &it : _sg->getFeeds() )
+					for( auto &it : _sg->getSourceFeeds() )
 					{
-						const SourceDrawer *src = getSourceDrawer( it.getDataSource()->getObjectID() );
+						const InterfaceDrawer *src = getInterfaceDrawer( it.getDataInterface()->getObjectID() );
 						const OpDrawer *dst = getOpDrawer( it.getOp()->getObjectID() );
 
 						if( !src )
 						{
-							std::cerr << "SourceDrawer not found" << std::endl;
+							std::cerr << "InterfaceDrawer not found" << std::endl;
 							continue;
 						}
 						if( !dst )
@@ -664,8 +665,8 @@ namespace sqid
 						lineVerts[cntr * 2 + 0] = srcPos;
 						lineVerts[cntr * 2 + 1] = dstPos;
 
-						lineCols[cntr * 2 + 0] = getUIStyle()->FeedLineColor;
-						lineCols[cntr * 2 + 1] = getUIStyle()->FeedLineColor;
+						lineCols[cntr * 2 + 0] = getUIStyle()->SourceFeedLineColor;
+						lineCols[cntr * 2 + 1] = getUIStyle()->SourceFeedLineColor;
 
 						glm::vec2 fwd( dstPos - srcPos );
 						float l = glm::length( fwd );
@@ -679,9 +680,75 @@ namespace sqid
 						triVerts[cntr * 3 + 1] = center - ( fwd * 0.5f + side ) * size;
 						triVerts[cntr * 3 + 2] = center - ( fwd * 0.5f - side ) * size;
 
-						triCols[cntr * 3 + 0] = getUIStyle()->FeedLineColor;
-						triCols[cntr * 3 + 1] = getUIStyle()->FeedLineColor;
-						triCols[cntr * 3 + 2] = getUIStyle()->FeedLineColor;
+						triCols[cntr * 3 + 0] = getUIStyle()->SourceFeedLineColor;
+						triCols[cntr * 3 + 1] = getUIStyle()->SourceFeedLineColor;
+						triCols[cntr * 3 + 2] = getUIStyle()->SourceFeedLineColor;
+
+						cntr++;
+					}
+
+					glVertexPointer( 2, GL_FLOAT, 0, &lineVerts[0] );
+					glColorPointer( 3, GL_FLOAT, 0, &lineCols[0] );
+
+					glDrawArrays( GL_LINES, 0, lineVerts.size() );
+
+					glVertexPointer( 2, GL_FLOAT, 0, &triVerts[0] );
+					glColorPointer( 3, GL_FLOAT, 0, &triCols[0] );
+
+					glDrawArrays( GL_TRIANGLES, 0, triVerts.size() );
+				}
+
+				if( _sg->getSinkFeeds().size() )
+				{
+					glLineWidth( getUIStyle()->ConnectorLineWidth );
+
+					std::vector<glm::vec2> lineVerts( _sg->getSinkFeeds().size() * 2 );
+					std::vector<glm::vec3> lineCols( _sg->getSinkFeeds().size() * 2 );
+
+					std::vector<glm::vec2> triVerts( _sg->getSinkFeeds().size() * 3 );
+					std::vector<glm::vec3> triCols( _sg->getSinkFeeds().size() * 3 );
+
+					int cntr = 0;
+					for( auto& it : _sg->getSinkFeeds() )
+					{
+						const OpDrawer* src = getOpDrawer( it.getOp()->getObjectID() );
+						const InterfaceDrawer* dst = getInterfaceDrawer( it.getDataInterface()->getObjectID() );
+
+						if( !src )
+						{
+							std::cerr << "OpDrawer not found" << std::endl;
+							continue;
+						}
+						if( !dst )
+						{
+							std::cerr << "InterfaceDrawer not found" << std::endl;
+							continue;
+						}
+
+						glm::vec2 srcPos( src->getPos() + src->getSize() * 0.5f );
+						glm::vec2 dstPos( dst->getPos() + dst->getSize() * 0.5f );
+
+						lineVerts[cntr * 2 + 0] = srcPos;
+						lineVerts[cntr * 2 + 1] = dstPos;
+
+						lineCols[cntr * 2 + 0] = getUIStyle()->SinkFeedLineColor;
+						lineCols[cntr * 2 + 1] = getUIStyle()->SinkFeedLineColor;
+
+						glm::vec2 fwd( dstPos - srcPos );
+						float l = glm::length( fwd );
+						if( l > std::numeric_limits<float>::epsilon() )
+							fwd *= 1.0f / l;
+						float t = getAppTime() * 0.5f;
+						glm::vec2 side( -fwd.y, fwd.x );
+						glm::vec2 center( ( srcPos + dstPos ) * 0.5f + fwd * ( t - (int) t - 0.5f ) * l * 0.9f );
+						float size = 10;
+						triVerts[cntr * 3 + 0] = center + fwd * size;
+						triVerts[cntr * 3 + 1] = center - ( fwd * 0.5f + side ) * size;
+						triVerts[cntr * 3 + 2] = center - ( fwd * 0.5f - side ) * size;
+
+						triCols[cntr * 3 + 0] = getUIStyle()->SinkFeedLineColor;
+						triCols[cntr * 3 + 1] = getUIStyle()->SinkFeedLineColor;
+						triCols[cntr * 3 + 2] = getUIStyle()->SinkFeedLineColor;
 
 						cntr++;
 					}
@@ -864,7 +931,7 @@ namespace sqid
 						if( filtered[_finderSelected].second.isOp )
 							select( instantiateOp( filtered[_finderSelected].second.guid, glm::vec2( App().getWindowSize() ) * 0.5f ) );
 						else
-							select( instantiateSource( filtered[_finderSelected].second.deviceInterface, glm::vec2( App().getWindowSize() ) * 0.5f ) );
+							select( instantiateInterface( filtered[_finderSelected].second.dataInterface, glm::vec2( App().getWindowSize() ) * 0.5f ) );
 					}
 
 					_finderBuffer[0] = 0;
@@ -890,7 +957,7 @@ namespace sqid
 						if( filtered[_finderSelected].second.isOp )
 							select( instantiateOp( filtered[_finderSelected].second.guid, glm::vec2( App().getWindowSize() ) * 0.5f ) );
 						else
-							select( instantiateSource( filtered[_finderSelected].second.deviceInterface, glm::vec2( App().getWindowSize() ) * 0.5f ) );
+							select( instantiateInterface( filtered[_finderSelected].second.dataInterface, glm::vec2( App().getWindowSize() ) * 0.5f ) );
 					}
 				}
 			}
@@ -912,11 +979,11 @@ namespace sqid
 		if( !_suppressContextMenu && !_exitContextMenu &&
 			ImGui::BeginPopupContextVoid( "scene context menu", 1 ) )
 		{
-			DeviceInterface selectedInterface = DI_COUNT;
+			DataInterfaceType selectedInterface = DIT_COUNT;
 
 			_contextMenuOpen = true;
 
-			if( ImGui::BeginMenu( "sources" ) )
+			if( ImGui::BeginMenu( "interfaces" ) )
 			{
 				for( auto &it : Internal::getInterfaceMap() )
 				{
@@ -937,8 +1004,8 @@ namespace sqid
 			}
 			ImGui::EndPopup();
 
-			if( selectedInterface != DI_COUNT )
-				select( instantiateSource( selectedInterface, _creationPos ) );
+			if( selectedInterface != DIT_COUNT )
+				select( instantiateInterface( selectedInterface, _creationPos ) );
 			else if( selectedNode )
 				select( instantiateOp( selectedNode->guid, _creationPos ) );
 		}
@@ -1165,7 +1232,7 @@ namespace sqid
 									setMaximized( nullptr );
 
 								OpDrawer *od = it->second->asOpDrawer();
-								SourceDrawer *sd = it->second->asSourceDrawer();
+								InterfaceDrawer *id = it->second->asInterfaceDrawer();
 
 								if( od )
 								{
@@ -1181,9 +1248,9 @@ namespace sqid
 									else
 										std::cerr << "<error> failed to delete Op (mem-leak?)" << std::endl;
 								}
-								else if( sd )
+								else if( id )
 								{
-									if( _sg->destroySource( sd->getSource() ) )
+									if( _sg->destroyInterface( id->getInterface() ) )
 									{
 										delete( it->second );
 										it = _drawers.erase( it );
@@ -1257,17 +1324,17 @@ namespace sqid
 		return od;
 	}
 
-	SourceDrawer *SceneGraphDrawer::instantiateSource( DeviceInterface di, const glm::vec2 &atScreenPos )
+	InterfaceDrawer *SceneGraphDrawer::instantiateInterface( DataInterfaceType dit, const glm::vec2 &atScreenPos )
 	{
-		DataSource *src = _sg->createSource( di );
-		if( !src )
+		DataInterface *di = _sg->createInterface( dit );
+		if( !di )
 			return nullptr;
 
-		SourceDrawer *sd = createSourceDrawer( src, glm::vec2() );
+		InterfaceDrawer *sd = createInterfaceDrawer( di, glm::vec2() );
 		if( !sd )
 		{
-			_sg->destroySource( src );
-			src = nullptr;
+			_sg->destroyInterface( di );
+			di = nullptr;
 		}
 
 		sd->setPos( ( App().getMVCanvasInv() * glm::vec4(
@@ -1368,31 +1435,31 @@ namespace sqid
 			sg["ops"] = ops;
 			ui["ops"] = uiOps;
 
-			json sources = json::array();
-			json uiSources = json::array();
+			json interfaces = json::array();
+			json uiInterfaces = json::array();
 
 			cntr = 0;
 			for( auto &it : _selectedDrawers )
 			{
-				SourceDrawer *sd = it->asSourceDrawer();
-				if( sd )
+				InterfaceDrawer *id = it->asInterfaceDrawer();
+				if( id )
 				{
 					json p;
 					json uip;
 
-					p["interface"] = interfaceToString( sd->getSource()->getDeviceInterface() );
+					p["interface"] = interfaceToString( id->getInterface()->getDataInterfaceType() );
 
-					sd->getSource()->saveToJSON( p );
-					sd->saveToJSON( uip );
+					id->getInterface()->saveToJSON( p );
+					id->saveToJSON( uip );
 
-					sources[cntr] = p;
-					uiSources[cntr] = uip;
+					interfaces[cntr] = p;
+					uiInterfaces[cntr] = uip;
 
 					cntr++;
 				}
 			}
-			sg["sources"] = sources;
-			ui["sources"] = uiSources;
+			sg["interfaces"] = interfaces;
+			ui["interfaces"] = uiInterfaces;
 
 			json connectors = json::array();
 			cntr = 0;
@@ -1498,10 +1565,10 @@ namespace sqid
 			using json = nlohmann::json;
 
 			std::map<GUID, GUID, CompareGUID> opObjIdMapping;
-			std::map<GUID, GUID, CompareGUID> srcObjIdMapping;
+			std::map<GUID, GUID, CompareGUID> interfaceObjIdMapping;
 
 			std::map<GUID, OpDrawer*, CompareGUID> newOpDrawers;
-			std::map<GUID, SourceDrawer*, CompareGUID> newSrcDrawers;
+			std::map<GUID, InterfaceDrawer*, CompareGUID> newInterfaceDrawers;
 
 			Rect bb;
 			bool bbFirst = true;
@@ -1545,8 +1612,8 @@ namespace sqid
 				newOpDrawers.insert( std::make_pair( newObjID, od ) );
 			}
 
-			json sources = sg["sources"];
-			for( auto it = sources.begin(); it != sources.end(); ++it )
+			json interfaces = sg["interfaces"];
+			for( auto it = interfaces.begin(); it != interfaces.end(); ++it )
 			{
 				json p = it.value();
 
@@ -1554,28 +1621,28 @@ namespace sqid
 
 				std::string diString;
 				sqid::load<std::string>( p, "interface", diString );
-				DeviceInterface di = interfaceFromString( diString );
-				if( di == DI_COUNT )
-					throw std::runtime_error( "unable to parse source's interface type" );
+				DataInterfaceType dit = interfaceFromString( diString );
+				if( dit == DIT_COUNT )
+					throw std::runtime_error( "unable to parse interface type" );
 
-				SourceDrawer *sd = instantiateSource( di, glm::vec2() );
-				if( !sd )
+				InterfaceDrawer *id = instantiateInterface( dit, glm::vec2() );
+				if( !id )
 				{
-					std::cerr << "<error> could not instantiate SourceDrawer from clipboard" << std::endl;
+					std::cerr << "<error> could not instantiate InterfaceDrawer from clipboard" << std::endl;
 					continue;
 				}
-				GUID newObjID = sd->getSource()->getObjectID();
+				GUID newObjID = id->getInterface()->getObjectID();
 
 				//overwrite with new GUID
 				sqid::save<GUID>( p, "objectID", newObjID );
-				if( !sd->getSource()->loadFromJSON( p ) )
+				if( !id->getInterface()->loadFromJSON( p ) )
 				{
-					std::cerr << "<error> failed to initialize SourceDrawer from JSON" << std::endl;
+					std::cerr << "<error> failed to initialize InterfaceDrawer from JSON" << std::endl;
 					continue;
 				}
 
-				srcObjIdMapping.insert( std::make_pair( objID, newObjID ) );
-				newSrcDrawers.insert( std::make_pair( newObjID, sd ) );
+				interfaceObjIdMapping.insert( std::make_pair( objID, newObjID ) );
+				newInterfaceDrawers.insert( std::make_pair( newObjID, id ) );
 			}
 
 			json connections = sg["connectors"];
@@ -1671,43 +1738,43 @@ namespace sqid
 				}
 			}
 
-			json uiSources = ui["sources"];
-			for( auto it = uiSources.begin(); it != uiSources.end(); ++it )
+			json uiInterfaces = ui["interfaces"];
+			for( auto it = uiInterfaces.begin(); it != uiInterfaces.end(); ++it )
 			{
 				json p = it.value();
 
 				GUID objID = guidFromString( p["objectID"] );
-				GUID newSrcID = srcObjIdMapping[objID];
+				GUID newIdID = interfaceObjIdMapping[objID];
 
-				auto it2 = newSrcDrawers.find( newSrcID );
-				if( it2 == newSrcDrawers.end() )
+				auto it2 = newInterfaceDrawers.find( newIdID );
+				if( it2 == newInterfaceDrawers.end() )
 				{
-					std::cerr << "<error> srcDrawer not found" << std::endl;
+					std::cerr << "<error> interfaceDrawer not found" << std::endl;
 					continue;
 				}
-				SourceDrawer *sd = it2->second;
+				InterfaceDrawer *id = it2->second;
 
 				//overwrite with new GUID
-				sqid::save<GUID>( p, "objectID", newSrcID );
+				sqid::save<GUID>( p, "objectID", newIdID );
 
-				float z = sd->getZ();
-				if( !sd->loadFromJSON( p ) )
+				float z = id->getZ();
+				if( !id->loadFromJSON( p ) )
 				{
-					std::cerr << "<error> failed to initialize sourceDrawer from JSON" << std::endl;
+					std::cerr << "<error> failed to initialize InterfaceDrawer from JSON" << std::endl;
 					continue;
 				}
-				sd->setZ( z );
+				id->setZ( z );
 
 				if( bbFirst )
 				{
-					bb.P0() = sd->getPos();
-					bb.P1() = sd->getPos();
+					bb.P0() = id->getPos();
+					bb.P1() = id->getPos();
 					bbFirst = false;
 				}
 				else
 				{
-					bb.P0() = glm::min( bb.P0(), sd->getPos() );
-					bb.P1() = glm::max( bb.P1(), sd->getPos() );
+					bb.P0() = glm::min( bb.P0(), id->getPos() );
+					bb.P1() = glm::max( bb.P1(), id->getPos() );
 				}
 			}
 
@@ -1724,7 +1791,7 @@ namespace sqid
 				newDrawers.push_back( it.second );
 				it.second->setPos( it.second->getPos() + offset );
 			}
-			for( auto it : newSrcDrawers )
+			for( auto it : newInterfaceDrawers )
 			{
 				newDrawers.push_back( it.second );
 				it.second->setPos( it.second->getPos() + offset );
@@ -1788,29 +1855,31 @@ namespace sqid
 			}
 		}
 
-		json sources = root["sources"];
-		if( !sources.is_null() )
+		json interfaces = root["interfaces"];
+		if( interfaces.is_null() )
+			interfaces = root["sources"];	//for legacy scene support
+		if( !interfaces.is_null() )
 		{
-			for( auto it = sources.begin(); it != sources.end(); ++it )
+			for( auto it = interfaces.begin(); it != interfaces.end(); ++it )
 			{
 				json s = it.value();
 
 				GUID objID = guidFromString( s["objectID"] );
 
-				auto scIt = _drawers.find( objID );
-				if( scIt == _drawers.end() )
+				auto iIt = _drawers.find( objID );
+				if( iIt == _drawers.end() )
 					continue;
 
-				SourceDrawer *sd = scIt->second->asSourceDrawer();
-				if( !sd )
+				InterfaceDrawer *id = iIt->second->asInterfaceDrawer();
+				if( !id )
 				{
-					std::cerr << "<error> drawer with objectID " << guidToString( objID ) << ") is not of type SourceDrawer" << std::endl;
+					std::cerr << "<error> drawer with objectID " << guidToString( objID ) << ") is not of type InterfaceDrawer" << std::endl;
 					continue;
 				}
 
-				scIt->second->loadFromJSON( s );
+				iIt->second->loadFromJSON( s );
 
-				_maxZ = std::max<float>( _maxZ, scIt->second->getZ() );
+				_maxZ = std::max<float>( _maxZ, iIt->second->getZ() );
 			}
 		}
 
@@ -1878,28 +1947,28 @@ namespace sqid
 		}
 		root["ops"] = ops;
 
-		json sources = json::array();
+		json ids = json::array();
 
 		cntr = 0;
 		for( auto &it : _drawers )
 		{
-			if( !it.second->asSourceDrawer() )
+			if( !it.second->asInterfaceDrawer() )
 				continue;
 
 			nlohmann::json p;
 
 			if( it.second )
 			{
-				json src;
+				json id;
 
-				it.second->saveToJSON( src );
+				it.second->saveToJSON( id );
 
-				sources[cntr++] = src;
+				ids[cntr++] = id;
 			}
 			else
 				std::cerr << "<warning> failed to save nodeDrawer " << guidToString( it.first ) << " to JSON" << std::endl;
 		}
-		root["sources"] = sources;
+		root["interfaces"] = ids;
 
 		if( _maximizedDrawer )
 			root["maximized"] = guidToString( _maximizedDrawer->getOp()->getObjectID() );

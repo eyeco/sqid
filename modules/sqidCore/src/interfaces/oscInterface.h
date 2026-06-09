@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 
 namespace sqid
 {
@@ -19,47 +19,50 @@ namespace sqid
 
 	namespace Internal
 	{
-		class COMSourceImpl;
+		class OSCInterfaceImpl;
 	}
 
-	class SQID_API COMSource : public DataSource
+	class SQID_API OSCInterface : public DataInterface
 	{
 	private:
-		unsigned short _portNr;
+		Protocol _proto;
 
-		Internal::COMSourceImpl *_impl;
+		std::string _ip;
+		unsigned short _port;
 
-		unsigned int _baud;
 		unsigned int _queueSize;
-		unsigned int _dropdownSelected;
 
-		bool run( const std::string &portName, unsigned int baud, unsigned int queueSize );
+		bool _connected;
+
+		std::vector<char> _inputBufferIP;
+
+		Internal::OSCInterfaceImpl*_impl;
+
+		bool run();
 		void close();
 
+		void updateBuffers();
+
 	public:
-		COMSource();
-		virtual ~COMSource();
+		OSCInterface();
+		virtual ~OSCInterface();
+
+		virtual bool doesWant( const SampleFrameContainer *sfc ) const;
 
 		virtual void fetchFrames( std::vector<SampleFrameContainer> &frames );
+		virtual bool queueFrame( const SampleFrameContainer& sfc );
 
 		virtual std::string getDesc() const;
 
-		virtual unsigned short getDevicePort() const { return _portNr; }
-		virtual DeviceInterface getDeviceInterface() const { return DI_COM; }
+		virtual unsigned short getDevicePort() const { return _port; }
+		virtual DataInterfaceType getDataInterfaceType() const { return DIT_OSC; }
 
 #ifdef __SUPPORT_GUI
 		virtual bool drawUI();
 #endif
 
-		bool write( const unsigned char *data, size_t size );
-		bool write( const std::string &str );
-		bool write( const std::vector<unsigned char> &data );
-
-		static bool init();
-		static bool isInitialized();
-
-		static void rescan();
-		static void enumerate();
+		//static bool init();
+		//static bool isInitialized();
 
 		bool loadFromJSON( const nlohmann::json &j );
 		void saveToJSON( nlohmann::json &j ) const;

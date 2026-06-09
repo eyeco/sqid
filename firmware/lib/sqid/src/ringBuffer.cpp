@@ -1,6 +1,6 @@
 #include "ringBuffer.h"
 
-#include <iostream>
+//#include <iostream>
 
 namespace sqid
 {
@@ -29,7 +29,7 @@ namespace sqid
     {
         if( capacity <= 0 || capacity < _size )
         {
-            std::cerr << "<error> invalid argument for capacity: " << capacity << std::endl;
+            //std::cerr << "<error> invalid argument for capacity: " << capacity << std::endl;
             return;
         }
 
@@ -71,7 +71,7 @@ namespace sqid
         if( isFull() )
         {
             size_t newSize = nextPo2( _capacity * 2 );
-            std::cerr << "<warning> ringbuffer is full, resizing to " << newSize << std::endl;
+            //std::cerr << "<warning> ringbuffer is full, resizing to " << newSize << std::endl;
             reserve( newSize, true );
         }
 
@@ -98,7 +98,7 @@ namespace sqid
         if( _size + count > _capacity )
         {
             size_t newSize = nextPo2( _size + count );
-            std::cerr << "<warning> ringbuffer is full, resizing to " << newSize << std::endl;
+            //std::cerr << "<warning> ringbuffer is full, resizing to " << newSize << std::endl;
             reserve( newSize, true );
         }
 

@@ -12,7 +12,7 @@ namespace sqid
     {
     public:
 
-        explicit SampleFrame( DataType type = DT_BYTE, size_t width = 1, size_t height = 1, size_t depth = 1 );
+        explicit SampleFrame( DataType type = DT_BYTE, size_t width = 1, size_t height = 1, size_t depth = 1, uint32_t ts = 0 );
         ~SampleFrame();
 
         size_t getWidth() const { return _width; }
@@ -21,23 +21,94 @@ namespace sqid
         size_t getElements() const { return _elements; }
         size_t getSize() const { return _size; }
 
+        uint32_t getTimestamp() const { return _ts; }
+
         DataType getDataType() const { return _type; }
         Layout getLayout() const { return _layout; }
 
         uint8_t *getData() const { return _data; }
         bool setData( const uint8_t *values );
 
+        template<typename T>
+        bool set( T t )
+        {
+            if( !_data )
+                return false;
+
+            switch( _type )
+            {
+            case DT_BYTE:
+            {
+                uint8_t *ptr = reinterpret_cast<uint8_t*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            case DT_USHORT:
+            {
+                uint16_t *ptr = reinterpret_cast<uint16_t*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            case DT_ULONG:
+            {
+                uint32_t *ptr = reinterpret_cast<uint32_t*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            case DT_FLOAT:
+            {
+                float *ptr = reinterpret_cast<float*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            default:
+                return false;
+            }
+
+            return true;
+        }
+
+        template<typename T>
+        bool set( T t, size_t pos )
+        {
+            if( !_data || pos >= _elements )
+                return false;
+
+            switch( _type )
+            {
+            case DT_BYTE:
+                reinterpret_cast<uint8_t*>( _data )[pos] = t;
+                break;
+            case DT_USHORT:
+                reinterpret_cast<uint16_t*>( _data )[pos] = t;
+                break;
+            case DT_ULONG:
+                reinterpret_cast<uint32_t*>( _data )[pos] = t;
+                break;
+            case DT_FLOAT:
+                reinterpret_cast<float*>( _data )[pos] = t;
+                break;
+            default:
+                return false;
+            }
+
+            return true;
+        }
 
     private:
-        unsigned char _deviceID;
-        unsigned char _sensorID;
-
         Layout _layout;
         DataType _type;
 
         size_t _width;
         size_t _height;
         size_t _depth;
+
+        uint32_t _ts;
+
         size_t _elements;
 
         size_t _elemSize;
@@ -45,6 +116,36 @@ namespace sqid
 
         uint8_t *_data;
     };
+
+    template<typename T>
+    inline SampleFrame *toFrame( DataType type, unsigned int width, unsigned int height, unsigned int depth, const T *values, uint32_t ts, bool normalize, T maxValue, bool clamp = false )
+    {
+        if( !values )
+            return nullptr;
+
+        SampleFrame *frame = new SampleFrame( type, width, height, depth, ts );
+
+        int size = width * height * depth;
+        if( normalize )
+        {
+            float s = 1.0f / maxValue;
+            if( clamp )
+            {
+                for( int i = 0; i < size; i++ )
+                    frame->set<T>( sqid::clamp<float>( values[i] * s, 0.0f, 1.0f ), i );
+            }
+            else
+            {
+                for( int i = 0; i < size; i++ )
+                    frame->set<T>( values[i] * s, i );
+            }
+        }
+        else
+            for( int i = 0; i < size; i++ )
+                frame->set<T>( values[i], i );
+
+        return frame;
+    }
 }
 
 #endif

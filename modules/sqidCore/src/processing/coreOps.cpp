@@ -21,7 +21,8 @@
 #include "ops/tracking.h"
 #include "ops/util.h"
 #include "ops/ocv.h"
-#include "ops/sensor.h"
+#include "ops/sink.h"
+#include "ops/source.h"
 #include "ops/serial.h"
 #include "ops/file.h"
 #include "ops/osc.h"
@@ -81,7 +82,6 @@ namespace sqid
 		REGISTER_OP_TYPE( Math::Sum );
 		REGISTER_OP_TYPE( Math::Product );
 		REGISTER_OP_TYPE( Math::Invert );
-		REGISTER_OP_TYPE( Math::Slope );
 		REGISTER_OP_TYPE( Math::Threshold );
 		REGISTER_OP_TYPE( Math::Remap );
 		REGISTER_OP_TYPE( Math::Normalize );
@@ -111,6 +111,7 @@ namespace sqid
 
 		//temporal
 		REGISTER_OP_TYPE( Temporal::RunningAverage );
+		REGISTER_OP_TYPE( Temporal::Slope );
 		REGISTER_OP_TYPE( Temporal::Integral );
 		REGISTER_OP_TYPE( Temporal::PID );
 		REGISTER_OP_TYPE( Temporal::Drag );
@@ -149,8 +150,11 @@ namespace sqid
 		//REGISTER_OP_TYPE( Imaging::CameraIntrinsics );
 		//REGISTER_OP_TYPE( Imaging::CameraExtrinsics );
 
-		//sensor
-		REGISTER_OP_TYPE( Sensor );
+		//source
+		REGISTER_OP_TYPE( Source );
+
+		//sink
+		REGISTER_OP_TYPE( Sink );
 
 		//serial
 		REGISTER_OP_TYPE( Serial::SerialOut );

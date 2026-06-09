@@ -15,10 +15,10 @@
 
 namespace sqid
 {
-	class Sensor : public Op
+	class Source : public Op
 	{
 	private:
-		DeviceInterface _interface;
+		DataInterfaceType _interface;
 		unsigned short _port;
 
 		unsigned char _deviceID;
@@ -29,11 +29,8 @@ namespace sqid
 		
 		std::vector<char> _inputBufferMsg;
 
-		float _sensorTimeout;
+		float _timeout;
 		double _lastUpdateTime;
-
-		float _inputRate;
-		unsigned int _inputCntr;
 
 		float _sampleRate;
 		unsigned int _sampleCntr;
@@ -54,8 +51,8 @@ namespace sqid
 		virtual bool process();
 
 	public:
-		explicit Sensor( unsigned short port = 0, float sensorTimeout = 15.0f, unsigned int maxBufferSize = 128 );
-		virtual ~Sensor();
+		explicit Source( unsigned short port = 0, float timeout = 15.0f, unsigned int maxBufferSize = 128 );
+		virtual ~Source();
 
 		//void display( int position, int count );
 		virtual void createPins();
@@ -65,14 +62,13 @@ namespace sqid
 		bool isOffline();
 		void setSourceDesc( const std::string &desc ) { _sourceDesc = desc; }
 
-		DeviceInterface getInterface() const { return _interface; }
+		DataInterfaceType getInterface() const { return _interface; }
 		unsigned short getPort() const { return _port; }
 
 		bool doesWant( const SampleFrameContainer *sfc, const std::string &senderDesc );
 		//unsigned char getSensorID() const { return _sensorID; }
 		//unsigned char getDeviceID() const { return _deviceID; }
 
-		float getInputRate() const { return _inputRate; }
 		float getSampleRate() const { return _sampleRate; }
 		uint64_t getDataRate() const { return _dataRate; }
 

@@ -9,15 +9,13 @@
 *--------------------------------------------------------------------------------------------*/
 
 
-#include "comSource.h"
-
-#include "internal/fwProps.h"
+#include "comInterface.h"
 
 #include "serialMsg.h"
 #include "../ringBuffer.h"
 
 #include <fileIO/json.h>
-
+#include <commonImGui.h>
 
 #include <map>
 #include <list>
@@ -35,7 +33,7 @@ namespace sqid
 {
 	namespace Internal
 	{
-		class COMSourceImpl : public IAbstractWriter
+		class COMInterfaceImpl// : public IAbstractWriter
 		{
 		private:
 			enum ProtocolState
@@ -47,20 +45,22 @@ namespace sqid
 				PS_COUNT
 			};
 
-			FWProps *_fwProps;
+			bool _doRead;
+			bool _doWrite;
 
 			bool _isSynced;
 			ProtocolState _currentState;
 			unsigned int _expectedBytes;
 
 			unsigned int _maxQueueSize;
-			std::list<ComMsg> _msgQueue;
-			std::mutex _msgMutex;
+
+			std::mutex _readMsgMutex;
+			std::list<ComMsg> _readMsgQueue;
+
+			std::mutex _writeMsgMutex;
+			std::list<ComMsg> _writeMsgQueue;
 
 			std::set<uint16_t> _activeSenders;
-
-			std::map<std::string,std::string> _propMap;
-			std::mutex _propMutex;
 
 			RingBuffer<unsigned char> _buffer;
 
@@ -85,13 +85,15 @@ namespace sqid
 
 			std::thread *_comListenerThread;
 
+			ComMsgBuilder _msgBuilder;
+
 			bool tryConnect()
 			{
 				this->closeCOM();
 
 				if( !_port.open( _portName, _baudRate ) )
 				{
-					std::cerr << "failed to connect com source" << std::endl;
+					std::cerr << "failed to connect com interface" << std::endl;
 
 					this->closeCOM();
 					return false;
@@ -131,13 +133,28 @@ namespace sqid
 
 					size_t bytesRead;
 
-					//unsigned char b = 0;
 					std::vector<unsigned char> b( _readBufferSize );
 
 					try
 					{
 						while( _keepRunning )
 						{
+							{
+								std::lock_guard<std::mutex> lock( _readMsgMutex );
+
+								while( _writeMsgQueue.size() )
+								{
+									ComMsg &msg = _writeMsgQueue.front();
+
+									write( (uint8_t*) syncBytes, SYNC_BYTES );						//send sync bytes
+									write( (uint8_t*) &( msg.hdr ), (int) sizeof( ComMsgHdrEx ) );	//send header
+									write( (uint8_t*) msg.data, msg.hdr.hdr.dataBytes );			//send data
+
+									safeDeleteArray( msg.data );
+									_writeMsgQueue.pop_front();
+								}
+							}
+
 							if( !_port.available() )	//don't block here, otherwise writing to serial port will also be blocked
 								std::this_thread::sleep_for( std::chrono::microseconds( 1 ) );
 							else
@@ -199,7 +216,7 @@ namespace sqid
 
 										if( _hdrEx.hdr.ver != PV_2 )
 										{
-											std::cerr << "<error> serial protocol " << _hdrEx.hdr.ver << " not supported (requiring PV" << PV_2 << "), stopping reading from source..." << std::endl;
+											std::cerr << "<error> serial protocol " << _hdrEx.hdr.ver << " not supported (requiring PV" << PV_2 << "), stopping reading from interface..." << std::endl;
 											
 											_tryReconnect = false;
 											_keepRunning = false;
@@ -255,7 +272,7 @@ namespace sqid
 											msg.data = new unsigned char[_expectedBytes];
 											memcpy( msg.data, &_dataBuffer[0], _expectedBytes );
 
-											if( msg.hdr.hdr.type == MT_PROPERTY )
+											/*if( msg.hdr.hdr.type == MT_PROPERTY )
 											{
 												const char *str = (char*) msg.data;
 
@@ -272,37 +289,19 @@ namespace sqid
 
 												safeDeleteArray( msg.data );
 											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_DESC )
+											else*/
 											{
-												if( _fwProps )
-													_fwProps->onDesc( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_STATUS )
-											{
-												if( _fwProps )
-													_fwProps->onStatus( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_ACK )
-											{
-												if( _fwProps )
-													_fwProps->onAck( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else
-											{
-												std::lock_guard<std::mutex> lock( _msgMutex );
+												std::lock_guard<std::mutex> lock( _readMsgMutex );
 
 												//TODO: there was a mem-leak (32 bytes) reported around here somewhere, which I never had before, revisit this
-												_msgQueue.push_back( msg );
+												_readMsgQueue.push_back( msg );
 
 												_activeSenders.insert( msg.hdr.hdr.deviceID << 8 | msg.hdr.hdr.sensorID );
 
-												while( _msgQueue.size() > _maxQueueSize )
+												while( _readMsgQueue.size() > _maxQueueSize )
 												{
-													safeDeleteArray( _msgQueue.front().data );
-													_msgQueue.pop_front();
+													safeDeleteArray( _readMsgQueue.front().data );
+													_readMsgQueue.pop_front();
 												}
 											}
 
@@ -327,13 +326,22 @@ namespace sqid
 				_port.close();
 			}
 
+			bool write( const unsigned char* data, size_t size )
+			{
+				if( !_port.isOpen() )
+					return false;
+
+				return ( _port.write( data, size ) == size );
+			}
+
 		public:
-			COMSourceImpl( const std::string &portName, unsigned int baudRate, unsigned int maxQueueSize ) :
-				_fwProps( new FWProps( this ) ),
+			COMInterfaceImpl( const std::string &portName, unsigned int baudRate, unsigned int maxQueueSize ) :
+				_doRead( true ),
+				_doWrite( false ),
 				_isSynced( false ),
 				_currentState( PS_COUNT ),
-				_maxQueueSize( maxQueueSize ),
 				_expectedBytes( 0 ),
+				_maxQueueSize( maxQueueSize ),
 				_hdrEx( { 0 } ),
 				_dataBuffer( 1024 ),
 				_isStarted( false ),
@@ -346,14 +354,12 @@ namespace sqid
 				_comListenerThread( nullptr )
 			{}
 
-			~COMSourceImpl()
+			~COMInterfaceImpl()
 			{
-				this->close();
-
-				safeDelete( _fwProps );
+				close();
 			}
 
-			bool run()
+			bool run( IOMode mode )
 			{
 				//TODO: this query is not *entirely* threadsafe, but it should do...
 				if( _isStarted )
@@ -363,8 +369,17 @@ namespace sqid
 				if( _port.isOpen() )	//already running
 					return false;
 
+				_doRead = mode & IOM_INPUT;
+				_doWrite = mode & IOM_OUTPUT;
+
+				if( !_doRead && !_doWrite )
+				{
+					std::cerr << "<error> invalid IOMode" << (int) mode << std::endl;
+					return false;
+				}
+
 				_keepRunning = true;
-				_comListenerThread = new std::thread( &COMSourceImpl::comListen, this );
+				_comListenerThread = new std::thread( &COMInterfaceImpl::comListen, this );
 
 				return true;
 			}
@@ -384,14 +399,22 @@ namespace sqid
 				}
 
 				{
-					std::lock_guard<std::mutex> lock( _msgMutex );
+					std::lock_guard<std::mutex> lock( _readMsgMutex );
 
-					for( auto it = _msgQueue.begin(); it != _msgQueue.end(); ++it )
+					for( auto it = _readMsgQueue.begin(); it != _readMsgQueue.end(); ++it )
 						safeDeleteArray( it->data );
-					_msgQueue.clear();
+					_readMsgQueue.clear();
+
+					_activeSenders.clear();
 				}
 
-				_activeSenders.clear();
+				{
+					std::lock_guard<std::mutex> lock( _writeMsgMutex );
+
+					for( auto it = _writeMsgQueue.begin(); it != _writeMsgQueue.end(); ++it )
+						safeDeleteArray( it->data );
+					_writeMsgQueue.clear();
+				}
 			}
 
 			std::string getDesc() const
@@ -404,13 +427,13 @@ namespace sqid
 				if( frames.size() )
 					std::cerr << "expecting empty vector here... class user is responsible for deletion of frames, make sure you're not leaking memory!" << std::endl;
 
-				if( _msgQueue.size() )
+				if( _readMsgQueue.size() )
 				{
-					std::lock_guard<std::mutex> lock( _msgMutex );
+					std::lock_guard<std::mutex> lock( _readMsgMutex );
 
-					while( _msgQueue.size() )
+					while( _readMsgQueue.size() )
 					{
-						ComMsg &msg = _msgQueue.front();
+						ComMsg &msg = _readMsgQueue.front();
 						SampleFrame *frame = nullptr;
 
 						switch( msg.hdr.hdr.type )
@@ -439,17 +462,38 @@ namespace sqid
 
 						safeDeleteArray( msg.data );
 
-						_msgQueue.pop_front();
+						_readMsgQueue.pop_front();
 					}
 				}
 			}
 
-			virtual bool write( const unsigned char *data, size_t size )
+			bool write( const SampleFrame* frame, unsigned char deviceID, unsigned char sensorID, MsgFlags flags, bool clamp )
 			{
-				if( !_port.isOpen() )
+				if( !_port.isOpen() || !_doWrite )
 					return false;
 
-				return ( _port.write( data, size ) == size );
+				const ComMsg* msg = _msgBuilder.build( frame, deviceID, sensorID, flags, clamp );
+
+				if( msg )
+				{
+					std::lock_guard<std::mutex> lock( _writeMsgMutex );
+
+					ComMsg cpy = *msg;
+					cpy.data = new unsigned char[msg->hdr.hdr.dataBytes];
+					memcpy( cpy.data, msg->data, msg->hdr.hdr.dataBytes );
+
+					_writeMsgQueue.push_back( cpy );
+
+					while( _writeMsgQueue.size() > _maxQueueSize )
+					{
+						safeDeleteArray( _writeMsgQueue.front().data );
+						_writeMsgQueue.pop_front();
+					}
+
+					return true;
+				}
+
+				return false;
 			}
 
 #ifdef __SUPPORT_GUI
@@ -460,27 +504,28 @@ namespace sqid
 
 				if( _port.isOpen() )
 				{
-					if( _fwProps )
-						_fwProps->drawUI();
-
 					ImGui::Text( _isStarted ? "started" : "STOPPED" );
 					ImGui::Text( _isSynced ? "synced" : "NOT SYNCED" );
-					ImGui::Text( "queued: %d", _msgQueue.size() );
+					ImGui::Text( "queued (I/O): %d/%d", _readMsgQueue.size(), _writeMsgQueue.size() );
 
-					if( ImGui::TreeNode( "senders", "%d senders", _activeSenders.size() ) )
 					{
-						for( auto &it : _activeSenders )
-						{
-							char deviceID = ( it >> 8 ) & 0xff;
-							char sensorID = ( it ) & 0xff;
+						std::lock_guard<std::mutex> lock( _readMsgMutex );
 
-							ImGui::Text( "  dID: %d, sID: %d", deviceID, sensorID );
+						if( ImGui::TreeNode( "senders", "%d senders", _activeSenders.size() ) )
+						{
+							for( auto& it : _activeSenders )
+							{
+								uint16_t deviceID = ( it >> 8 ) & 0xff;
+								uint16_t sensorID = ( it ) & 0xff;
+
+								ImGui::Text( "  dID: %d, sID: %d", deviceID, sensorID );
+							}
+
+							ImGui::TreePop();
 						}
 
-						ImGui::TreePop();
+						_activeSenders.clear();
 					}
-
-					_activeSenders.clear();
 				}
 				else
 					ImGui::Text( "offline" );
@@ -519,31 +564,35 @@ namespace sqid
 
 
 
-	bool COMSource::init()
+	bool COMInterface::init()
 	{
-		return Internal::COMSourceImpl::init();
+		return Internal::COMInterfaceImpl::init();
 	}
 
-	bool COMSource::isInitialized()
+	bool COMInterface::isInitialized()
 	{
-		return Internal::COMSourceImpl::isInitialized();
+		return Internal::COMInterfaceImpl::isInitialized();
 	}
 
-	void COMSource::rescan()
+	void COMInterface::rescan()
 	{
-		Internal::COMSourceImpl::rescan();
+		Internal::COMInterfaceImpl::rescan();
 	}
 
-	void COMSource::enumerate()
+	void COMInterface::enumerate()
 	{
-		Internal::COMSourceImpl::enumerate();
+		Internal::COMInterfaceImpl::enumerate();
 	}
 
 
 
 
-	COMSource::COMSource() :
-		DataSource(),
+	COMInterface::COMInterface() :
+		DataInterface(),
+		_ioMode( IOMode::IOM_INPUT ),
+		_clamp( false ),
+		_normalize( true ),
+		_dataType( MF_DATATYPE_FLOAT ),
 		_portNr( 0 ),
 		_impl( nullptr ),
 		_baud( COM_SOURCE_BAUD_DEFAULT ),
@@ -551,27 +600,30 @@ namespace sqid
 		_dropdownSelected( ~0x00 )
 	{}
 
-	COMSource::~COMSource()
+	COMInterface::~COMInterface()
 	{
 		close();
 	}
 
-	bool COMSource::run( const std::string &portName, unsigned int baud, unsigned int queueSize )
+	bool COMInterface::run( const std::string &portName, unsigned int baud, unsigned int queueSize )
 	{
-		_impl = new Internal::COMSourceImpl( portName, baud, queueSize );
+		close();
 
-		if( !_impl->run() )
+		if( _ioMode == IOM_NONE )
+			std::cerr << "<warning> no point in running COM interface -- select at least one of read or write mode" << std::endl;
+
+		_impl = new Internal::COMInterfaceImpl( portName, baud, queueSize );
+
+		if( !_impl->run( _ioMode ) )
 		{
 			std::cerr << "<error> running COM at " << portName << " with baud rate " << baud << " failed" << std::endl;
 			safeDelete( _impl );
 		}
 
-		if( _impl )
-			return _impl->run();
 		return false;
 	}
 
-	void COMSource::close()
+	void COMInterface::close()
 	{
 		if( _impl )
 		{
@@ -580,58 +632,47 @@ namespace sqid
 		}
 	}
 
-	void COMSource::fetchFrames( std::vector<SampleFrameContainer> &frames )
+	bool COMInterface::doesWant( const SampleFrameContainer *sfc ) const
+	{
+		return ( _ioMode & IOM_OUTPUT );
+	}
+
+	void COMInterface::fetchFrames( std::vector<SampleFrameContainer> &frames )
 	{
 		if( _impl )
 			_impl->fetchFrames( frames );
 	}
 
-	std::string COMSource::getDesc() const
+	bool COMInterface::queueFrame( const SampleFrameContainer& sfc )
+	{
+		if( _impl )
+		{
+			MsgFlags flags = (MsgFlags) ( MF_NONE
+				| ( _normalize ? MF_NONE : MF_NORMALIZED )
+				| _dataType
+				| MF_ENC_UNCOMPRESSED );
+			if( _impl->write( sfc.frame, sfc.deviceID, sfc.sensorID, flags, _clamp ) )
+				return true;
+			std::cerr << "<error> failed to insert frame from sink" << std::endl;
+		}
+		return false;
+	}
+
+	std::string COMInterface::getDesc() const
 	{
 		if( _impl )
 			return _impl->getDesc();
 		return "<empty>";
 	}
 
-	bool COMSource::write( const unsigned char *data, size_t size )
-	{
-		if( _impl )
-			return _impl->write( data, size );
-		return false;
-	}
-
-	bool COMSource::write( const std::string &str )
-	{
-		//TODO: be careful here with wstring
-		if( _impl )
-			return _impl->write( (unsigned char*)str.c_str(), str.size() + 1 );
-		return false;
-	}
-
-	bool COMSource::write( const std::vector<unsigned char> &data )
-	{
-		if( _impl )
-			return _impl->write( &data[0], data.size() );
-		return false;
-	}
-
 #ifdef __SUPPORT_GUI
-	bool COMSource::drawUI()
+	bool COMInterface::drawUI()
 	{
-		//std::stringstream sstr;
-		//sstr << interfaceToString( getDeviceInterface() ) << "##" << guidToString( _objectID );
-		//std::string desc = sstr.str();
+		auto& devices = Internal::COMInterfaceImpl::getKnownPortsNames();
 
-		if( _impl )
 		{
-			_impl->drawUI();
+			ScopedImGuiDisable disable( _impl != nullptr );
 
-			if( ImGui::Button( "close" ) )
-				close();
-		}
-		else
-		{
-			auto &devices = Internal::COMSourceImpl::getKnownPortsNames();
 			std::vector<std::string> items;
 			for( auto &it : devices )
 				items.push_back( it );
@@ -668,11 +709,47 @@ namespace sqid
 			if( ImGui::InputInt( "max queue size", &s ) )
 				_queueSize = s;
 
+			bool b = _ioMode & IOM_INPUT;
+			if( ImGui::Checkbox( "do read", &b ) )
+				_ioMode = (IOMode) ( ( _ioMode & ~IOM_INPUT ) | ( b ? IOM_INPUT : 0 ) );
+
+			b = _ioMode & IOM_OUTPUT;
+			if( ImGui::Checkbox( "do write", &b ) )
+				_ioMode = (IOMode) ( ( _ioMode & ~IOM_OUTPUT ) | ( b ? IOM_OUTPUT : 0 ) );
+
+			if( _ioMode & IOM_OUTPUT )
+			{
+				const char* name[] = { "byte", "short", "long", "float" };
+				int t = _dataType >> 8;
+				for( int i = 0; i < 4; i++ )
+					ImGui::RadioButton( name[i], &t, i );
+				_dataType = (MsgFlags) ( t << 8 );
+
+				ImGui::Checkbox( "normalize", &_normalize );
+				if( _normalize )
+					ImGui::Checkbox( "clamp", &_clamp );
+
+			}
+		}
+
+		if( _impl )
+		{
+			if( ImGui::Button( "close" ) )
+				close();
+			else
+			{
+				ImGui::Separator();
+
+				_impl->drawUI();
+			}
+		}
+		else
+		{
 			if( ImGui::Button( "open" ) )
 			{
 				if( _dropdownSelected < devices.size() )
 				{
-					std::string portName( devices[_dropdownSelected] );
+					std::string portName( Internal::COMInterfaceImpl::getKnownPorts()[_dropdownSelected] );
 
 					_portNr = getPortNr( portName );
 					run( portName, _baud, _queueSize );
@@ -680,19 +757,29 @@ namespace sqid
 			}
 		}
 
+
 		return true;
 	}
 #endif
 
-	bool COMSource::loadFromJSON( const nlohmann::json &j )
+	bool COMInterface::loadFromJSON( const nlohmann::json &j )
 	{
-		if( !DataSource::loadFromJSON( j ) )
+		if( !DataInterface::loadFromJSON( j ) )
 			return false;
 
 		safeDelete( _impl );
 
 		try
 		{
+			unsigned int ioMode = 0;
+			if( load<unsigned int>( j, "ioMode", ioMode ) )
+				_ioMode = (IOMode) ioMode;
+
+			load<int>( j, "dataType", _dataType );
+
+			load<bool>( j, "normalize", _normalize );
+			load<bool>( j, "clamp", _clamp );
+
 			bool opened = false;
 			load<bool>( j, "opened", opened );
 
@@ -708,7 +795,7 @@ namespace sqid
 			{
 				_portNr = getPortNr( portName );
 
-				auto &devices = Internal::COMSourceImpl::getKnownPorts();
+				auto &devices = Internal::COMInterfaceImpl::getKnownPorts();
 				_dropdownSelected = ~0x00;
 				for( int i = 0; i < devices.size(); i++ )
 					if( getPortNr( devices[i] ) == _portNr )
@@ -725,16 +812,23 @@ namespace sqid
 		}
 		catch( std::exception &e )
 		{
-			std::cerr << "<error> loading COM source props failed: " << e.what() << std::endl;
+			std::cerr << "<error> loading COM interface props failed: " << e.what() << std::endl;
 			return false;
 		}
 
 		return true;
 	}
 
-	void COMSource::saveToJSON( nlohmann::json &j ) const
+	void COMInterface::saveToJSON( nlohmann::json &j ) const
 	{
-		DataSource::saveToJSON( j );
+		DataInterface::saveToJSON( j );
+
+		save( j, "ioMode", (unsigned int) _ioMode );
+
+		save( j, "dataType", _dataType );
+
+		save( j, "normalize", _normalize );
+		save( j, "clamp", _clamp );
 
 		save( j, "opened", ( _impl ? true : false ) );
 		if( _impl )
@@ -745,7 +839,7 @@ namespace sqid
 		}
 		else
 		{
-			auto &devices = Internal::COMSourceImpl::getKnownPorts();
+			auto &devices = Internal::COMInterfaceImpl::getKnownPorts();
 			if( _dropdownSelected < devices.size() )
 				save( j, "portName", devices[_dropdownSelected] );
 

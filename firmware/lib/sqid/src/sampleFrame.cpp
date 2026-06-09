@@ -23,12 +23,13 @@ namespace sqid
         return 0;
     }
 
-    SampleFrame::SampleFrame( DataType type, size_t width, size_t height, size_t depth ) :
+    SampleFrame::SampleFrame( DataType type, size_t width, size_t height, size_t depth, uint32_t ts ) :
         _layout( sqid::getLayout( width, height, depth ) ),
         _type( type ),
         _width( width ),
         _height( height ),
         _depth( depth ),
+        _ts( ts ),
         _elements( width * height * depth ),
         _elemSize( getDataTypeSize( type ) ),
         _size( _elements * _elemSize ),

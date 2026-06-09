@@ -137,7 +137,7 @@ namespace sqid
 	SQID_API bool SQID_API_CALL dimensionsCompatible( const SampleFrame *a, const SampleFrame *b );
 
 	template<typename T>
-	inline SampleFrame *createFrame( unsigned int width, unsigned int height, unsigned int depth, const T *values, uint32_t ts, bool normalize = false, T maxValue = std::numeric_limits<T>::max(), bool clamp = false )
+	inline SampleFrame *toFrame( unsigned int width, unsigned int height, unsigned int depth, const T *values, uint32_t ts, bool normalize = false, T maxValue = std::numeric_limits<T>::max(), bool clamp = false )
 	{
 		if( !values )
 			return nullptr;
@@ -148,7 +148,7 @@ namespace sqid
 
 		if( normalize )
 		{
-			float s = ( normalize ? 1.0f / maxValue : 1.0f );
+			float s = 1.0f / maxValue;
 			if( clamp )
 			{
 				for( int i = 0; i < size; i++ )
@@ -165,6 +165,40 @@ namespace sqid
 				frame->values()[i] = values[i];
 
 		return frame;
+	}
+
+	//function assumes values are allocated with the correct size ( width * height * depth * sizeof( T ) )
+	template<typename T>
+	inline bool fromFrame( const SampleFrame *sf, T *values, bool normalize = false, T maxValue = std::numeric_limits<T>::max(), bool clamp = false )
+	{
+		if( !sf || !values )
+			return false;
+
+		size_t size = sf->width() * sf->height() * sf->depth();
+		if( !size )
+			return true;
+
+		const float *f = sf->values();
+
+		if( normalize )
+		{
+			float s = maxValue;
+			if( clamp )
+			{
+				for( int i = 0; i < size; i++ )
+					values[i] = sqid::clamp<float>( f[i] * s, 0.0f, maxValue );
+			}
+			else
+			{
+				for( int i = 0; i < size; i++ )
+					values[i] = f[i] * s;
+			}
+		}
+		else
+			for( int i = 0; i < size; i++ )
+				values[i] = f[i];
+
+		return true;
 	}
 
 	struct SampleFrameContainer

@@ -17,10 +17,11 @@
 #include <processing/pin.h>
 #include <processing/connector.h>
 
-#include <sources/dataSource.h>
+#include <interfaces/dataInterface.h>
 #include <sampleFrame.h>
 
-#include "ops/sensor.h"
+#include "ops/sink.h"
+#include "ops/source.h"
 #include <processing/opFactory.h>
 
 #include <fstream>
@@ -160,14 +161,15 @@ namespace sqid
 
 	void SceneGraph::clear()
 	{
-		for( auto &src : _sources )
+		for( auto &i : _interfaces )
 		{
-			//src->close();
-			safeDelete( src );
+			//i->close();
+			safeDelete( i );
 		}
-		_sources.clear();
+		_interfaces.clear();
 
-		_feeds.clear();
+		_sourceFeeds.clear();
+		_sinkFeeds.clear();
 
 		for( auto &it : _connectors )
 			safeDelete( it );
@@ -182,19 +184,11 @@ namespace sqid
 
 	void SceneGraph::close()
 	{
-		if( App().getAutoSave() )
-			save( _sceneName );
 		clear();
 	}
 
 	void SceneGraph::run()
-	{
-		//for( auto &it : _sources )
-		//{
-		//	if( !it->run() )
-		//		std::cerr << "<error> unable to start source " << it->getDesc() << std::endl;
-		//}
-	}
+	{}
 
 	bool SceneGraph::load( const std::string &scene )
 	{
@@ -306,34 +300,36 @@ namespace sqid
 
 		reorder();
 
-		json sources = root["sources"];
-		if( !sources.is_null() )
+		json interfaces = root["interfaces"];
+		if( interfaces.is_null() )
+			interfaces = root["sources"];	//for legacy scene support
+		if( !interfaces.is_null() )
 		{
-			for( auto it = sources.begin(); it != sources.end(); ++it )
+			for( auto it = interfaces.begin(); it != interfaces.end(); ++it )
 			{
 				json s = it.value();
 
-				std::string diString( s["interface"].get<std::string>() );
-				DeviceInterface di = interfaceFromString( diString );
+				std::string ditString( s["interface"].get<std::string>() );
+				DataInterfaceType dit = interfaceFromString( ditString );
 
 				json props = s["props"];
 
-				DataSource *src = createSource( di );
-				if( !src )
+				DataInterface *di = createInterface( dit );
+				if( !di )
 				{
-					std::cerr << "<error> creating source of type " << diString << " failed" << std::endl;
+					std::cerr << "<error> creating interface of type " << ditString << " failed" << std::endl;
 					err = true;
 					continue;
 				}
 
-				if( !src->loadFromJSON( props ) )
+				if( !di->loadFromJSON( props ) )
 				{
-					std::cerr << "<error> reading props for source of type " << diString << " failed" << std::endl;
+					std::cerr << "<error> reading props for interfaces of type " << ditString << " failed" << std::endl;
 					err = true;
 
-					_sources.remove( src );
+					_interfaces.remove( di );
 
-					safeDelete( src );
+					safeDelete( di );
 					continue;
 				}
 			}
@@ -407,53 +403,63 @@ namespace sqid
 
 		root["connectors"] = connectors;
 
-		json sources = json::array();
+		json interfaces = json::array();
 
 		cntr = 0;
-		for( auto &s : _sources )
+		for( auto &di : _interfaces )
 		{
-			json source;
+			json i;
 			json props;
 
-			source["interface"] = interfaceToString( s->getDeviceInterface() );
+			i["interface"] = interfaceToString( di->getDataInterfaceType() );
 			
-			s->saveToJSON( props );
+			di->saveToJSON( props );
 			if( !props.is_null() )
-				source["props"] = props;
+				i["props"] = props;
 
-			sources[cntr++] = source;
+			interfaces[cntr++] = i;
 		}
 
-		root["sources"] = sources;
+		root["interfaces"] = interfaces;
 
 		o << std::setw( 2 ) << root;
 
 		return true;
 	}
 
-	void SceneGraph::onSourceData( DeviceInterface di, unsigned short portNr, const SampleFrameContainer *sfc, const std::string &desc )
+	void SceneGraph::onSourceData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer* sfc, const std::string &desc )
 	{
-		bool inserted = false;
-		Sensor *sensor = nullptr;
 		for( auto &it : _ops )
 		{
-			sensor = dynamic_cast<Sensor*>( it );
-			if( sensor && sensor->getInterface() == di && sensor->getPort() == portNr && sensor->doesWant( sfc, desc ) )
+			Source *source = dynamic_cast<Source*>( it );
+			if( source && source->getInterface() == dit && source->getPort() == portNr && source->doesWant( sfc, desc ) )
 			{
 				//TODO: actually, the source may receive multiple frames until a graph traverse is done, however we cannot always traverse the graph once a source
 				// was updated, as there may be multiple sources and we have to wait for all. a solution would be to buffer frames at Source's inlet buffer and at 
 				// outlet pins and process multiple during each traverse, however, this may cause timing issues. we would actually have to consider frame timestamps 
-				// and sync Ops accordingly. summarizing, this all gets quite complicted, quickly. for the time being, we don't deal with this and assume fast-
+				// and sync Ops accordingly. this all gets quite complicted, quickly. for the time being, we don't deal with this and assume fast-
 				// enough processing, which obviously may drop frames.
 				//TODO: for dropped frames, implement a warning in sources so the user is at least aware of the fact. also check for mem-leaks caused by frames not 
 				// collected for processing.
-				sensor->setSourceDesc( desc );
+				source->setSourceDesc( desc );
 
 				//TODO: merge this somehow in a reasonable way
-				if( sensor->feed( sfc->frame ) )
-					inserted = true;
-				else
-					std::cerr << "<error> failed to insert frame to sensor" << std::endl;
+				if( !source->feed( sfc->frame ) )
+					std::cerr << "<error> failed to insert frame to source" << std::endl;
+			}
+		}
+	}
+
+	void SceneGraph::onSinkData( DataInterfaceType dit, unsigned short portNr, const SampleFrameContainer* sfc )
+	{
+		for( auto& it : _interfaces )
+		{
+			if( it->getDataInterfaceType() == dit && it->getDevicePort() == portNr && it->doesWant( sfc ) )
+			{
+				//TODO: for dropped frames, implement a warning in sources so the user is at least aware of the fact. also check for mem-leaks caused by frames not 
+				// collected for processing.
+
+				it->queueFrame( *sfc );
 			}
 		}
 	}
@@ -462,8 +468,7 @@ namespace sqid
 	{
 		for( auto &it : _ordered )
 			if( !it->update() )
-			{
-			}
+			{}
 
 		return true;
 	}
@@ -536,28 +541,35 @@ namespace sqid
 	void SceneGraph::update( float dt )
 	{
 		//NOTE: as of now, feeds are only required for drawing connecting lines in UI
-		_feeds.clear();
-		const Sensor *sensor = nullptr;
+		//TODO: use them to have sources/sinks directly interact with interfaces (and do not rebuild them every frame, fcs!)
+		_sourceFeeds.clear();
+		_sinkFeeds.clear();
 		for( auto &it : _ops )
 		{
-			sensor = dynamic_cast<const Sensor*>( it );
+			const Source *source = dynamic_cast<const Source*>( it );
+			const Sink *sink = dynamic_cast<const Sink*>( it );
 
-			for( auto &src : _sources )
-				if( sensor && sensor->getInterface() == src->getDeviceInterface() && sensor->getPort() == src->getDevicePort() )
-					_feeds.push_back( SourceFeed( src, sensor ) );
+			if( source )
+				for( auto &i : _interfaces )
+					if( source->getInterface() == i->getDataInterfaceType() && source->getPort() == i->getDevicePort() )
+						_sourceFeeds.push_back( SourceFeed( i, source ) );
+			if( sink )
+				for( auto &i : _interfaces )
+					if( sink->getInterface() == i->getDataInterfaceType() && sink->getPort() == i->getDevicePort() )
+						_sinkFeeds.push_back( SinkFeed( i, sink ) );
 		}
 
-		for( auto &src : _sources )
+		for( auto &i : _interfaces )
 		{
 			std::vector<SampleFrameContainer> frames;
-			src->fetchFrames( frames );
+			i->fetchFrames( frames );
 
 			if( frames.size() )
 			{
-				for( auto &sfp : frames )
+				for( auto &sfc : frames )
 				{
-					onSourceData( src->getDeviceInterface(), src->getDevicePort(), &sfp, src->getDesc() );
-					safeDelete( sfp.frame );
+					onSourceData( i->getDataInterfaceType(), i->getDevicePort(), &sfc, i->getDesc() );
+					safeDelete( sfc.frame );
 				}
 				frames.clear();
 			}
@@ -565,83 +577,95 @@ namespace sqid
 
 		for( auto &it : _ops )
 		{
-			Sensor *s = dynamic_cast<Sensor*>( it );
-			if( s )
-				s->updateStats( dt );
+			Source *source = dynamic_cast<Source*>( it );
+			if( source )
+				source->updateStats( dt );
+
+			Sink* sink = dynamic_cast<Sink*>( it );
+			if( sink )
+				sink->updateStats( dt );
 		}
 
-		/*
-		Sensor *sensor = nullptr;
-		for( auto &it : _ops )
+		traverse();
+
+		for( auto& it : _ops )
 		{
-			sensor = dynamic_cast<Sensor*>( it );
-			if( sensor )
+			Sink *sink = dynamic_cast<Sink*>( it );
+			if( sink )
 			{
-				if( sensor->update() )
-					Internal::traverse( sensor );
+				std::vector<SampleFrameContainer> frames;
+				sink->fetchFrames( frames );
+
+				if( frames.size() )
+				{
+					for( auto& sfc : frames )
+					{
+						onSinkData( sink->getInterface(), sink->getPort(), &sfc );
+						safeDelete( sfc.frame );
+					}
+					frames.clear();
+				}
 			}
 		}
-		*/
-		traverse();
 	}
 
 #ifdef __SUPPORT_GUI
 #endif
 
-	DataSource *SceneGraph::createSource( DeviceInterface di )
+	DataInterface *SceneGraph::createInterface( DataInterfaceType dit )
 	{
-		std::cout << "creating " << interfaceToString( di ) << std::endl;
+		std::cout << "creating " << interfaceToString( dit ) << std::endl;
 
-		DataSource *source = nullptr;
+		DataInterface *di = nullptr;
 		int retryCountdown = 0;
 		while( true )
 		{
-			source = DataSource::create( di );
-			if( source )
+			di = DataInterface::create( dit );
+			if( di )
 			{
-				if( isValid( source ) )
+				if( isValid( di ) )
 				{
-					_sources.push_back( source );
+					_interfaces.push_back( di );
 					break;
 				}
 				else
 				{
-					std::cerr << "<error> unable to insert source " << interfaceToString( di ) << " into scenegraph" << std::endl;
-					safeDelete( source );
+					std::cerr << "<error> unable to insert interface " << interfaceToString( dit ) << " into scenegraph" << std::endl;
+					safeDelete( di );
 
 					if( retryCountdown < 100 )
 					{
-						std::cerr << "retrying to instantiate source " << interfaceToString( di ) << std::endl;
+						std::cerr << "retrying to instantiate interface " << interfaceToString( dit ) << std::endl;
 						retryCountdown++;
 					}
 					else
 					{
-						std::cerr << "giving up trying to instantiate source " << interfaceToString( di ) << std::endl;
+						std::cerr << "giving up trying to instantiate interface " << interfaceToString( dit ) << std::endl;
 						break;
 					}
 				}
 			}
 			else
 			{
-				std::cerr << "<error> creating source failed" << std::endl;
+				std::cerr << "<error> creating interface failed" << std::endl;
 				break;
 			}
 		}
 
-		return source;
+		return di;
 	}
 
-	bool SceneGraph::destroySource( const DataSource *source )
+	bool SceneGraph::destroyInterface( const DataInterface *di )
 	{
-		if( source )
+		if( di )
 		{
-			for( auto &it : _sources )
-				if( it == source )
+			for( auto &it : _interfaces )
+				if( it == di )
 				{
-					std::cout << "deleting " << interfaceToString( source->getDeviceInterface() ) << " source " << guidToString( source->getObjectID() ) << std::endl;
+					std::cout << "deleting " << interfaceToString( di->getDataInterfaceType() ) << " interface " << guidToString( di->getObjectID() ) << std::endl;
 
-					_sources.remove( it );
-					safeDelete( source );
+					_interfaces.remove( it );
+					safeDelete( di );
 
 					return true;
 				}
@@ -760,10 +784,10 @@ namespace sqid
 
 				return false;
 			}
-		for( auto &it : _sources )
+		for( auto &it : _interfaces )
 			if( it->getObjectID() == op->getObjectID() )
 			{
-				std::cerr << "<error> Op GUID already in use for source -- what are the odds!!" << std::endl;
+				std::cerr << "<error> Op GUID already in use for interface -- what are the odds!!" << std::endl;
 				//NOTE: the odds are actually quite high when you don't randomize the randseed.
 
 				return false;
@@ -772,20 +796,20 @@ namespace sqid
 		return true;
 	}
 
-	bool SceneGraph::isValid( const DataSource *source )
+	bool SceneGraph::isValid( const DataInterface *di )
 	{
 		for( auto &it : _ops )
-			if( it->getObjectID() == source->getObjectID() )
+			if( it->getObjectID() == di->getObjectID() )
 			{
-				std::cerr << "<error> source GUID already in use for Op -- what are the odds!!" << std::endl;
+				std::cerr << "<error> interface GUID already in use for Op -- what are the odds!!" << std::endl;
 				//NOTE: the odds are actually quite high when you don't randomize the randseed.
 
 				return false;
 			}
-		for( auto &it : _sources )
-			if( it->getObjectID() == source->getObjectID() )
+		for( auto &it : _interfaces )
+			if( it->getObjectID() == di->getObjectID() )
 			{
-				std::cerr << "<error> source GUID already in use for source -- what are the odds!!" << std::endl;
+				std::cerr << "<error> interface GUID already in use for interface -- what are the odds!!" << std::endl;
 				//NOTE: the odds are actually quite high when you don't randomize the randseed.
 
 				return false;
@@ -904,9 +928,9 @@ namespace sqid
 		return it->second;
 	}
 
-	DataSource *SceneGraph::getSource( const GUID &objectID ) const
+	DataInterface *SceneGraph::getInterface( const GUID &objectID ) const
 	{
-		for( auto it : _sources )
+		for( auto it : _interfaces )
 			if( it->getObjectID() == objectID )
 				return it;
 		return nullptr;

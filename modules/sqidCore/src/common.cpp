@@ -329,58 +329,58 @@ namespace sqid
 	}
 #endif
 
-	SQID_API const char* SQID_API_CALL interfaceToString( DeviceInterface di )
+	SQID_API const char* SQID_API_CALL interfaceToString( DataInterfaceType dit )
 	{
-		switch( di )
+		switch( dit )
 		{
-		case DI_COM:
+		case DIT_COM:
 			return "COM";
-		case DI_RFCOMM:
+		case DIT_RFCOMM:
 			return "RFCOMM";
-		case DI_OSC:
+		case DIT_OSC:
 			return "OSC";
 		}
 
 		return "UNKNOWN";
 	}
 
-	SQID_API DeviceInterface SQID_API_CALL interfaceFromString( const char *s )
+	SQID_API DataInterfaceType SQID_API_CALL interfaceFromString( const char *s )
 	{
 		if( !s )
-			return DI_COUNT;
+			return DIT_COUNT;
 
-		for( int i = 0; i < DI_COUNT; i++ )
-			if( !_stricmp( s, interfaceToString( (DeviceInterface) i ) ) )
-				return (DeviceInterface) i;
+		for( int i = 0; i < DIT_COUNT; i++ )
+			if( !_stricmp( s, interfaceToString( (DataInterfaceType) i ) ) )
+				return (DataInterfaceType) i;
 
-		return DI_COUNT;
+		return DIT_COUNT;
 	}
 
-	SQID_API DeviceInterface SQID_API_CALL interfaceFromString( const std::string &s )
+	SQID_API DataInterfaceType SQID_API_CALL interfaceFromString( const std::string &s )
 	{
 		return interfaceFromString( s.c_str() );
 	}
 
-	SQID_API std::string SQID_API_CALL formatInterfaceString( DeviceInterface di, unsigned short port )
+	SQID_API std::string SQID_API_CALL formatInterfaceString( DataInterfaceType dit, unsigned short port )
 	{
 		char tempStr[128];
 
-		snprintf( tempStr, arraySize( tempStr ), ( di == DI_COM ? "%s%d" : "%s:%d" ), interfaceToString( di ), port );
+		snprintf( tempStr, arraySize( tempStr ), ( dit == DIT_COM ? "%s%d" : "%s:%d" ), interfaceToString( dit ), port );
 
 		return std::string( tempStr );
 	}
 
-	SQID_API std::vector<const char*> SQID_API_CALL createDeviceInterfaceComboItems()
+	SQID_API std::vector<const char*> SQID_API_CALL createDataInterfaceComboItems()
 	{
 		std::vector<const char*> items;
-		for( int i = 0; i < DI_COUNT; i++ )
-			items.push_back( interfaceToString( (DeviceInterface) i ) );
+		for( int i = 0; i < DIT_COUNT; i++ )
+			items.push_back( interfaceToString( (DataInterfaceType) i ) );
 		return items;
 	}
 
-	SQID_API const std::vector<const char*>& SQID_API_CALL getDeviceInterfaceComboItems()
+	SQID_API const std::vector<const char*>& SQID_API_CALL getDataInterfaceComboItems()
 	{
-		static std::vector<const char*> comboItems = createDeviceInterfaceComboItems();
+		static std::vector<const char*> comboItems = createDataInterfaceComboItems();
 		return comboItems;
 	}
 

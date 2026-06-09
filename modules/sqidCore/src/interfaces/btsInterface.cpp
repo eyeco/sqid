@@ -9,11 +9,9 @@
 *--------------------------------------------------------------------------------------------*/
 
 
-#include "btsSource.h"
+#include "btsInterface.h"
 
 #ifdef __RFCOMM_SUPPORT
-
-#include "internal/fwProps.h"
 
 #include "serialMsg.h"
 #include "../ringBuffer.h"
@@ -73,9 +71,9 @@ namespace sqid
 			ServiceClass serviceClass;
 		};
 
-		//TODO: remove duplicate code (this class is quite similar to COMSourceImpl) by moving all 
+		//TODO: remove duplicate code (this class is quite similar to COMInterfaceImpl) by moving all 
 		// the protocol-specific stuff (parsing, etc.) to a shared class
-		class BTSSourceImpl : public IAbstractWriter
+		class BTSInterfaceImpl// : public IAbstractWriter
 		{
 		private:
 			enum ProtocolState
@@ -87,8 +85,6 @@ namespace sqid
 				PS_COUNT
 			};
 
-			FWProps *_fwProps;
-
 			bool _isSynced;
 			ProtocolState _currentState;
 			unsigned int _expectedBytes;
@@ -96,9 +92,6 @@ namespace sqid
 			unsigned int _maxMsgQueueSize;
 			std::list<ComMsg> _msgQueue;
 			std::mutex _msgMutex;
-
-			std::map<std::string,std::string> _propMap;
-			std::mutex _propMutex;
 
 			RingBuffer<unsigned char> _buffer;
 
@@ -290,6 +283,7 @@ namespace sqid
 											msg.data = new unsigned char[_expectedBytes];
 											memcpy( msg.data, &_dataBuffer[0], _expectedBytes );
 
+											/*
 											if( msg.hdr.hdr.type == MT_PROPERTY )
 											{
 												const char *str = (char*) msg.data;
@@ -306,25 +300,7 @@ namespace sqid
 												}
 												safeDeleteArray( msg.data );
 											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_DESC )
-											{
-												if( _fwProps )
-													_fwProps->onDesc( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_STATUS )
-											{
-												if( _fwProps )
-													_fwProps->onStatus( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else if( msg.hdr.hdr.type == MT_FWPROPS_ACK )
-											{
-												if( _fwProps )
-													_fwProps->onAck( reinterpret_cast<const unsigned char*>( msg.data ), msg.hdr.hdr.dataBytes );
-												safeDeleteArray( msg.data );
-											}
-											else
+											else*/
 											{
 												std::lock_guard<std::mutex> lock( _msgMutex );
 
@@ -363,12 +339,12 @@ namespace sqid
 			}
 
 		public:
-			BTSSourceImpl( const std::string &name, const std::string &address, unsigned int id, unsigned int maxMsgQueueSize ) :
-				_fwProps( new FWProps( this ) ),
+			BTSInterfaceImpl( const std::string &name, const std::string &address, unsigned int id, unsigned int maxMsgQueueSize ) :
 				_isSynced( false ),
 				_currentState( PS_COUNT ),
-				_maxMsgQueueSize( maxMsgQueueSize ),
 				_expectedBytes( 0 ),
+				_maxMsgQueueSize( maxMsgQueueSize ),
+				_hdrEx( { 0 } ),
 				_dataBuffer( 1024 ),
 				_isStarted( false ),
 				_keepRunning( false ),
@@ -382,11 +358,9 @@ namespace sqid
 				_btsListenerThread( nullptr )
 			{}
 
-			~BTSSourceImpl()
+			~BTSInterfaceImpl()
 			{
 				this->close();
-
-				safeDelete( _fwProps );
 			}
 
 			bool run()
@@ -437,7 +411,7 @@ namespace sqid
 				}
 
 				_keepRunning = true;
-				_btsListenerThread = new std::thread( &BTSSourceImpl::btsListen, this );
+				_btsListenerThread = new std::thread( &BTSInterfaceImpl::btsListen, this );
 
 				return true;
 			}
@@ -518,7 +492,7 @@ namespace sqid
 					}
 				}
 			}
-
+			/*
 			virtual bool write( const unsigned char *data, size_t size )
 			{
 				if( !_bts )
@@ -527,7 +501,7 @@ namespace sqid
 				_bts->Write( reinterpret_cast<const char*>( data ), size );
 
 				return true;
-			}
+			}*/
 
 #ifdef __SUPPORT_GUI
 			void drawUI()
@@ -537,8 +511,6 @@ namespace sqid
 
 				if( _bts )
 				{
-					if( _fwProps )
-						_fwProps->drawUI();
 				}
 				else
 					ImGui::Text( "offline" );
@@ -630,34 +602,34 @@ namespace sqid
 			static const std::vector<BTSDevice> &getKnownDevices() { return knownDevices; }
 		};
 
-		bool BTSSourceImpl::initialized = false;
-		std::vector<BTSDevice> BTSSourceImpl::knownDevices;
+		bool BTSInterfaceImpl::initialized = false;
+		std::vector<BTSDevice> BTSInterfaceImpl::knownDevices;
 	}
 
-	unsigned int BTSSource::idCntr = 0;
+	unsigned int BTSInterface::idCntr = 0;
 
-	bool BTSSource::init()
+	bool BTSInterface::init()
 	{
-		return Internal::BTSSourceImpl::init();
+		return Internal::BTSInterfaceImpl::init();
 	}
 
-	bool BTSSource::isInitialized()
+	bool BTSInterface::isInitialized()
 	{
-		return Internal::BTSSourceImpl::isInitialized();
+		return Internal::BTSInterfaceImpl::isInitialized();
 	}
 
-	void BTSSource::rescan()
+	void BTSInterface::rescan()
 	{
-		Internal::BTSSourceImpl::rescan();
+		Internal::BTSInterfaceImpl::rescan();
 	}
 
-	void BTSSource::enumerate()
+	void BTSInterface::enumerate()
 	{
-		Internal::BTSSourceImpl::enumerate();
+		Internal::BTSInterfaceImpl::enumerate();
 	}
 
-	BTSSource::BTSSource() :
-		DataSource(),
+	BTSInterface::BTSInterface() :
+		DataInterface(),
 		_id( idCntr++ ),
 		_name( "" ),
 		_address( "" ),
@@ -665,19 +637,19 @@ namespace sqid
 		_dropdownSelected( ~0x00 )
 	{}
 
-	BTSSource::~BTSSource()
+	BTSInterface::~BTSInterface()
 	{
 		close();
 	}
 
-	bool BTSSource::run( const std::string &name, const std::string &address )
+	bool BTSInterface::run( const std::string &name, const std::string &address )
 	{
 		close();
 
 		_name = name;
 		_address = address;
 
-		_impl = new Internal::BTSSourceImpl( name, address, _id, SOURCE_MAX_QUEUE_SIZE );
+		_impl = new Internal::BTSInterfaceImpl( name, address, _id, SOURCE_MAX_QUEUE_SIZE );
 		if( !_impl->run() )
 		{
 			safeDelete( _impl );
@@ -687,7 +659,7 @@ namespace sqid
 		return true;
 	}
 
-	void BTSSource::close()
+	void BTSInterface::close()
 	{
 		if( _impl )
 		{
@@ -696,42 +668,33 @@ namespace sqid
 		}
 	}
 
-	std::string BTSSource::getDesc() const
+	std::string BTSInterface::getDesc() const
 	{
 		return _impl->getDesc();
 	}
 
-	void BTSSource::fetchFrames( std::vector<SampleFrameContainer> &frames )
+	bool BTSInterface::doesWant( const SampleFrameContainer* sfc ) const
+	{
+		return true;
+	}
+
+	void BTSInterface::fetchFrames( std::vector<SampleFrameContainer> &frames )
 	{
 		if( _impl )
 			_impl->fetchFrames( frames );
 	}
 
-	bool BTSSource::write( const unsigned char *data, size_t size )
+	bool BTSInterface::queueFrame( const SampleFrameContainer& sfc )
 	{
-		if( _impl )
-			return _impl->write( data, size );
+		std::cerr << "<error> sending frames to BTSInterface not implemented (yet)" << std::endl;
 		return false;
-	}
-
-	bool BTSSource::write( const std::string &str )
-	{
-		//TODO: be careful here with wstring
-		if( _impl )
-			return _impl->write( (unsigned char*)str.c_str(), str.size() + 1 );
-		return false;
-	}
-
-	bool BTSSource::write( const std::vector<unsigned char> &data )
-	{
-		return _impl->write( &data[0], data.size() );
 	}
 
 #ifdef __SUPPORT_GUI
-	bool BTSSource::drawUI()
+	bool BTSInterface::drawUI()
 	{
 		std::stringstream sstr;
-		sstr << interfaceToString( getDeviceInterface() ) << getDevicePort();
+		sstr << interfaceToString( getDataInterfaceType() ) << getDevicePort();
 		std::string desc = sstr.str();
 
 		if( _impl )
@@ -743,7 +706,7 @@ namespace sqid
 		}
 		else
 		{
-			auto &devices = Internal::BTSSourceImpl::getKnownDevices();
+			auto &devices = Internal::BTSInterfaceImpl::getKnownDevices();
 			std::vector<std::string> items;
 			for( auto &it : devices )
 				items.push_back( it.name + " [" + it.address + "]" );
@@ -784,9 +747,9 @@ namespace sqid
 #endif
 
 
-	bool BTSSource::loadFromJSON( const nlohmann::json &j )
+	bool BTSInterface::loadFromJSON( const nlohmann::json &j )
 	{
-		if( !DataSource::loadFromJSON( j ) )
+		if( !DataInterface::loadFromJSON( j ) )
 			return false;
 
 		safeDelete( _impl );
@@ -802,7 +765,7 @@ namespace sqid
 			idCntr = _id + 1;
 
 		_dropdownSelected = ~0x00;
-		auto &devices = Internal::BTSSourceImpl::getKnownDevices();
+		auto &devices = Internal::BTSInterfaceImpl::getKnownDevices();
 		for( int i = 0; i < devices.size(); i++ )
 			if( !devices[i].name.compare( _name ) && !devices[i].address.compare( _address ) )
 				_dropdownSelected = i;
@@ -821,9 +784,9 @@ namespace sqid
 		return true;
 	}
 
-	void BTSSource::saveToJSON( nlohmann::json &j ) const
+	void BTSInterface::saveToJSON( nlohmann::json &j ) const
 	{
-		DataSource::saveToJSON( j );
+		DataInterface::saveToJSON( j );
 
 		save( j, "btsID", _id );
 		save( j, "btsName", _name );

@@ -9,7 +9,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 
-#include "oscSource.h"
+#include "oscInterface.h"
 
 #include <fileIO/json.h>
 
@@ -79,7 +79,7 @@ namespace sqid
 			std::vector<float> values;
 		};
 
-		class OSCSourceImpl
+		class OSCInterfaceImpl
 		{
 		private:
 			unsigned int _maxQueueSize;
@@ -110,7 +110,7 @@ namespace sqid
 
 			static int messageHandler( const char *path, const char *types, lo_arg ** argv, int argc, lo_message msg, void *userData )
 			{
-				return reinterpret_cast<OSCSourceImpl*>( userData )->messageHandler( path, types, argv, argc, msg );
+				return reinterpret_cast<OSCInterfaceImpl*>( userData )->messageHandler( path, types, argv, argc, msg );
 			}
 
 			int messageHandler( const char *path, const char *types, lo_arg ** argv, int argc, lo_message msg )
@@ -204,7 +204,7 @@ namespace sqid
 			}
 
 		public:
-			OSCSourceImpl() :
+			OSCInterfaceImpl() :
 				_maxQueueSize( SOURCE_MAX_QUEUE_SIZE ),
 				_isStarted( false ),
 				_keepRunning( false ),
@@ -212,7 +212,7 @@ namespace sqid
 				_oscListenerThread( nullptr )
 			{}
 
-			~OSCSourceImpl()
+			~OSCInterfaceImpl()
 			{
 				close();
 			}
@@ -238,7 +238,7 @@ namespace sqid
 					}
 
 					//NOTE: will do filtering on my own since i want it to be caseINsensitive (also there is a setter which will enable to change the filter at a later point)
-					lo_server_add_method( _server, NULL, NULL, OSCSourceImpl::messageHandler, this );
+					lo_server_add_method( _server, NULL, NULL, OSCInterfaceImpl::messageHandler, this );
 
 					break;
 				case P_TCP:
@@ -252,7 +252,7 @@ namespace sqid
 					}
 
 					//NOTE: will do filtering on my own since i want it to be caseINsensitive (also there is a setter which will enable to change the filter at a later point)
-					lo_server_add_method( _server, NULL, NULL, OSCSourceImpl::messageHandler, this );
+					lo_server_add_method( _server, NULL, NULL, OSCInterfaceImpl::messageHandler, this );
 
 					break;
 				default:
@@ -266,7 +266,7 @@ namespace sqid
 				sstr << protocolToString( proto ) << "://" << ip << ":" << port;
 				_desc = sstr.str();
 
-				_oscListenerThread = new std::thread( &OSCSourceImpl::oscListen, this );
+				_oscListenerThread = new std::thread( &OSCInterfaceImpl::oscListen, this );
 
 				return true;
 			}
@@ -363,12 +363,12 @@ namespace sqid
 
 
 
-	//bool OSCSource::init()
+	//bool OSCInterface::init()
 	//{
 	//	return Internal::OSCSourceImpl::init();
 	//}
 
-	//bool OSCSource::isInitialized()
+	//bool OSCInterface::isInitialized()
 	//{
 	//	return Internal::OSCSourceImpl::isInitialized();
 	//}
@@ -376,27 +376,27 @@ namespace sqid
 
 
 
-	OSCSource::OSCSource() :
-		DataSource(),
+	OSCInterface::OSCInterface() :
+		DataInterface(),
 		_proto( OSC_DEFAULT_PROTO ),
 		_ip( "127.0.0.1" ),	//TODO: neable to choose network adapter if multiple are present
 		_port( OSC_SOURCE_DEFAULT_PORT ),
 		_queueSize( SOURCE_MAX_QUEUE_SIZE ),
 		_connected( false ),
 		_inputBufferIP( 32 ),
-		_impl( new Internal::OSCSourceImpl() )
+		_impl( new Internal::OSCInterfaceImpl() )
 	{
 		updateBuffers();
 	}
 
-	OSCSource::~OSCSource()
+	OSCInterface::~OSCInterface()
 	{
 		close();
 
 		safeDelete( _impl );
 	}
 
-	bool OSCSource::run()
+	bool OSCInterface::run()
 	{
 		if( _connected )
 			close();
@@ -409,24 +409,37 @@ namespace sqid
 		return false;
 	}
 
-	void OSCSource::close()
+	void OSCInterface::close()
 	{
 		_impl->close();
 		_connected = false;
 	}
 
-	void OSCSource::fetchFrames( std::vector<SampleFrameContainer> &frames )
+	bool OSCInterface::doesWant( const SampleFrameContainer *sfc ) const
+	{
+		//return ( _exactOSC ? sfc->message.compare( _msgFilterOSC ) == 0 : sfc->message.compare( 0, _msgFilterOSC.size(), _msgFilterOSC ) == 0 );
+		//not implemented for now, better to use oscOut operator
+		return false;
+	}
+
+	void OSCInterface::fetchFrames( std::vector<SampleFrameContainer> &frames )
 	{
 		_impl->fetchFrames( frames );
 	}
 
-	std::string OSCSource::getDesc() const
+	bool OSCInterface::queueFrame( const SampleFrameContainer& sfc )
+	{
+		std::cerr << "<error> sending frames to OSCInterface not implemented (yet) -- use oscOut operator" << std::endl;
+		return false;
+	}
+
+	std::string OSCInterface::getDesc() const
 	{
 		return _impl->getDesc();
 	}
 
 #ifdef __SUPPORT_GUI
-	bool OSCSource::drawUI()
+	bool OSCInterface::drawUI()
 	{
 		if( ImGui::Button( _connected ? "disconnect" : "connect" ) )
 		{
@@ -488,14 +501,14 @@ namespace sqid
 	}
 #endif
 
-	void OSCSource::updateBuffers()
+	void OSCInterface::updateBuffers()
 	{
 		strncpy( &_inputBufferIP[0], _ip.c_str(), _ip.size() + 1 );
 	}
 
-	bool OSCSource::loadFromJSON( const nlohmann::json &j )
+	bool OSCInterface::loadFromJSON( const nlohmann::json &j )
 	{
-		if( !DataSource::loadFromJSON( j ) )
+		if( !DataInterface::loadFromJSON( j ) )
 			return false;
 
 		close();
@@ -514,9 +527,9 @@ namespace sqid
 		return true;
 	}
 
-	void OSCSource::saveToJSON( nlohmann::json &j ) const
+	void OSCInterface::saveToJSON( nlohmann::json &j ) const
 	{
-		DataSource::saveToJSON( j );
+		DataInterface::saveToJSON( j );
 
 		save( j, "proto", protocolToString( _proto ) );
 		save( j, "ip", _ip );

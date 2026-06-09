@@ -105,7 +105,7 @@ namespace sqid
 		void updateWindowTitle();
 
 		void load();
-		void save();
+		void save( bool saveScene = true );
 
 		void idle();
 		void display();
@@ -115,6 +115,8 @@ namespace sqid
 
 		void initImGui();
 		void initGL( int argc, char **argv );
+
+		void saveIni();
 #endif
 
 		explicit Application( const std::string &appTitle );
