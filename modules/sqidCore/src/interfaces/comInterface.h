@@ -35,9 +35,6 @@ namespace sqid
 	private:
 		IOMode _ioMode;
 
-		unsigned char _deviceID;
-		unsigned char _sensorID;
-
 		bool _clamp;
 		bool _normalize;
 

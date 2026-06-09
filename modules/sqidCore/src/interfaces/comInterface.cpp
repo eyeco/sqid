@@ -586,8 +586,6 @@ namespace sqid
 	COMInterface::COMInterface() :
 		DataInterface(),
 		_ioMode( IOMode::IOM_INPUT ),
-		_deviceID( 0xff ),
-		_sensorID( 0xff ),
 		_clamp( false ),
 		_normalize( true ),
 		_dataType( MF_DATATYPE_FLOAT ),
@@ -717,14 +715,6 @@ namespace sqid
 
 			if( _ioMode & IOM_OUTPUT )
 			{
-				int i = _deviceID;
-				if( ImGui::InputInt( "deviceID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
-					_deviceID = i % 256;
-
-				i = _sensorID;
-				if( ImGui::InputInt( "sensorID", &i, 1, 16, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AlwaysOverwrite ) )
-					_sensorID = i % 256;
-
 				const char* name[] = { "byte", "short", "long", "float" };
 				int t = _dataType >> 8;
 				for( int i = 0; i < 4; i++ )
@@ -781,8 +771,6 @@ namespace sqid
 			if( load<unsigned int>( j, "ioMode", ioMode ) )
 				_ioMode = (IOMode) ioMode;
 
-			load<unsigned char>( j, "deviceID", _deviceID );
-			load<unsigned char>( j, "sensorID", _sensorID );
 			load<int>( j, "dataType", _dataType );
 
 			load<bool>( j, "normalize", _normalize );
@@ -833,8 +821,6 @@ namespace sqid
 
 		save( j, "ioMode", (unsigned int) _ioMode );
 
-		save( j, "deviceID", _deviceID );
-		save( j, "sensorID", _sensorID );
 		save( j, "dataType", _dataType );
 
 		save( j, "normalize", _normalize );
