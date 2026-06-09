@@ -12,7 +12,7 @@ namespace sqid
     {
     public:
 
-        explicit SampleFrame( DataType type = DT_BYTE, size_t width = 1, size_t height = 1, size_t depth = 1 );
+        explicit SampleFrame( DataType type = DT_BYTE, size_t width = 1, size_t height = 1, size_t depth = 1, uint32_t ts = 0 );
         ~SampleFrame();
 
         size_t getWidth() const { return _width; }
@@ -21,6 +21,8 @@ namespace sqid
         size_t getElements() const { return _elements; }
         size_t getSize() const { return _size; }
 
+        uint32_t getTimestamp() const { return _ts; }
+
         DataType getDataType() const { return _type; }
         Layout getLayout() const { return _layout; }
 
@@ -28,25 +30,67 @@ namespace sqid
         bool setData( const uint8_t *values );
 
         template<typename T>
+        bool set( T t )
+        {
+            if( !_data )
+                return false;
+
+            switch( _type )
+            {
+            case DT_BYTE:
+            {
+                uint8_t *ptr = reinterpret_cast<uint8_t*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            case DT_USHORT:
+            {
+                uint16_t *ptr = reinterpret_cast<uint16_t*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            case DT_ULONG:
+            {
+                uint32_t *ptr = reinterpret_cast<uint32_t*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            case DT_FLOAT:
+            {
+                float *ptr = reinterpret_cast<float*>( _data );
+                for( int i = 0; i < _elements; i++ )
+                    *( ptr++ ) = t;
+                break;
+            }
+            default:
+                return false;
+            }
+
+            return true;
+        }
+
+        template<typename T>
         bool set( T t, size_t pos )
         {
             if( !_data || pos >= _elements )
                 return false;
 
-            uint8_t *ptr = _data + ( pos * _elemSize );
             switch( _type )
             {
             case DT_BYTE:
-                *(reinterpret_cast<uint8_t*>( ptr )) = t;
+                reinterpret_cast<uint8_t*>( _data )[pos] = t;
                 break;
             case DT_USHORT:
-                *(reinterpret_cast<uint16_t*>( ptr )) = t;
+                reinterpret_cast<uint16_t*>( _data )[pos] = t;
                 break;
             case DT_ULONG:
-                *(reinterpret_cast<uint32_t*>( ptr )) = t;
+                reinterpret_cast<uint32_t*>( _data )[pos] = t;
                 break;
             case DT_FLOAT:
-                *(reinterpret_cast<float*>( ptr )) = t;
+                reinterpret_cast<float*>( _data )[pos] = t;
                 break;
             default:
                 return false;
@@ -62,6 +106,9 @@ namespace sqid
         size_t _width;
         size_t _height;
         size_t _depth;
+
+        uint32_t _ts;
+
         size_t _elements;
 
         size_t _elemSize;
@@ -71,15 +118,14 @@ namespace sqid
     };
 
     template<typename T>
-    inline SampleFrame *toFrame( DataType type, unsigned int width, unsigned int height, unsigned int depth, const T *values, bool normalize, T maxValue, bool clamp = false )
+    inline SampleFrame *toFrame( DataType type, unsigned int width, unsigned int height, unsigned int depth, const T *values, uint32_t ts, bool normalize, T maxValue, bool clamp = false )
     {
         if( !values )
             return nullptr;
 
-        SampleFrame *frame = new SampleFrame( type, width, height, depth );
+        SampleFrame *frame = new SampleFrame( type, width, height, depth, ts );
 
         int size = width * height * depth;
-
         if( normalize )
         {
             float s = 1.0f / maxValue;
