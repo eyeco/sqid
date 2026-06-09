@@ -404,6 +404,8 @@ namespace sqid
 					for( auto it = _readMsgQueue.begin(); it != _readMsgQueue.end(); ++it )
 						safeDeleteArray( it->data );
 					_readMsgQueue.clear();
+
+					_activeSenders.clear();
 				}
 
 				{
@@ -413,8 +415,6 @@ namespace sqid
 						safeDeleteArray( it->data );
 					_writeMsgQueue.clear();
 				}
-
-				_activeSenders.clear();
 			}
 
 			std::string getDesc() const
@@ -508,20 +508,24 @@ namespace sqid
 					ImGui::Text( _isSynced ? "synced" : "NOT SYNCED" );
 					ImGui::Text( "queued (I/O): %d/%d", _readMsgQueue.size(), _writeMsgQueue.size() );
 
-					if( ImGui::TreeNode( "senders", "%d senders", _activeSenders.size() ) )
 					{
-						for( auto &it : _activeSenders )
-						{
-							char deviceID = ( it >> 8 ) & 0xff;
-							char sensorID = ( it ) & 0xff;
+						std::lock_guard<std::mutex> lock( _readMsgMutex );
 
-							ImGui::Text( "  dID: %d, sID: %d", deviceID, sensorID );
+						if( ImGui::TreeNode( "senders", "%d senders", _activeSenders.size() ) )
+						{
+							for( auto& it : _activeSenders )
+							{
+								char deviceID = ( it >> 8 ) & 0xff;
+								char sensorID = ( it ) & 0xff;
+
+								ImGui::Text( "  dID: %d, sID: %d", deviceID, sensorID );
+							}
+
+							ImGui::TreePop();
 						}
 
-						ImGui::TreePop();
+						_activeSenders.clear();
 					}
-
-					_activeSenders.clear();
 				}
 				else
 					ImGui::Text( "offline" );
