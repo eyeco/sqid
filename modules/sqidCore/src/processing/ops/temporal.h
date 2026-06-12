@@ -87,29 +87,45 @@ namespace sqid
 		class PID : public Op
 		{
 		private:
+			enum AntiWindupMethod
+			{
+				AWM_NONE,
+				AWM_LIMIT_INTEGRAL,
+				AWM_LIMIT_OUTPUT,
+
+				AWM_COUNT
+			};
+
+			static const char *antiWindupMethodToString( AntiWindupMethod awm );
+			static AntiWindupMethod antiWindupMethodFromString( const char *str );
+			static AntiWindupMethod antiWindupMethodFromString( const std::string& str );
 
 			bool _useSystemTime;
-
-			bool _maxDeltaTime;
-			float _maxDeltaTimeMS;
-			float _dtRem;
+			float _prevSysTime;
 
 			float _kp;
 			float _ki;
 			float _kd;
 
-			bool _deadzone;
-			float _deadzoneThresh;
-			float _deadzoneDamping;
+			bool _useKickAvoidance;
 
-			bool _antiWindup;
-			float _integralCapValue;
+			bool _useReversalResetsIntegral;
+			float _reversalSlopeThreshold;
 
-			SampleFrame* _prevValue;
-			SampleFrame* _prevTarget;
+			bool _useDeadband;
+			float _deadbandThresh;
 
-			SampleFrame* _prevError;
-			SampleFrame* _integral;
+			AntiWindupMethod _antiWindupMethod;
+			float _integralCap;
+			float _outputCap;
+			bool _applyCapToOutput;
+
+			SampleFrame *_prevValue;
+			SampleFrame *_prevTarget;
+			SampleFrame *_prevTargetDir;
+			SampleFrame *_prevError;
+
+			SampleFrame *_integral;
 
 			SampleFrame *update( const SampleFrame *value, const SampleFrame *target, float dt );
 

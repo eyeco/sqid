@@ -276,20 +276,56 @@ namespace sqid
 
 
 
+
+		const char *PID::antiWindupMethodToString( PID::AntiWindupMethod awm )
+		{
+			switch( awm )
+			{
+			case AWM_NONE:
+				return "NONE";
+			case AWM_LIMIT_INTEGRAL:
+				return "LIMIT_INTEGRAL";
+			case AWM_LIMIT_OUTPUT:
+				return "LIMIT_OUTPUT";
+			}
+
+			return "UNKNOWN";
+		}
+
+		PID::AntiWindupMethod PID::antiWindupMethodFromString( const char *str )
+		{
+			if( !str )
+				return AWM_COUNT;
+
+			for( int i = 0; i < AWM_COUNT; i++ )
+				if( !_stricmp( str, antiWindupMethodToString( (PID::AntiWindupMethod) i ) ) )
+					return (PID::AntiWindupMethod) i;
+
+			return AWM_COUNT;
+		}
+
+		PID::AntiWindupMethod PID::antiWindupMethodFromString( const std::string& str )
+		{
+			return antiWindupMethodFromString( str.c_str() );
+		}
+
 		PID::PID() :
 			Op(),
 			_useSystemTime( false ),
-			_maxDeltaTime( false ),
-			_maxDeltaTimeMS( 1.0f ),
-			_dtRem( 0.0f ),
+			_prevSysTime( 0.0f ),
 			_kp( 0.0f ), _ki( 0.0f ), _kd( 0.0f ),
-			_deadzone( true ),
-			_deadzoneThresh( 0.001f ),
-			_deadzoneDamping( 0.15f ),
-			_antiWindup( false ),
-			_integralCapValue( 1.0f ),
+			_useKickAvoidance( true ),
+			_useReversalResetsIntegral( true ),
+			_reversalSlopeThreshold( 1e-6f ),
+			_useDeadband( true ),
+			_deadbandThresh( 0.001f ),
+			_antiWindupMethod( AWM_NONE ),
+			_integralCap( 1.0f ),
+			_outputCap( 1.0f ),
+			_applyCapToOutput( true ),
 			_prevValue( nullptr ),
 			_prevTarget( nullptr ),
+			_prevTargetDir( nullptr ),
 			_prevError( nullptr ),
 			_integral( nullptr )
 		{}
@@ -317,31 +353,39 @@ namespace sqid
 			ImGui::SliderFloat( "ki", &_ki, 0, 1 );
 			ImGui::SliderFloat( "kd", &_kd, 0, 1 );
 
-			ImGui::Checkbox( "deadzone", &_deadzone );
-			if( _deadzone )
+			ImGui::Checkbox( "deadband", &_useDeadband );
+			if( _useDeadband )
 			{
-				if( ImGui::InputFloat( "deadzone thresh", &_deadzoneThresh ) )
-					_deadzoneThresh = max( _deadzoneThresh, 0.0f );
-				if( ImGui::InputFloat( "deadzone damping", &_deadzoneDamping ) )
-					_deadzoneDamping = clamp( _deadzoneDamping, 0.0f, 1.0f );
+				if( ImGui::InputFloat( "threshold", &_deadbandThresh, 0.0f, 0.0f, "%.6f" ) )
+					_deadbandThresh = max( _deadbandThresh, 0.0f );
 			}
 
-			ImGui::Checkbox( "anti-windup", &_antiWindup );
-			if( _antiWindup )
-				ImGui::InputFloat( "integral cap", &_integralCapValue );
+			ImGui::Text( "anti-windup method" );
+			int e = (int)_antiWindupMethod;
+			for( int i = 0; i < AntiWindupMethod::AWM_COUNT; i++ )
+				ImGui::RadioButton( antiWindupMethodToString( (AntiWindupMethod) i ), &e, i );
+			_antiWindupMethod = (AntiWindupMethod)e;
+			if( _antiWindupMethod == AWM_LIMIT_INTEGRAL )
+				ImGui::InputFloat( "integral cap", &_integralCap );
+			else if( _antiWindupMethod == AWM_LIMIT_OUTPUT )
+			{
+				ImGui::Checkbox( "apply to output", &_applyCapToOutput );
+				ImGui::InputFloat( "output cap", &_outputCap );
+			}
+
+			ImGui::Checkbox( "kick avoidance", &_useKickAvoidance );
+
+			ImGui::Checkbox( "reversal resets integral", &_useReversalResetsIntegral );
+			if( _useReversalResetsIntegral )
+			{
+				ImGui::InputFloat( "slope threshold", &_reversalSlopeThreshold, 0.0f, 0.0f, "%.6f" );
+				if( _reversalSlopeThreshold < 0.0f )
+					_reversalSlopeThreshold = 0.0f;
+				else if( _reversalSlopeThreshold > 1.0f )
+					_reversalSlopeThreshold = 1.0f;
+			}
 
 			ImGui::Checkbox( "sys time", &_useSystemTime );
-
-			ImGui::Checkbox( "max dt steps", &_maxDeltaTime );
-			if( _maxDeltaTime )
-			{
-				float dt = _maxDeltaTimeMS;
-				if( ImGui::InputFloat( "max step [ms]", &dt ) )
-				{
-					_dtRem = 0.0f;
-					_maxDeltaTimeMS = max( dt, 0.001f );	// failsafe check
-				}
-			}
 
 			if( ImGui::Button( "reset" ) )
 				clear();
@@ -350,41 +394,125 @@ namespace sqid
 		}
 #endif
 
-		SampleFrame *PID::update( const SampleFrame *value, const SampleFrame *target, float dt )
+		SampleFrame* PID::update( const SampleFrame* value, const SampleFrame* target, float dt )
 		{
+			dt = max( 0.0f, dt );
+
 			SampleFrame *error = new SampleFrame( *target );
 			error->sub( value );
 
-			SampleFrame* ret = new SampleFrame( value->width(), value->height(), value->timeStamp(), value->depth() );
-
-			ret->add( error, _kp );
-
-			if( !_integral )
-				_integral = new SampleFrame( value->width(), value->height(), value->timeStamp(), value->depth() );
-			_integral->add( error, dt );
-
-			if( _antiWindup )
-				_integral->clamp( -_integralCapValue, _integralCapValue );
-
-			if( _deadzone )
+			if( _useDeadband )
 			{
-				//if abs(error) is below threshold, decay integral sum by damping factor
+				//set all values within deadband to 0, keep the rest
 				SampleFrame* mask = new SampleFrame( *error );
-				mask->inRange( -_deadzoneThresh, _deadzoneThresh );
-				_integral->add( mask, _deadzoneDamping );
+				mask->inRange( -_deadbandThresh, _deadbandThresh );
+				mask->logNot();
+				error->mul( mask );
 				safeDelete( mask );
 			}
 
+			//initialize with 0
+			SampleFrame* ret = new SampleFrame( value->width(), value->height(), value->timeStamp(), value->depth() );
+
+			//calculate p-term (error * kp) and add to output
+			ret->add( error, _kp );
+
+			if( _useKickAvoidance )
+			{
+				if( _prevValue && dt > 0.000001f )
+				{
+					//NOTE: clarify why this is not (value - prevValue) / dt !!!
+					//calculate derivative (prevValue - value) / dt
+					SampleFrame *derivative = new SampleFrame( *_prevValue );
+					derivative->sub( value );
+					derivative->div( dt );
+					//calculate d-term (derivative * kd) and add to output
+					ret->add( derivative, _kd );
+					safeDelete( derivative );
+				}
+			}
+			else
+			{
+				if( _prevError && dt > 0.000001f )
+				{
+					//calculate derivative (error - prevError) / dt
+					SampleFrame *derivative = new SampleFrame( *error );
+					derivative->sub( _prevError );
+					derivative->div( dt );
+					//calculate d-term (derivative * kd) and add to output
+					ret->add( derivative, _kd );
+					safeDelete( derivative );
+				}
+			}
+
+			//initialize integral
+			if( !_integral )
+				_integral = new SampleFrame( value->width(), value->height(), value->timeStamp(), value->depth() );
+
+			if( _useReversalResetsIntegral && dt > 0.000001f )
+			{
+				//calculate target slope
+				SampleFrame *slope = new SampleFrame( *target );
+				slope->sub( _prevTarget );
+				slope->div( dt );
+
+				if( !dimensionsCompatible( slope, _prevTargetDir ) )
+					safeDelete( _prevTargetDir );
+
+				if( !_prevTargetDir )
+					_prevTargetDir = new SampleFrame( slope->width(), slope->height(), slope->timeStamp(), slope->depth() );
+
+				const float *ptr = slope->values();
+
+				float *prevPtr = _prevTargetDir->values();
+				float *integralPtr = _integral->values();
+
+				size_t size = slope->size();
+				for( int i = 0; i < size; i++ )
+				{
+					if( abs( ptr[i] ) > _reversalSlopeThreshold )
+					{
+						int dir = sgn( ptr[i] );
+						// if previous is nonzero and directions differ, then reset integral
+						if( abs( prevPtr[i] ) > 0.000001f && abs( prevPtr[i] - dir ) > 0.000001f )
+							integralPtr[i] = 0.0f;
+						// set new direction only if there is a non-zero slope
+						if( dir )
+							prevPtr[i] = dir;
+					}
+				}
+				safeDelete( slope );
+			}
+			else
+				safeDelete( _prevTargetDir );
+			
+			if( _antiWindupMethod == AWM_LIMIT_INTEGRAL )
+				_integral->clamp( -_integralCap, _integralCap );
+			else if( _antiWindupMethod == AWM_LIMIT_OUTPUT )
+			{
+				const float *errPtr = error->values();
+				const float *retPtr = ret->values();
+
+				float* integralPtr = _integral->values();
+
+				size_t size = _integral->size();
+				for( int i = 0; i < size; i++ )
+				{
+					float iCandidate = integralPtr[i] + errPtr[i] * dt;
+					float uCandidate = retPtr[i] + iCandidate * _ki;
+					if( !( ( uCandidate > _outputCap && errPtr[i] > 0 ) ||
+						( uCandidate < -_outputCap && errPtr[i] < 0 ) ) )
+						integralPtr[i] = iCandidate;
+				}
+			}
+			else
+				_integral->add( error, dt );
+
+			//calculate i-term (integral * ki) and add to output
 			ret->add( _integral, _ki );
 
-			if( _prevError )
-			{
-				SampleFrame* derivative = new SampleFrame( *error );
-				derivative->sub( _prevError );
-				derivative->div( dt );
-
-				ret->add( derivative, _kd );
-			}
+			if( _antiWindupMethod == AWM_LIMIT_OUTPUT && _applyCapToOutput )
+				ret->clamp( -_outputCap, _outputCap );
 
 			safeDelete( _prevError );
 			_prevError = error;
@@ -394,6 +522,8 @@ namespace sqid
 
 		bool PID::process()
 		{
+			float sysTime = getAppTime();
+
 			SampleFrame *v = fetchInput<SampleFrame>( "value" );
 			SampleFrame *t = fetchInput<SampleFrame>( "target" );
 			//NOTE: currently assuming that value and target are in sync (e.g. from same source)
@@ -452,28 +582,12 @@ namespace sqid
 								throw std::runtime_error( "input size changed" );
 							}
 
-							//TODO: implement stepwise and systime
-							float dt = ( v->timeStamp() - _prevValue->timeStamp() ) * 0.001f;
+							float dt = 
+								_useSystemTime ? 
+								( sysTime - _prevSysTime ) :
+								( v->timeStamp() - _prevValue->timeStamp() ) * 0.001f;
 
-							SampleFrame *ret = nullptr;
-							
-							if( _maxDeltaTime )
-							{
-								//TODO: implement
-								std::cerr << "<error> stepwise update not yet implemented" << std::endl;
-								/*
-								_dtRem += dt;
-								while( _dtRem > 0.0f )
-								{
-									dt = min( _maxDeltaTimeMS * 0.001f, _maxDeltaTimeMS );
-									ret = update( in, refT, dt );
-
-									_dtRem -= dt;
-								}
-								*/
-							}
-							else
-								ret = update( v, refT, dt );
+							SampleFrame *ret = update( v, refT, dt );
 
 							drawFrame( ret );
 							pushOutput( "out", ret );
@@ -496,6 +610,8 @@ namespace sqid
 				_prevTarget = t;
 			}
 
+			_prevSysTime = sysTime;
+
 			return inputPending( "value" ) || inputPending( "target" );
 		}
 
@@ -505,19 +621,30 @@ namespace sqid
 
 			load<bool>( j, "useSystemTime", _useSystemTime );
 
-			load<bool>( j, "maxDeltaTime", _maxDeltaTime );
-			load<float>( j, "maxDeltaTimeMS", _maxDeltaTimeMS );
-
-			load<bool>( j, "deadzone", _deadzone );
-			load<float>( j, "deadzoneThresh", _deadzoneThresh );
-			load<float>( j, "deadzoneDamping", _deadzoneDamping );
-
-			load<bool>( j, "antiwindup", _antiWindup );
-			load<float>( j, "integralCapValue", _integralCapValue );
-
 			load<float>( j, "kp", _kp );
 			load<float>( j, "ki", _ki );
 			load<float>( j, "kd", _kd );
+
+			load<bool>( j, "kickAvoidance", _useKickAvoidance );
+
+			load<bool>( j, "reversalResetsIntegral", _useReversalResetsIntegral );
+			load<float>( j, "reversalSlopeThreshold", _reversalSlopeThreshold );
+
+			load<bool>( j, "deadband", _useDeadband );
+			load<float>( j, "deadbandThresh", _deadbandThresh );
+
+			std::string s;
+			if( load<std::string>( j, "antiwindup", s ) )
+			{
+				_antiWindupMethod = antiWindupMethodFromString( s );
+				if( _antiWindupMethod == AWM_COUNT )
+					_antiWindupMethod = AWM_NONE;
+			}
+			else
+				_antiWindupMethod = AWM_NONE;
+			load<float>( j, "integralCap", _integralCap );
+			load<float>( j, "outputCap", _outputCap );
+			load<bool>( j, "applyCapToOutput", _applyCapToOutput );
 
 			return ret;
 		}
@@ -528,29 +655,33 @@ namespace sqid
 
 			save( j, "useSystemTime", _useSystemTime );
 
-			save( j, "maxDeltaTime", _maxDeltaTime );
-			save( j, "maxDeltaTimeMS", _maxDeltaTimeMS );
-
-			save( j, "deadzone", _deadzone );
-			save( j, "deadzoneThresh", _deadzoneThresh );
-			save( j, "deadzoneDamping", _deadzoneDamping );
-
-			save( j, "antiwindup", _antiWindup );
-			save( j, "integralCapValue", _integralCapValue );
-
 			save( j, "kp", _kp );
 			save( j, "ki", _ki );
 			save( j, "kd", _kd );
+
+			save( j, "kickAvoidance", _useKickAvoidance );
+
+			save( j, "reversalResetsIntegral", _useReversalResetsIntegral );
+			save( j, "reversalSlopeThreshold", _reversalSlopeThreshold );
+
+			save( j, "deadband", _useDeadband );
+			save( j, "deadbandThresh", _deadbandThresh );
+
+			save( j, "antiwindup", antiWindupMethodToString( _antiWindupMethod ) );
+			save( j, "integralCap", _integralCap );
+			save( j, "outputCap", _outputCap );
+			save( j, "applyCapToOutput", _applyCapToOutput );
 
 			return ret;
 		}
 
 		bool PID::clear()
 		{
-			_dtRem = 0.0f;
+			_prevSysTime = 0.0f;
 
 			safeDelete( _prevValue );
 			safeDelete( _prevTarget );
+			safeDelete( _prevTargetDir );
 
 			safeDelete( _prevError );
 			safeDelete( _integral );
