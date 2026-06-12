@@ -381,6 +381,16 @@ namespace sqid
 		return this;
 	}
 
+	SampleFrame* SampleFrame::sgn()
+	{
+		float* ptr = (float*) _m.data;
+		const float* end = ptr + size();
+		for( ptr; ptr < end; ptr++ )
+			*ptr = sgn( *ptr );
+
+		return this;
+	}
+
 	SampleFrame *SampleFrame::log()
 	{
 		cv::log( _m, _m );

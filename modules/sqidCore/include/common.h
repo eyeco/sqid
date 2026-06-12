@@ -190,6 +190,12 @@ namespace sqid
 		return ( left < right ? right : left );
 	}
 
+	template <typename T>
+	inline int sgn( T val )
+	{
+		return ( T( 0 ) < val ) - ( val < T( 0 ) );
+	}
+
 	template<typename T>
 	inline T clamp( T value, T minValue, T maxValue )
 	{

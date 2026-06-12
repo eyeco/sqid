@@ -95,6 +95,7 @@ namespace sqid
 		SampleFrame *sqrt();
 
 		SampleFrame *abs();
+		SampleFrame *sgn();
 
 		SampleFrame *log();
 
