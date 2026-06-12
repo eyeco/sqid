@@ -386,7 +386,7 @@ namespace sqid
 		float* ptr = (float*) _m.data;
 		const float* end = ptr + size();
 		for( ptr; ptr < end; ptr++ )
-			*ptr = sgn( *ptr );
+			*ptr = sqid::sgn( *ptr );
 
 		return this;
 	}
