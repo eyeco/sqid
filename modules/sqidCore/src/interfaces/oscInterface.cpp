@@ -121,76 +121,128 @@ namespace sqid
 					const char *srcHost = lo_address_get_hostname( srcAddr );
 					//const char *srcPort = lo_address_get_port( srcAddr );
 
-					if( argc == 1 )
+					bool isSF = false;
+					if( argc == 5 )
 					{
-						//TODO: apart from sampleframes, support single int, floats, etc... maybe let user specify type pattern (maybe even dest-type/clipping/scaling) and create Nx1 SampleFrame from it
+						isSF = true;
 
-						float f = 0.0f;
+						if( types[4] != LO_BLOB )
+							isSF = false;
+						for( int i = 0; i < 4; i++ )
+							if( types[i] != LO_INT32 )
+							{
+								//still accepting 'c', altough not entirely correct
+								if( types[i] != LO_CHAR )
+									isSF = false;
+								else
+									std::cerr << "<warning> expected types '" 
+										<< LO_INT32 << LO_INT32 << LO_INT32 << LO_INT32 << LO_BLOB << "', got '" 
+										<< types[0] << types[1] << types[2] << types[3] << types[4] << "', trying to treat as sampleframe message..." << std::endl;
+							}
 
-						//TODO: not sure if we can use OSC timing data -- may get us into trouble in progessing in scenegraph. maybe let user decide?
+						if( isSF )
+						{
+							unsigned short width = (unsigned short) ( argv[0]->i32 );
+							unsigned short height = (unsigned short) ( argv[1]->i32 );
+							unsigned short depth = (unsigned short) ( argv[2]->i32 );
+							uint32_t ts = (uint32_t) ( argv[3]->i32 );
+
+							const float* values = reinterpret_cast<float*>( &argv[4]->blob.data );
+							unsigned int size = width * height * depth;
+							if( argv[4]->blob.size != size * sizeof( float ) )
+							{
+								std::cerr << "<warning> OSC blob has unexpected size" << std::endl;
+								return -1;
+							}
+
+							{
+								std::lock_guard<std::mutex> lock( _msgMutex );
+								_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), width, height, depth, values, ts ) );
+
+								_activeSenders.insert( std::string( path ) );
+							}
+						}
+					}
+
+					if( !isSF )
+					{
+						//TODO: consider using OSC timing data -- may get us into trouble in progessing in scenegraph. maybe let user decide?
 						uint32_t ts = getAppTime() * 1000;
 
-						switch( types[0] )
+						std::vector<float> v;
+						for( int i = 0; i < argc; i++ )
 						{
-						case 'c':	//non-OSC-standard datatype, actually.
-							f = argv[0]->c / 255.0f;
-							break;
-						case 'i':
-							//TODO: provide SampleFrame<int> type, but until then simply treat as float...
-							f = argv[0]->i32;
-							break;
-						case 'f':
-							f = argv[0]->f32;
-							break;
-						default:
-							std::cerr << "<error> invalid datatype '" << types[0] << "' (or type not yet implemented)" << std::endl;
-							return -1;
+							switch( types[i] )
+							{
+								//standard types
+							case LO_INT32:
+								v.push_back( static_cast<float>( argv[i]->i32 ) );
+								break;
+							case LO_FLOAT:
+								v.push_back( argv[i]->f32 );
+								break;
+							case LO_STRING:
+								std::cerr << "<warning> OSC message contains string -- trying to convert to float" << std::endl;
+								v.push_back( static_cast<float>( std::stof( &( argv[i]->s ) ) ) );
+								break;
+							case LO_BLOB:
+								std::cerr << "<error> invalid datatype 'b' (blob), cannot convert to float" << std::endl;
+								break;
+
+								//extended types
+							case LO_INT64:
+								v.push_back( static_cast<float>( argv[i]->i64 ) );
+								break;
+							case LO_TIMETAG:
+								lo_timetag tt = argv[i]->t;
+								v.push_back( static_cast<float>( tt.sec ) + static_cast<float>( tt.frac ) / 0xffffffff ); //convert to seconds
+								break;
+							case LO_DOUBLE:
+								std::cerr << "<warning> truncating double to float" << std::endl;
+								v.push_back( static_cast<float>( argv[i]->f64 ) );
+								break;
+							case LO_SYMBOL:
+								std::cerr << "<error> invalid datatype 'S' (symbol), cannot convert to float" << std::endl;
+								break;
+							case LO_CHAR:
+								v.push_back( static_cast<float>( argv[i]->c ) );
+								break;
+							case LO_MIDI:
+								v.push_back( static_cast<float>( argv[i]->m[0] ) );
+								v.push_back( static_cast<float>( argv[i]->m[1] ) );
+								v.push_back( static_cast<float>( argv[i]->m[2] ) );
+								v.push_back( static_cast<float>( argv[i]->m[3] ) );
+								break;
+							case LO_TRUE:
+								v.push_back( 1.0f );
+								break;
+							case LO_FALSE:
+								v.push_back( 0.0f );
+								break;
+							case LO_NIL:
+								v.push_back( std::numeric_limits<float>::quiet_NaN() );
+								break;
+								/** Sybol representing the value Infinitum. */
+							case LO_INFINITUM:
+								v.push_back( std::numeric_limits<float>::infinity() );
+								break;
+							default:
+								std::cerr << "<error> unknown data type '" << types[i] << "' (or type not yet implemented)" << std::endl;
+							}
 						}
 
+						if( v.size() )
 						{
 							std::lock_guard<std::mutex> lock( _msgMutex );
-							_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), f, ts ) );
+							_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), v.size(), 1, 1, &v[0], ts ) );
 
 							_activeSenders.insert( std::string( path ) );
 						}
-					}
-					else if( argc == 5 )
-					{
-						//types = "iiiib"
-						if( types[0] != 'i' || types[1] != 'i' || types[2] != 'i' )
-							std::cerr << "<warning> invalid size types: '" << types[0] << types[1] << types[2] << "'" << std::endl;
-						if( types[3] != 'i' )
-							std::cerr << "<warning> invalid timestamp type: '" << types[3] << "'" << std::endl;
-						if( types[4] != 'b' )
+						else
 						{
-							std::cerr << "<error> invalid data block type: '" << types[4] << "' (should be blob)" << std::endl;
+							std::cerr << "<error> invalid format" << std::endl;
 							return -1;
 						}
-
-						unsigned short width = (unsigned short) ( argv[0]->i32 );
-						unsigned short height = (unsigned short) ( argv[1]->i32 );
-						unsigned short depth = (unsigned short) ( argv[2]->i32 );
-						uint32_t ts = (uint32_t) ( argv[3]->i32 );
-
-						const float *values = reinterpret_cast<float*>( &argv[4]->blob.data );
-						unsigned int size = width * height * depth;
-						if( argv[4]->blob.size != size * sizeof( float ) )
-						{
-							std::cerr << "<warning> OSC blob has unexpected size" << std::endl;
-							return -1;
-						}
-
-						{
-							std::lock_guard<std::mutex> lock( _msgMutex );
-							_msgQueue.push_back( new OSCMsg( std::string( srcHost ), std::string( path ), width, height, depth, values, ts ) );
-
-							_activeSenders.insert( std::string( path ) );
-						}
-					}
-					else
-					{
-						std::cerr << "<error> unexpected number of OSC arguments: " << argc << std::endl;
-						return -1;
 					}
 				}
 				catch( std::exception &e )

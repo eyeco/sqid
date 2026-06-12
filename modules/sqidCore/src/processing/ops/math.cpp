@@ -1202,7 +1202,7 @@ namespace sqid
 
 		Sum::Sum() :
 			Op(),
-			_dimsMask( 0 )
+			_dimsMask( 0x07 )
 		{}
 
 		Sum::~Sum()

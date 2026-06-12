@@ -173,15 +173,41 @@ int main( int argc, char **argv )
 
 						for( int i = 1; i < n; i++ )
 						{
+							if( strlen( token[i] ) < 2 )
+							{
+								lo_message_free( message );
+								message = nullptr;
+
+								std::stringstream sstr;
+								sstr << "syntax error: argument '" << token[i] << "' does not contain type prefix";
+								throw std::runtime_error( sstr.str() );
+							}
 
 							if( token[i][0] == '\\' )
 							{
-								if( strlen( token[i] ) < 3 )
+								if( token[i][1] == LO_TRUE || token[i][1] == LO_FALSE || token[i][1] == LO_NIL || token[i][1] == LO_INFINITUM )
 								{
-									lo_message_free( message );
-									message = nullptr;
+									if( strlen( token[i] ) != 2 )
+									{
+										lo_message_free( message );
+										message = nullptr;
 
-									throw std::runtime_error( "syntax error" );
+										std::stringstream sstr;
+										sstr << "syntax error using type '" << token[i][1] << "'";
+										throw std::runtime_error( sstr.str() );
+									}
+								}
+								else
+								{
+									if( strlen( token[i] ) < 3 )
+									{
+										lo_message_free( message );
+										message = nullptr;
+
+										std::stringstream sstr;
+										sstr << "syntax error using type '" << token[i][1] << "': missing argument";
+										throw std::runtime_error( sstr.str() );
+									}
 								}
 
 								switch( token[i][1] )
@@ -218,7 +244,7 @@ int main( int argc, char **argv )
 								{
 									int sec = 0;
 									int frac = 0;
-									if( sscanf( token[i] + 2, "%d:%d", sec, frac ) != 2 )
+									if( sscanf( token[i] + 2, "%d:%d", &sec, &frac ) != 2 )
 									{
 										lo_message_free( message );
 										message = nullptr;
@@ -269,13 +295,13 @@ int main( int argc, char **argv )
 								/** Sybol representing the value True. */
 								case LO_TRUE:
 									if( strlen( token[i] + 2 ) )
-										std::cerr << "<warning> value of TRUE field will be ignored" << std::endl;
+										std::cerr << "<warning> value specified for TRUE field will be ignored" << std::endl;
 									lo_message_add_true( message );
 									break;
 								/** Sybol representing the value False. */
 								case LO_FALSE:
 									if( strlen( token[i] + 2 ) )
-										std::cerr << "<warning> value of FALSE field will be ignored" << std::endl;
+										std::cerr << "<warning> value specified for FALSE field will be ignored" << std::endl;
 									lo_message_add_false( message );
 									break;
 								/** Sybol representing the value Nil. */
