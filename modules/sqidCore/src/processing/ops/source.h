@@ -35,6 +35,9 @@ namespace sqid
 		float _sampleRate;
 		unsigned int _sampleCntr;
 
+		float _frameRate;
+		unsigned int _frameCntr;
+
 		uint64_t _dataRate;
 		uint64_t _dataCntr;
 

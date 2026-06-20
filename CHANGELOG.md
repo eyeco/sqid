@@ -14,6 +14,7 @@
 - now using port names in COM/serial interface inspector dropdown instead of plain COM port descriptors
 - added _sink_ operator along with sending functionality of interfaces (previously 'sources')
 - added support of OSC native data types (standard as per definition + liblo extended types), apart from blob and symbol
+- fps counting added to sink and source
 
 ### Removed
 - legacy FW props

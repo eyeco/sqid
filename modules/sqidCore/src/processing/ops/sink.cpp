@@ -37,6 +37,8 @@ namespace sqid
 		_lastUpdateTime( 0 ),
 		_sampleRate( 0.0f ),
 		_sampleCntr( 0 ),
+		_frameRate( 0.0f ),
+		_frameCntr( 0 ),
 		_dataRate( 0 ),
 		_dataCntr( 0 ),
 		_statsTimeAccu( 0.0f ),
@@ -59,7 +61,8 @@ namespace sqid
 
 	void Sink::queue( const SampleFrame* sf )
 	{
-		_sampleRate++;
+		_sampleRate += sf->size();
+		_frameRate++;
 		_dataCntr += sf->size() * sizeof( float );
 
 		_lastUpdateTime = getAppTime();
@@ -130,10 +133,11 @@ namespace sqid
 		if( _statsTimeAccu > 1.0f )
 		{
 			_sampleRate = _sampleRate / _statsTimeAccu;
-			_sampleRate = _sampleCntr / _statsTimeAccu;
+			_frameRate = _frameCntr / _statsTimeAccu;
 			_dataRate = _dataCntr / _statsTimeAccu;
 
 			_sampleCntr = 0;
+			_frameCntr = 0;
 			_dataCntr = 0;
 
 			_statsTimeAccu = 0.0f;
@@ -199,6 +203,7 @@ namespace sqid
 		}
 
 		ImGui::Text( "%.02f sps", _sampleRate );
+		ImGui::Text( "%.02f fps", _frameRate );
 		ImGui::Text( "%.02f kbps", ( _dataRate << 3 ) / 1024.0f );
 		//if( _sinkDesc.size() )
 		//	ImGui::Text( _sinkDesc.c_str() );
