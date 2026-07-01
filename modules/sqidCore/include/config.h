@@ -42,7 +42,7 @@
 
 #define __VERSION_MAJOR		0
 #define __VERSION_MINOR		1
-#define __VERSION_PATCH		3
+#define __VERSION_PATCH		4
 
 #define __VERSION_STRING	STR( __VERSION_MAJOR ) "." STR( __VERSION_MINOR ) "." STR( __VERSION_PATCH )
 

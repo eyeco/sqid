@@ -22,6 +22,8 @@
 
 #include <commonImGui.h>
 
+#include <chrono>
+
 namespace sqid
 {
 	namespace Util
@@ -74,7 +76,8 @@ namespace sqid
 
 		Time::Time() :
 			Op(),
-			_global( false ),
+			_mode( M_RELATIVE ),
+			_utc( true ),
 			_refTime( getAppTime() )
 		{}
 
@@ -92,13 +95,15 @@ namespace sqid
 			if( !Op::drawUI() )
 				return false;
 
-			ImGui::Checkbox( "global", &_global );
+			for( int i = 0; i < (int) Mode::M_COUNT; i++ )
+				if( ImGui::RadioButton( Time::modeToString( (Time::Mode) i ), i == _mode ) )
+					_mode = (Time::Mode) i;
 
-			{
-				ScopedImGuiDisable disable( _global );
+			if( _mode == M_RELATIVE )
 				if( ImGui::Button( "reset" ) )
 					_refTime = getAppTime();
-			}
+			if( _mode == M_UNIX_EPOCH )
+				ImGui::Checkbox( "UTC", &_utc );
 
 			return true;
 		}
@@ -106,9 +111,41 @@ namespace sqid
 
 		bool Time::process()
 		{
-			float gt = getAppTime();
-			SampleFrame *sf = new SampleFrame( 1, 1, gt * 1000.0f, 1 );
-			sf->set( _global ? gt : gt - _refTime );
+			double ts = getAppTime();
+			SampleFrame *sf = new SampleFrame( 5, 1, ts * 1000.0, 1 );
+
+			double t = 0;
+			if( _mode == M_RELATIVE )
+				t = ts - _refTime;
+			else if( _mode == M_APPLICATION )
+				t = ts;
+			else if( _mode == M_UNIX_EPOCH )
+			{
+				using namespace std::chrono;
+				if( _utc )
+					t = duration<double>( system_clock::now().time_since_epoch() ).count();
+				else
+					t = duration<double>( current_zone()->to_local( system_clock::now() ).time_since_epoch() ).count();
+			}
+			else if( _mode == M_BOOT )
+			{
+				using namespace std::chrono;
+				t = duration<double>( steady_clock::now().time_since_epoch() ).count();
+			}
+
+			sf->values()[4] = ( t - (int)t ) * 1000.0;	//ms
+			t = (int)t;
+
+			sf->values()[3] = (int)t % 60;				//s
+			t = (int)( t / 60 );
+
+			sf->values()[2] = (int)t % 60;				//m
+			t = (int) ( t / 60 );
+
+			sf->values()[1] = (int) t % 24;				//h
+			t = (int) ( t / 24 );
+
+			sf->values()[0] = t;						//d
 
 			drawFrame( sf );
 
@@ -122,7 +159,10 @@ namespace sqid
 		{
 			bool ret = Op::loadFromJSON( j );
 
-			load<bool>( j, "global", _global );
+			std::string str;
+			if( load<std::string>( j, "mode", str ) )
+				_mode = modeFromString( str );
+			load( j, "utc", _utc );
 
 			return ret;
 		}
@@ -131,9 +171,43 @@ namespace sqid
 		{
 			bool ret = Op::saveToJSON( j );
 
-			save( j, "global", _global );
+			save( j, "mode", modeToString( _mode ) );
+			save( j, "utc", _utc );
 
 			return ret;
+		}
+
+		const char* Time::modeToString( Time::Mode mode )
+		{
+			switch( mode )
+			{
+			case M_RELATIVE:
+				return "relative";
+			case M_APPLICATION:
+				return "application";
+			case M_UNIX_EPOCH:
+				return "unix epoch";
+			case M_BOOT:
+				return "boot";
+			}
+			return "UNKNOWN";
+		}
+
+		Time::Mode Time::modeFromString( const char* s )
+		{
+			if( !s )
+				return Time::M_COUNT;
+
+			for( int i = 0; i < Time::M_COUNT; i++ )
+				if( !_stricmp( s, modeToString( (Time::Mode) i ) ) )
+					return (Time::Mode) i;
+
+			return Time::M_COUNT;
+		}
+
+		Time::Mode Time::modeFromString( const std::string& s )
+		{
+			return Time::modeFromString( s.c_str() );
 		}
 
 
@@ -151,8 +225,22 @@ namespace sqid
 			SampleFrame *sf = fetchInput<SampleFrame>( "in" );
 			if( sf )
 			{
-				SampleFrame *ret = new SampleFrame( 1, 1, sf->timeStamp(), 1 );
-				ret->set( sf->timeStamp() / 1000.0f );
+				uint32_t t = sf->timeStamp();
+				SampleFrame *ret = new SampleFrame( 5, 1, sf->timeStamp(), 1 );
+
+				ret->values()[4] = t % 1000;	//ms
+				t = t / 1000;
+
+				ret->values()[3] = t % 60;		//s
+				t = t / 60;
+
+				ret->values()[2] = t % 60;		//m
+				t = t / 60;
+
+				ret->values()[1] = t % 24;		//h
+				t = t / 24;
+
+				ret->values()[0] = t;			//d
 
 				drawFrame( ret );
 

@@ -24,9 +24,25 @@ namespace sqid
 	{
 		class Time : public Op
 		{
+		public:
+			enum Mode
+			{
+				M_RELATIVE,
+				M_APPLICATION,
+				M_UNIX_EPOCH,
+				M_BOOT,
+
+				M_COUNT
+			};
+
+			static const char* modeToString( Mode mode );
+			static Mode modeFromString( const char* s );
+			static Mode modeFromString( const std::string& s );
+
 		private:
-			bool _global;
-			float _refTime;
+			Mode _mode;
+			bool _utc;
+			double _refTime;
 
 		protected:
 			virtual bool process();
