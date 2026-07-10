@@ -57,15 +57,46 @@ namespace sqid
 
 		static T* get()
 		{
+			static bool err = false;
 			if( !s )
 			{
 				if( shutdown )
 				{
 					if constexpr( !preventRecreate )	//prevent accidental re-recation if already shut down
-						s = new T();
+					{
+						try
+						{
+							s = new T();
+						}
+						catch( std::exception& e )
+						{
+							std::cerr << "<error> failed to create singleton: " << e.what() << std::endl;
+							err = true;
+						}
+						catch( ... )
+						{
+							std::cerr << "<error> failed to create singleton: unknown error" << std::endl;
+							err = true;
+						}
+					}
 				}
-				else
-					s = new T();
+				else if( !err )
+				{
+					try
+					{
+						s = new T();
+					}
+					catch( std::exception &e )
+					{
+						std::cerr << "<error> failed to create singleton: " << e.what() << std::endl;
+						err = true;
+					}
+					catch( ... )
+					{
+						std::cerr << "<error> failed to create singleton: unknown error" << std::endl;
+						err = true;
+					}
+				}
 			}
 
 			return s;
