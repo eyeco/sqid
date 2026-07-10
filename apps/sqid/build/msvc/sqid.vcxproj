@@ -79,7 +79,7 @@
       <EnableParallelCodeGeneration>
       </EnableParallelCodeGeneration>
       <PreprocessorDefinitions>SQID_DLL;GLM_FORCE_SWIZZLE;GLM_ENABLE_EXPERIMENTAL;IMGUI_IMPL_OPENGL_LOADER_GLEW;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;_CONSOLE;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;_DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\include;$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-2.1.1\include;$(ProjectDir)..\..\..\..\3rdparty\clipboardXX\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\include;$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-3.2.0\include;$(ProjectDir)..\..\..\..\3rdparty\clipboardXX\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -121,7 +121,7 @@
       <EnableParallelCodeGeneration>
       </EnableParallelCodeGeneration>
       <PreprocessorDefinitions>SQID_DLL;GLM_FORCE_SWIZZLE;GLM_ENABLE_EXPERIMENTAL;IMGUI_IMPL_OPENGL_LOADER_GLEW;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1;_WINSOCK_DEPRECATED_NO_WARNINGS;WIN32;_CONSOLE;NOMINMAX;WIN32_LEAN_AND_MEAN;_WIN32_WINNT=NTDDI_WIN7;NDEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\include;$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-2.1.1\include;$(ProjectDir)..\..\..\..\3rdparty\clipboardXX\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\modules\sqidCore\include;$(ProjectDir)..\..\..\..\3rdparty\glm-0.9.9.3\include;$(ProjectDir)..\..\..\..\3rdparty\glew-2.1.0-1\include;$(ProjectDir)..\..\..\..\3rdparty\glfw-3.3\include;$(ProjectDir)..\..\..\..\3rdparty\cxxopts-3.2.0\include;$(ProjectDir)..\..\..\..\3rdparty\clipboardXX\include;$(ProjectDir)..\..\..\..\3rdparty\nlohmann-json-3.5.0-5\include;$(ProjectDir)..\..\..\..\3rdparty\openCV-4.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpplatest</LanguageStandard>
