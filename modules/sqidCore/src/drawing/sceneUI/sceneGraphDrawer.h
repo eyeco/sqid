@@ -44,6 +44,8 @@ namespace sqid
 		std::vector<char> _finderBuffer;
 		int _finderSelected;
 
+		bool _editMode;
+
 		float _maxZ;
 
 		SceneGraph *_sg;
@@ -133,6 +135,9 @@ namespace sqid
 
 		void setDrawDebug( bool ddbg ) { _drawDebug = ddbg; }
 		bool getDrawDebug() const { return _drawDebug; }
+
+		void setEditMode( bool editMode );
+		bool getEditMode() const { return _editMode; }
 
 		void copyToClipboard();
 		void pasteFromClipboard();

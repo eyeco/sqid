@@ -48,7 +48,7 @@ namespace sqid
 
 		virtual bool draw();
 
-		virtual bool drawUI();
+		virtual bool drawTooltip();
 
 		virtual bool mouseDown( int button, int mods, bool imGuiHandled );
 		virtual bool mouseUp( int button, int mods, bool imGuiHandled );

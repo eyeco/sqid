@@ -39,6 +39,8 @@ namespace sqid
 			virtual ~Hoverable()
 			{}
 
+			virtual bool drawTooltip() { return false; }
+
 			bool getHovered() const { return _hovered; }
 			void setHovered( bool hover ) { _hovered = hover; }
 		};

@@ -25,6 +25,9 @@ namespace sqid
 		BackgroundColor( fromHex( 0x303030 ) ),
 		GridColor( fromHex( 0x252525 ) ),
 
+		BackgroundColorEdit( fromHex( 0x202741 ) ),
+		GridColorEdit( fromHex( 0x191e32 ) ),
+
 		SelectionLineColor( fromHex( 0x40407f ) ),
 		SelectionFillColor( fromHex( 0x20207f ) ),
 		SelectionFillOpacity( 0.5f ),

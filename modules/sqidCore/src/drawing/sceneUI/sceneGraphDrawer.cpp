@@ -328,6 +328,7 @@ namespace sqid
 		_closeFinder( false ),
 		_finderBuffer( 256 ),
 		_finderSelected( 0 ),
+		_editMode( true ),
 		_maxZ( 0 ),
 		_sg( sg ),
 		_sticky( nullptr ),
@@ -890,6 +891,15 @@ namespace sqid
 
 	void SceneGraphDrawer::drawUI()
 	{
+		for( auto it : _elements )
+		{
+			GUI::Hoverable* h = dynamic_cast<GUI::Hoverable*>( it );
+			if( h )
+				h->drawTooltip();
+		}
+
+		ScopedImGuiDisable disable( !_editMode );
+
 		if( _openFinder )
 		{
 			ImGui::SetNextWindowPos( ImVec2( ( App().getWindowSize().x - getUIStyle()->FinderWidth ) / 2.0f, App().getWindowSize().y / 2.0f ) );
@@ -976,7 +986,7 @@ namespace sqid
 		}
 		ImGui::End();
 
-		if( !_suppressContextMenu && !_exitContextMenu &&
+		if( !_suppressContextMenu && !_exitContextMenu && _editMode &&
 			ImGui::BeginPopupContextVoid( "scene context menu", 1 ) )
 		{
 			DataInterfaceType selectedInterface = DIT_COUNT;
@@ -1055,7 +1065,7 @@ namespace sqid
 			{
 				if( it.second->mouseDown( button, mods, imGuiHandled ) )
 				{
-					if( !it.second->childHit( _mousePos ) )
+					if( !it.second->childHit( _mousePos ) || !_editMode )
 					{
 						moveToFront( it.second );
 						if( !it.second->getSelected() )		//if already selected, don't do anything, otherwise we will potentially cause a deselect of multiple selecte nodes
@@ -1079,7 +1089,7 @@ namespace sqid
 			{
 				if( drawerHit )
 				{
-					if( mods == 0 && !drawerChildHit )
+					if( mods == 0 && !drawerChildHit && _editMode )
 						startDrag();
 				}
 				else
@@ -1211,7 +1221,7 @@ namespace sqid
 				{
 				case GLFW_KEY_F1:
 				{
-					if( action == GLFW_PRESS )
+					if( action == GLFW_PRESS && _editMode )
 					{
 						_openFinder = true;
 						_finderBuffer[0] = 0;
@@ -1221,7 +1231,7 @@ namespace sqid
 				}
 				case GLFW_KEY_DELETE:
 				{
-					if( action == GLFW_RELEASE )
+					if( action == GLFW_RELEASE && _editMode )
 					{
 						auto it = _drawers.begin();
 						while( it != _drawers.end() )
@@ -1268,6 +1278,12 @@ namespace sqid
 						}
 					}
 
+					break;
+				}
+				case GLFW_KEY_E:
+				{
+					if( action == GLFW_RELEASE && mods == GLFW_MOD_CONTROL )
+						setEditMode( !_editMode );
 					break;
 				}
 				case GLFW_KEY_C:
@@ -1549,6 +1565,9 @@ namespace sqid
 
 	void SceneGraphDrawer::pasteFromClipboard()
 	{
+		if( !_editMode )
+			return;
+
 		std::string str( App().readFromClipboard() );
 
 		if( !str.size() )
@@ -1906,6 +1925,13 @@ namespace sqid
 			}
 		}
 
+		json settings = root["settings"];
+		if( !settings.is_null() )
+		{
+			if( settings.find( "editMode" ) != settings.end() )
+				_editMode = settings["editMode"].get<bool>();
+		}
+
 		return true;
 	}
 
@@ -1973,6 +1999,11 @@ namespace sqid
 		if( _maximizedDrawer )
 			root["maximized"] = guidToString( _maximizedDrawer->getOp()->getObjectID() );
 
+		json settings;
+		settings["editMode"] = _editMode;
+
+		root["settings"] = settings;
+
 		o << std::setw( 2 ) << root;
 
 		return true;
@@ -1994,6 +2025,9 @@ namespace sqid
 
 	void SceneGraphDrawer::inletCallback( PinDrawer *pinDrawer, PinDrawer::Event e )
 	{
+		if( !_editMode )
+			return;
+
 		switch( e )
 		{
 		case PinDrawer::E_PRESSED:
@@ -2026,6 +2060,9 @@ namespace sqid
 
 	void SceneGraphDrawer::outletCallback( PinDrawer *pinDrawer, PinDrawer::Event e )
 	{
+		if( !_editMode )
+			return;
+
 		switch( e )
 		{
 		case PinDrawer::E_PRESSED:
@@ -2039,6 +2076,29 @@ namespace sqid
 		{
 			break;
 		}
+		}
+	}
+
+	void SceneGraphDrawer::setEditMode( bool editMode )
+	{
+		if( _editMode == editMode )
+			return;
+
+		_editMode = editMode;
+
+		std::cout << "edit mode " << ( _editMode ? "ON" : "OFF" ) << std::endl;
+
+		if( !_editMode )
+		{
+			//TODO: interrupt any ongoing drag operations, finder, etc., deselect all nodes...
+
+			_closeFinder = false;
+			_exitContextMenu = true;
+
+			_sticky = nullptr;
+
+			for( auto it : _selectedDrawers )
+				it->setDragging( false );
 		}
 	}
 }

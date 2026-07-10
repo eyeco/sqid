@@ -28,6 +28,9 @@ namespace sqid
 		const glm::vec3 BackgroundColor;
 		const glm::vec3 GridColor;
 
+		const glm::vec3 BackgroundColorEdit;
+		const glm::vec3 GridColorEdit;
+
 		const glm::vec3 SelectionLineColor;
 		const glm::vec3 SelectionFillColor;
 		const float SelectionFillOpacity;

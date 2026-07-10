@@ -118,9 +118,9 @@ namespace sqid
 		return true;
 	}
 
-	bool PinDrawer::drawUI()
+	bool PinDrawer::drawTooltip()
 	{
-		bool ret = GUI::Element::drawUI();
+		bool ret = GUI::Hoverable::drawTooltip();
 
 		if( getHovered() )
 		{
@@ -129,6 +129,8 @@ namespace sqid
 
 			auto pin = getPin();
 			ImGui::SetTooltip( "%s [%d x %s]:\n%s", pin->getName().c_str(), pin->getDataCntr(), pin->getTypeShorteName().c_str(), pin->getContentDesc().c_str() );
+
+			return true;
 		}
 
 		return ret;
