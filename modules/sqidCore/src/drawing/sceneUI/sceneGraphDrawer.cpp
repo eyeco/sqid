@@ -898,8 +898,6 @@ namespace sqid
 				h->drawTooltip();
 		}
 
-		ScopedImGuiDisable disable( !_editMode );
-
 		if( _openFinder )
 		{
 			ImGui::SetNextWindowPos( ImVec2( ( App().getWindowSize().x - getUIStyle()->FinderWidth ) / 2.0f, App().getWindowSize().y / 2.0f ) );
@@ -980,6 +978,8 @@ namespace sqid
 
 		if( ImGui::Begin( "Inspector" ) )
 		{
+			ScopedImGuiDisable disable( !_editMode );
+
 			for( auto it : _elements )
 				if( it->drawUI() )
 					ImGui::Separator();
