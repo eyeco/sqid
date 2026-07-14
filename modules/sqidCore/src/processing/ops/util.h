@@ -416,6 +416,47 @@ namespace sqid
 			DECLARE_OP_DESC;
 		};
 
+		class Edge : public Op
+		{
+		public:
+			enum Mode
+			{
+				M_BOTH,
+				M_RISE,
+				M_FALL,
+
+				M_COUNT
+			};
+
+			static const char* modeToString( Mode mode );
+			static Mode modeFromString( const char* s );
+			static Mode modeFromString( const std::string& s );
+
+		private:
+			Mode _mode;
+
+			bool _continuous;
+			float _threshold;
+
+			SampleFrame *_prevFrame;
+
+		protected:
+			virtual bool process();
+
+		public:
+			Edge();
+			virtual ~Edge();
+
+#ifdef __SUPPORT_GUI
+			virtual bool drawUI();
+#endif
+
+			virtual bool loadFromJSON( const nlohmann::json &j );
+			virtual bool saveToJSON( nlohmann::json &j ) const;
+
+			DECLARE_OP_DESC;
+		};
+
 		class OnOff : public Op
 		{
 		private:
