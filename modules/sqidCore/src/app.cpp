@@ -569,9 +569,7 @@ namespace sqid
 						App().setDrawGrid( b );
 
 					if( ImGui::MenuItem( "Display debug info", NULL, _sgd->getDrawDebug() ) )
-					{
 						_sgd->setDrawDebug( !_sgd->getDrawDebug() );
-					}
 
 					b = App().getDrawStatusBar();
 					if( ImGui::MenuItem( "Status bar", nullptr, &b ) )

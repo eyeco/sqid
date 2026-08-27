@@ -586,7 +586,7 @@ namespace sqid
 		}
 	};
 
-	FontSingleton &getFont()
+	static FontSingleton &getFont()
 	{
 		static FontSingleton singleton;
 		return singleton;

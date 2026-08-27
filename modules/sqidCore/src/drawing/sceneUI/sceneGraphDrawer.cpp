@@ -1326,16 +1326,18 @@ namespace sqid
 			return nullptr;
 
 		OpDrawer *od = createOpDrawer( op, glm::vec2() );
-		if( !od )
+		if( od )
+		{
+			od->setPos( ( App().getMVCanvasInv() * glm::vec4(
+				atScreenPos.x - od->getSize().x * 0.5f,
+				atScreenPos.y - od->getSize().y * 0.5f,
+				0, 1 ) ).xy );
+		}
+		else
 		{
 			_sg->destroy( op );
 			op = nullptr;
 		}
-
-		od->setPos( ( App().getMVCanvasInv() * glm::vec4(
-			atScreenPos.x - od->getSize().x * 0.5f,
-			atScreenPos.y - od->getSize().y * 0.5f,
-			0, 1 ) ).xy );
 
 		return od;
 	}
@@ -1347,16 +1349,18 @@ namespace sqid
 			return nullptr;
 
 		InterfaceDrawer *sd = createInterfaceDrawer( di, glm::vec2() );
-		if( !sd )
+		if( sd )
+		{
+			sd->setPos( ( App().getMVCanvasInv() * glm::vec4(
+				atScreenPos.x - sd->getSize().x * 0.5f,
+				atScreenPos.y - sd->getSize().y * 0.5f,
+				0, 1 ) ).xy );
+		}
+		else
 		{
 			_sg->destroyInterface( di );
 			di = nullptr;
 		}
-
-		sd->setPos( ( App().getMVCanvasInv() * glm::vec4(
-			atScreenPos.x - sd->getSize().x * 0.5f,
-			atScreenPos.y - sd->getSize().y * 0.5f,
-			0, 1 ) ).xy );
 
 		return sd;
 	}
