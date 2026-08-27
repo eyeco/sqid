@@ -747,7 +747,7 @@ namespace sqid
 				}
 				if( b )
 				{
-					ret = new SampleFrame( b->width(), b->height(), ts, b->depth() ) );
+					ret = new SampleFrame( b->width(), b->height(), ts, b->depth() );
 					ret->add( b, _t );
 				}
 
