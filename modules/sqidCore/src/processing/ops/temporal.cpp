@@ -452,9 +452,16 @@ namespace sqid
 			if( _useReversalResetsIntegral && dt > 0.000001f )
 			{
 				//calculate target slope
-				SampleFrame *slope = new SampleFrame( *target );
-				slope->sub( _prevTarget );
-				slope->div( dt );
+				SampleFrame *slope = nullptr;
+
+				if( _prevTarget )
+				{
+					slope = new SampleFrame( *target );
+					slope->sub( _prevTarget );
+					slope->div( dt );
+				}
+				else
+					slope = new SampleFrame( target->width(), target->height(), target->timeStamp(), target->depth() );
 
 				if( !dimensionsCompatible( slope, _prevTargetDir ) )
 					safeDelete( _prevTargetDir );
@@ -570,7 +577,7 @@ namespace sqid
 
 						if( v->timeStamp() == _prevValue->timeStamp() )
 						{
-							std::cerr << "<warning> received value with same timestamp as previous value - skipping update" << std::endl;
+							std::cerr << "<warning> received value with same timestamp as previous -- skipping update" << std::endl;
 						}
 						else
 						{

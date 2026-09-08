@@ -116,7 +116,10 @@ namespace sqid
 			glm::vec4 upperLeftWS = _mvCanvasInv * upperLeftSS;
 			glm::vec4 lowerRightWS = _mvCanvasInv * lowerRightSS;
 
-			glColor4f( _uis->GridColor[0], _uis->GridColor[1], _uis->GridColor[2], 1.0f );
+			if( _sgd->getEditMode() )
+				glColor4f( _uis->GridColorEdit[0], _uis->GridColorEdit[1], _uis->GridColorEdit[2], 1.0f );
+			else
+				glColor4f( _uis->GridColor[0], _uis->GridColor[1], _uis->GridColor[2], 1.0f );
 
 			for( int p = 3; p > 0; p-- )
 			{
@@ -443,6 +446,11 @@ namespace sqid
 	{
 		_frameCntr++;
 
+		if( _sgd->getEditMode() )
+			glClearColor( _uis->BackgroundColorEdit[0], _uis->BackgroundColorEdit[1], _uis->BackgroundColorEdit[2], 1.0f );
+		else
+			glClearColor( _uis->BackgroundColor[0], _uis->BackgroundColor[1], _uis->BackgroundColor[2], 1.0f );
+
 		glViewport( 0, 0, App().getWindowSize().x, App().getWindowSize().y );
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -531,6 +539,11 @@ namespace sqid
 
 				if( ImGui::BeginMenu( "Edit" ) )
 				{
+					if( ImGui::MenuItem( "Edit mode", "Ctrl+E", _sgd->getEditMode() ) )
+					{
+						_sgd->setEditMode( !_sgd->getEditMode() );
+					}
+
 					if( ImGui::MenuItem( "Copy", "Ctrl+C" ) )
 					{
 						_sgd->copyToClipboard();
@@ -556,9 +569,7 @@ namespace sqid
 						App().setDrawGrid( b );
 
 					if( ImGui::MenuItem( "Display debug info", NULL, _sgd->getDrawDebug() ) )
-					{
 						_sgd->setDrawDebug( !_sgd->getDrawDebug() );
-					}
 
 					b = App().getDrawStatusBar();
 					if( ImGui::MenuItem( "Status bar", nullptr, &b ) )
@@ -769,8 +780,6 @@ namespace sqid
 
 		glPointSize( 4 );
 		glLineWidth( 1 );
-
-		glClearColor( _uis->BackgroundColor[0], _uis->BackgroundColor[1], _uis->BackgroundColor[2], 1.0f );
 
 		glDisable( GL_TEXTURE_2D );
 		glDisable( GL_LIGHTING );

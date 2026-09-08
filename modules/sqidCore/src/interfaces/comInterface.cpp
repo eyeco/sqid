@@ -140,15 +140,15 @@ namespace sqid
 						while( _keepRunning )
 						{
 							{
-								std::lock_guard<std::mutex> lock( _readMsgMutex );
+								std::lock_guard<std::mutex> lock( _writeMsgMutex );
 
 								while( _writeMsgQueue.size() )
 								{
 									ComMsg &msg = _writeMsgQueue.front();
 
-									write( (uint8_t*) syncBytes, SYNC_BYTES );						//send sync bytes
-									write( (uint8_t*) &( msg.hdr ), (int) sizeof( ComMsgHdrEx ) );	//send header
-									write( (uint8_t*) msg.data, msg.hdr.hdr.dataBytes );			//send data
+									writeSerial( (uint8_t*) syncBytes, SYNC_BYTES );						//send sync bytes
+									writeSerial( (uint8_t*) &( msg.hdr ), (int) sizeof( ComMsgHdrEx ) );	//send header
+									writeSerial( (uint8_t*) msg.data, msg.hdr.hdr.dataBytes );				//send data
 
 									safeDeleteArray( msg.data );
 									_writeMsgQueue.pop_front();
@@ -267,7 +267,7 @@ namespace sqid
 											//discard previously peeked bytes
 											_buffer.get( &_dataBuffer[0], _expectedBytes );
 
-											ComMsg msg;
+											ComMsg msg = {};
 											msg.hdr = _hdrEx;
 											msg.data = new unsigned char[_expectedBytes];
 											memcpy( msg.data, &_dataBuffer[0], _expectedBytes );
@@ -326,7 +326,7 @@ namespace sqid
 				_port.close();
 			}
 
-			bool write( const unsigned char* data, size_t size )
+			bool writeSerial( const unsigned char* data, size_t size )
 			{
 				if( !_port.isOpen() )
 					return false;

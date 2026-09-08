@@ -736,7 +736,7 @@ namespace sqid
 						std::cerr << "<error> could not erase object " << guidToString( it->getObjectID() ) << " from map" << std::endl;
 
 						std::cerr << "currently known ops in map are: " << std::endl;
-						for( auto it : _guidMap )
+						for( const auto &it : _guidMap )
 							std::cerr << "    " << guidToString( it.first ) << " (" << it.second->getObjectID() << ")" << std::endl;
 
 						return false;

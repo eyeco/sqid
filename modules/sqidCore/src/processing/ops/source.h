@@ -62,7 +62,7 @@ namespace sqid
 
 		void updateStats( float dt );
 
-		bool isOffline();
+		bool isOffline() const;
 		void setSourceDesc( const std::string &desc ) { _sourceDesc = desc; }
 
 		DataInterfaceType getInterface() const { return _interface; }

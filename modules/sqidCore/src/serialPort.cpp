@@ -101,7 +101,16 @@ namespace sqid
 
 			size_t write( const uint8_t *data, size_t size )
 			{
-				return _serialPort.write( data, size );
+				try
+				{
+					return _serialPort.write( data, size );
+				}
+				catch( std::exception& e )
+				{
+					std::cerr << "serial::serial::write failed (" << ( _serialPort.isOpen() ? "open" : "NOT open" ) << std::endl;
+					throw e;
+				}
+				return -1;
 			}
 
 

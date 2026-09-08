@@ -140,7 +140,7 @@ namespace sqid
 				_detector->detect( m, keypoints );
 
 				std::vector<State> observations;
-				for( auto k : keypoints )
+				for( const auto &k : keypoints )
 					observations.push_back( State( cv2glm( k.pt ), k.size, k.angle ) );
 				float time = sf->timeStamp() * 0.001f;
 

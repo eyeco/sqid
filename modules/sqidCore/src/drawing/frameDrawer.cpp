@@ -851,6 +851,9 @@ namespace sqid
 		if( !_sf )
 			return;
 
+		if( _texName == ~0x00 )
+			return;
+
 		glBindTexture( GL_TEXTURE_2D, _texName );
 		glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, _texWidth, _texHeight, _texFormat, _texType, _sf->values() );
 		glBindTexture( GL_TEXTURE_2D, 0 );
@@ -1215,10 +1218,7 @@ namespace sqid
 	void HistoryDrawerMap::draw( FrameBuffer *fb, size_t width, size_t height )
 	{
 		if( _texName == ~0x00 )
-		{
-			std::cerr << "<error> texture not initialized" << std::endl;
 			return;
-		}
 
 		if( fb )
 			fb->activate();

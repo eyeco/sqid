@@ -22,8 +22,11 @@ namespace sqid
 	UIStyle::UIStyle() :
 		FinderWidth( 300 ),
 
-		BackgroundColor( fromHex( 0x303030 ) ),
-		GridColor( fromHex( 0x252525 ) ),
+		BackgroundColor( fromHex( 0xcfcfcf ) ),
+		GridColor( fromHex( 0xc5c5c5 ) ),
+
+		BackgroundColorEdit( fromHex( 0x303030 ) ),
+		GridColorEdit( fromHex( 0x252525 ) ),
 
 		SelectionLineColor( fromHex( 0x40407f ) ),
 		SelectionFillColor( fromHex( 0x20207f ) ),

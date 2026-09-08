@@ -56,6 +56,8 @@ namespace sqid
 			"177C4CCC-5D3D-4B6A-AF57-B343F1AB7D6E" );
 		DEFINE_OP_DESC( Flip, "flip", "/util",
 			"78F966FE-8E2B-4E4E-A6D0-98F5A8DC76A6" );
+		DEFINE_OP_DESC( Edge, "edge", "/util",
+			"73D5C191-5A33-4861-B308-770EC3C9823E" );
 		DEFINE_OP_DESC( OnOff, "onOff", "/util",
 			"D398DBB1-60E8-4867-ACFB-0D0356890F44" );
 		DEFINE_OP_DESC( FlipFlop, "flipFlop", "/util",
@@ -1634,8 +1636,152 @@ namespace sqid
 
 
 
-		
-	
+
+		const char* Edge::modeToString( Edge::Mode mode )
+		{
+			switch( mode )
+			{
+			case Edge::M_BOTH:
+				return "both";
+			case Edge::M_RISE:
+				return "rise";
+			case Edge::M_FALL:
+				return "fall";
+			}
+			return "UNKNOWN";
+		}
+
+		Edge::Mode Edge::modeFromString( const char* s )
+		{
+			if( !s )
+				return Edge::M_COUNT;
+
+			for( int i = 0; i < Edge::M_COUNT; i++ )
+				if( !_stricmp( s, modeToString( (Edge::Mode) i ) ) )
+					return (Edge::Mode) i;
+
+			return Edge::M_COUNT;
+		}
+
+		Edge::Mode Edge::modeFromString( const std::string& s )
+		{
+			return modeFromString( s.c_str() );
+		}
+
+		Edge::Edge() :
+			Op(),
+			_mode( M_BOTH ),
+			_continuous( true ),
+			_threshold( 0.5f ),
+			_prevFrame( nullptr )
+		{}
+
+		Edge::~Edge()
+		{
+			safeDelete( _prevFrame );
+		}
+
+#ifdef __SUPPORT_GUI
+		bool Edge::drawUI()
+		{
+			int m = _mode;
+			for( int i = 0; i < M_COUNT; i++ )
+				ImGui::RadioButton( modeToString( (Mode) i ), &m, i );
+			if( _mode != m )
+				_mode = (Mode) m;
+
+			if( ImGui::SliderFloat( "threshold", &_threshold, 0.0f, 1.0f ) )
+				_threshold = std::max( 0.0f, _threshold );
+
+			ImGui::Checkbox( "continuous", &_continuous );
+
+			return true;
+		}
+#endif
+
+		bool Edge::process()
+		{
+			SampleFrame *sf = fetchInput<SampleFrame>( "in" );
+
+			if( sf )
+			{
+				SampleFrame *ret = new SampleFrame( sf->width(), sf->height(), sf->timeStamp(), sf->depth() );
+
+				if( _prevFrame && !dimensionsCompatible( _prevFrame, sf ) )
+					safeDelete( _prevFrame );
+
+				if( _prevFrame )
+				{
+					bool edgeFound = false;
+					size_t size = sf->size();
+					const float *ptrPrev = _prevFrame->values();
+					const float *ptrCurr = sf->values();
+					float* ptrOut = ret->values();
+					for( int i = 0; i < size; i++, ptrPrev++, ptrCurr++, ptrOut++ )
+					{
+						float diff = *ptrCurr - *ptrPrev;
+						if( _mode == M_BOTH )
+							diff = abs( diff );
+						else if( _mode == M_RISE )
+						{}
+						else if( _mode == M_FALL )
+							diff = -diff;
+						else
+							std::cerr << "<error> unknown edge detection mode" << std::endl;
+
+						if( diff > _threshold || ( _threshold > 0.0f && diff == _threshold ) )
+						{
+							*ptrOut = 1.0f;
+							edgeFound = true;
+						}
+					}
+
+					if( !_continuous && !edgeFound )
+						safeDelete( ret );
+
+					safeDelete( _prevFrame );
+				}
+
+				_prevFrame = sf;
+
+				if( ret )
+				{
+					drawFrame( ret );
+					pushOutput( "out", ret );
+
+					safeDelete( ret );
+				}
+			}
+
+			return inputPending( "in" );
+		}
+
+		bool Edge::loadFromJSON( const nlohmann::json& j )
+		{
+			bool ret = Op::loadFromJSON( j );
+
+			std::string str;
+			if( load<std::string>( j, "mode", str ) )
+				_mode = modeFromString( str );
+			load<bool>( j, "continuous", _continuous );
+			load<float>( j, "threshold", _threshold );
+
+			return ret;
+		}
+
+		bool Edge::saveToJSON( nlohmann::json& j ) const
+		{
+			bool ret = Op::saveToJSON( j );
+
+			save( j, "mode", modeToString( _mode ) );
+			save( j, "continuous", _continuous );
+			save( j, "threshold", _threshold );
+
+			return ret;
+		}
+
+
+
 
 
 		OnOff::OnOff( float threshold ) :

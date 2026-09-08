@@ -57,6 +57,7 @@ namespace sqid
 		REGISTER_OP_TYPE( Util::Flatten );
 		REGISTER_OP_TYPE( Util::Reshape );
 		REGISTER_OP_TYPE( Util::Flip );
+		REGISTER_OP_TYPE( Util::Edge );
 		REGISTER_OP_TYPE( Util::OnOff );
 		REGISTER_OP_TYPE( Util::FlipFlop );
 		REGISTER_OP_TYPE( Util::SampleAndHold );

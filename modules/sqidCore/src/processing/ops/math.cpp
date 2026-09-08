@@ -739,20 +739,25 @@ namespace sqid
 
 				uint32_t ts = max( a ? a->timeStamp() : 0, b ? b->timeStamp() : 0 );
 
-				SampleFrame *ret = ( a ?
-					new SampleFrame( a->width(), a->height(), ts, a->depth() ) :
-					new SampleFrame( b->width(), b->height(), ts, b->depth() ) );
-
+				SampleFrame *ret = nullptr;
 				if( a )
+				{
+					ret = new SampleFrame( a->width(), a->height(), ts, a->depth() );
 					ret->add( a, 1 - _t );
+				}
 				if( b )
+				{
+					ret = new SampleFrame( b->width(), b->height(), ts, b->depth() );
 					ret->add( b, _t );
+				}
 
-				drawFrame( ret );
+				if( ret )
+				{
+					drawFrame( ret );
+					pushOutput( "out", ret );
+				}
 
-				pushOutput( "out", ret );
 				safeDelete( ret );
-
 				safeDelete( a );
 				safeDelete( b );
 			}

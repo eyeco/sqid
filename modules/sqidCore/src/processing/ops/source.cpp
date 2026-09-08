@@ -134,7 +134,7 @@ namespace sqid
 		}
 	}
 
-	bool Source::isOffline()
+	bool Source::isOffline() const
 	{
 		if( _timeout < 0 )
 			return false;
@@ -147,7 +147,7 @@ namespace sqid
 		if( !Op::drawUI() )
 			return false;
 
-		auto items = getDataInterfaceComboItems();
+		std::vector<const char*> items = getDataInterfaceComboItems();
 		items.push_back( "<none>" );
 		int index = (int) _interface;
 
