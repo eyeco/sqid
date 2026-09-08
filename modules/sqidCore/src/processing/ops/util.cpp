@@ -260,7 +260,8 @@ namespace sqid
 			Op(),
 			_lastA( nullptr ),
 			_lastB( nullptr ),
-			_mode( M_OR )
+			_mode( M_OR ),
+			_useLatest( true )
 		{}
 
 		Sync::~Sync()
@@ -288,6 +289,8 @@ namespace sqid
 				if( ImGui::RadioButton( Sync::modeToString( (Sync::Mode) i ), i == _mode ) )
 					_mode = (Sync::Mode) i;
 
+			ImGui::Checkbox( "use latest frames", &_useLatest );
+
 			return true;
 		}
 #endif
@@ -297,20 +300,27 @@ namespace sqid
 			SampleFrame *a = nullptr;
 			SampleFrame *b = nullptr;
 
-			//TODO: provide other sync modes as well, this one should do it for starters....
-			//get last in queue in input pin A
-			do
+			//TODO: provide other sync modes as well, these ones should do it for starters....
+			if( _useLatest )
 			{
-				safeDelete( a );
+				//get last in queue in input pin A
+				do
+				{
+					safeDelete( a );
+					a = fetchInput<SampleFrame>( "a" );
+				} while( inputPending( "a" ) );
+				//get last in queue in input pin B
+				do
+				{
+					safeDelete( b );
+					b = fetchInput<SampleFrame>( "b" );
+				} while( inputPending( "b" ) );
+			}
+			else
+			{
 				a = fetchInput<SampleFrame>( "a" );
-			} while( inputPending( "a" ) );
-			//get last in queue in input pin B
-			do
-			{
-				safeDelete( b );
 				b = fetchInput<SampleFrame>( "b" );
-			} while( inputPending( "b" ) );
-
+			}
 
 			if( a )
 			{
@@ -362,6 +372,8 @@ namespace sqid
 			if( load<std::string>( j, "mode", str ) )
 				_mode = modeFromString( str );
 
+			load<bool>( j, "useLatest", _useLatest );
+
 			return ret;
 		}
 
@@ -370,6 +382,7 @@ namespace sqid
 			bool ret = Op::saveToJSON( j );
 
 			save( j, "mode", modeToString( _mode ) );
+			save( j, "useLatest", _useLatest );
 
 			return ret;
 		}

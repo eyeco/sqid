@@ -97,6 +97,8 @@ namespace sqid
 
 			Mode _mode;
 
+			bool _useLatest;
+
 		protected:
 			virtual bool process();
 
