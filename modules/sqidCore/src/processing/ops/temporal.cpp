@@ -577,7 +577,7 @@ namespace sqid
 
 						if( v->timeStamp() == _prevValue->timeStamp() )
 						{
-							std::cerr << "<warning> received value with same timestamp as previous -- skipping update" << std::endl;
+							//std::cerr << "<warning> received value with same timestamp as previous -- skipping update" << std::endl;
 						}
 						else
 						{
